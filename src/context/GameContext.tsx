@@ -114,15 +114,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       const player = state.players[playerIndex];
       let updatedPlayer = { ...player };
       let newPenaltyRecord: PenaltyRecord | null = null;
-      // Use GameEngine for scoring logic first
-      const { updatedPlayer: scoredPlayer } = GameEngine.applyPlayerScore(
-        updatedPlayer,
-        score,
-        scoringType === "single" ? ScoringType.SINGLE_PIN : ScoringType.MULTIPLE_PINS
-      );
-      updatedPlayer = scoredPlayer;
-      
-      // Then handle consecutive misses and elimination
+      // Handle consecutive misses and elimination first
       if (score === 0) {
         updatedPlayer.consecutiveMisses = (player.consecutiveMisses || 0) + 1;
         if (updatedPlayer.consecutiveMisses >= 3) {
@@ -137,6 +129,21 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       } else {
         updatedPlayer.consecutiveMisses = 0;
       }
+      
+      // Use GameEngine for scoring logic, but preserve elimination state and consecutive misses
+      const { updatedPlayer: scoredPlayer } = GameEngine.applyPlayerScore(
+        updatedPlayer,
+        score,
+        scoringType === "single" ? ScoringType.SINGLE_PIN : ScoringType.MULTIPLE_PINS
+      );
+      // Preserve the eliminated property and consecutive misses from our logic
+      if (updatedPlayer.eliminated) {
+        scoredPlayer.eliminated = true;
+      }
+      if (updatedPlayer.consecutiveMisses !== undefined) {
+        scoredPlayer.consecutiveMisses = updatedPlayer.consecutiveMisses;
+      }
+      updatedPlayer = scoredPlayer;
       const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
 
