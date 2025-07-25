@@ -55,7 +55,7 @@ export function GamePlayPanel({
     return null;
   }
 
-  const getPointsNeeded = (score: number): number => Math.max(0, 50 - score);
+
 
   const getPlayerStatus = (player: Player, index: number): string => {
     if (player.eliminated) return "Eliminated";
@@ -142,7 +142,7 @@ export function GamePlayPanel({
             ) : (
               // Team mode - show teams grouped
               <div className="space-y-3">
-                {teams?.map((team, teamIndex) => (
+                {teams?.map((team, _teamIndex) => (
                   <div key={team.id} className="border rounded-lg p-2">
                     {/* Team Header */}
                     <div className={`flex items-center justify-between mb-2 p-1 rounded ${team.isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>

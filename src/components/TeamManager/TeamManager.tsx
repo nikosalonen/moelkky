@@ -36,10 +36,7 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
     setTimeout(() => setError(null), 3000);
   };
 
-  // Generate unique ID for new teams
-  const generateTeamId = (): string => {
-    return `team_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  };
+
 
   // Get available players (not assigned to any team)
   const getAvailablePlayers = (): Player[] => {
@@ -297,7 +294,7 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
   };
 
   // Handle saving player reorder
-  const handleSaveReorder = (teamId: string) => {
+  const handleSaveReorder = (_teamId: string) => {
     setReorderingTeam(null);
     addToast({
       type: "success",

@@ -37,7 +37,6 @@ function GameApp() {
     submitScore,
     applyPenalty,
     newGame,
-    resetGame,
     resetToSetup,
   } = gameFlow;
 

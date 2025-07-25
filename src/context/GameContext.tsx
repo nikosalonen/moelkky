@@ -28,11 +28,8 @@ import {
   hasPlayerWon,
   hasTeamWon,
   getNextPlayerIndex,
-  getNextTeamIndex,
-  getNextPlayerInTeam,
   completeGame,
   resetPlayersForNewGame,
-  resetTeamsForNewGame,
   reorderPlayersByPreviousScores,
 } from "../utils/gameStateUtils";
 import { GameEngine, ScoringType } from "../utils/gameLogic";
