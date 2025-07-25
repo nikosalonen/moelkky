@@ -150,6 +150,32 @@ describe("applyScore", () => {
   });
 });
 
+describe("applyScore edge cases", () => {
+  let player: Player;
+  beforeEach(() => {
+    player = createPlayer("Edge Player");
+  });
+
+  it("should reset to 25 when player is at 49 and scores 2", () => {
+    player.score = 49;
+    const updatedPlayer = applyScore(player, 2);
+    expect(updatedPlayer.score).toBe(25);
+  });
+
+  it("should reset to 25 when player is at 48 and scores 2", () => {
+    player.score = 48;
+    const updatedPlayer = applyScore(player, 2);
+    expect(updatedPlayer.score).toBe(25);
+  });
+
+  it("should remain 50 when player is at 50 and scores 0", () => {
+    player.score = 50;
+    const updatedPlayer = applyScore(player, 0);
+    expect(updatedPlayer.score).toBe(50);
+    expect(hasPlayerWon(updatedPlayer)).toBe(true);
+  });
+});
+
 describe("applyPenalty", () => {
   it("should reset score to 25 and increment penalty count", () => {
     const player = createPlayer("Test Player");
