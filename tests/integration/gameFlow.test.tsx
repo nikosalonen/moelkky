@@ -242,7 +242,7 @@ describe("Game Flow Control System Integration", () => {
       fireEvent.click(penaltyButton);
 
       // Confirm penalty in modal
-      const confirmButton = screen.getByRole("button", { name: /apply/i });
+      const confirmButton = screen.getByRole("button", { name: /confirm penalty/i });
       fireEvent.click(confirmButton);
 
       // Should advance to Bob's turn

@@ -91,16 +91,16 @@ describe("validateSinglePinScore", () => {
     }
   });
 
-  it("should reject score below 1", () => {
+  it("should accept score of 0", () => {
     const result = validateSinglePinScore(0);
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe("Single pin score must be between 1 and 12");
+    expect(result.isValid).toBe(true);
+    expect(result.error).toBeUndefined();
   });
 
   it("should reject score above 12", () => {
     const result = validateSinglePinScore(13);
     expect(result.isValid).toBe(false);
-    expect(result.error).toBe("Single pin score must be between 1 and 12");
+    expect(result.error).toBe("Single pin score must be between 0 and 12");
   });
 
   it("should reject non-integer scores", () => {
@@ -112,7 +112,7 @@ describe("validateSinglePinScore", () => {
   it("should reject negative scores", () => {
     const result = validateSinglePinScore(-1);
     expect(result.isValid).toBe(false);
-    expect(result.error).toBe("Single pin score must be between 1 and 12");
+    expect(result.error).toBe("Single pin score must be between 0 and 12");
   });
 });
 
@@ -163,10 +163,10 @@ describe("validateScore", () => {
     expect(result.error).toBeUndefined();
   });
 
-  it("should reject invalid single pin score", () => {
+  it("should accept valid single pin score including 0", () => {
     const result = validateScore(0, true);
-    expect(result.isValid).toBe(false);
-    expect(result.error).toBe("Single pin score must be between 1 and 12");
+    expect(result.isValid).toBe(true);
+    expect(result.error).toBeUndefined();
   });
 
   it("should reject invalid multiple pin score", () => {

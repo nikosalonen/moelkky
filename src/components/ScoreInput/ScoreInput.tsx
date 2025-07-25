@@ -121,6 +121,20 @@ export function ScoreInput({
     const max = 12;
     const buttons = [];
 
+    // Add "None" button for 0 points (only in single pin mode)
+    if (inputMethod === "single") {
+      buttons.push(
+        <button
+          key="none"
+          onClick={() => setScoreValue("0")}
+          disabled={isSubmitting}
+          className="w-12 h-12 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+        >
+          None
+        </button>
+      );
+    }
+
     for (let i = min; i <= max; i++) {
       buttons.push(
         <button
@@ -232,10 +246,12 @@ export function ScoreInput({
             value={scoreValue}
             onInput={(e) => setScoreValue((e.target as HTMLInputElement).value)}
             onKeyDown={handleKeyPress}
-            placeholder={`Enter score (${
-              inputMethod === "single" ? "1-12" : "2-12"
-            })`}
-            min={inputMethod === "single" ? 1 : 2}
+            placeholder={
+              inputMethod === "single" 
+                ? "Enter score (0-12)" 
+                : "Number of pins (2-12)"
+            }
+            min={inputMethod === "single" ? 0 : 2}
             max={12}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={isSubmitting}
@@ -246,7 +262,7 @@ export function ScoreInput({
             disabled={!scoreValue.trim() || isSubmitting}
             className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-colors duration-200"
           >
-            {isSubmitting ? "Submitting..." : "Submit Score"}
+            Submit Score
           </button>
         </div>
       </div>
@@ -291,7 +307,7 @@ export function ScoreInput({
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Applying..." : "Apply Penalty"}
+                {isSubmitting ? "Applying..." : "Confirm Penalty"}
               </button>
             </div>
           </div>

@@ -67,10 +67,10 @@ export function validateSinglePinScore(score: number): {
     };
   }
 
-  if (score < 1 || score > 12) {
+  if (score < 0 || score > 12) {
     return {
       isValid: false,
-      error: "Single pin score must be between 1 and 12",
+      error: "Single pin score must be between 0 and 12",
     };
   }
 
