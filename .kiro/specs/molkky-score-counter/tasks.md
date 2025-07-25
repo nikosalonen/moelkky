@@ -85,7 +85,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 3.6_
 
-- [ ] 10. Build WinnerDisplay component
+- [x] 10. Build WinnerDisplay component
 
   - Create winner announcement interface when player reaches 50 points
   - Display final scores for all players
@@ -96,7 +96,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 7.1, 7.2_
 
-- [ ] 11. Implement GameHistory component
+- [x] 11. Implement GameHistory component
 
   - Create modal/overlay for displaying game history
   - Show list of completed games with winner, scores, and duration

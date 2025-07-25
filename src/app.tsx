@@ -5,11 +5,13 @@
  * @format
  */
 
+import { useState } from "preact/hooks";
 import { GameProvider, useGameFlow, usePlayerManagement } from "./hooks";
 import { PlayerManager } from "./components/PlayerManager/PlayerManager";
 import { GameBoard } from "./components/GameBoard/GameBoard";
 import { ScoreInput } from "./components/ScoreInput/ScoreInput";
 import { WinnerDisplay } from "./components/WinnerDisplay";
+import { GameHistory } from "./components/GameHistory";
 import "./app.css";
 
 /**
@@ -31,6 +33,9 @@ function GameApp() {
   } = gameFlow;
 
   const { players } = playerManagement;
+
+  // State for game history modal
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false);
 
   /**
    * Handle starting a new game
@@ -88,7 +93,21 @@ function GameApp() {
           </p>
         </header>
 
-        {/* Game History Button - TODO: Implement in task 11 */}
+        {/* Game History Button */}
+        <div className="text-center mb-6">
+          <button
+            onClick={() => setIsHistoryVisible(true)}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            📊 View Game History
+          </button>
+        </div>
+
+        {/* Game History Modal */}
+        <GameHistory
+          isVisible={isHistoryVisible}
+          onClose={() => setIsHistoryVisible(false)}
+        />
 
         {/* Game State: Setup */}
         {gameState === "setup" && (
