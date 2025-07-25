@@ -53,7 +53,7 @@
   - Write component tests for all player management features
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.4, 7.4, 9.1, 9.2_
 
-- [ ] 7. Implement GameBoard component
+- [x] 7. Implement GameBoard component
 
   - Create score display showing all players and current scores
   - Add visual indicator for current player's turn
@@ -61,6 +61,7 @@
   - Implement responsive layout for different screen sizes
   - Style with Tailwind CSS and add visual feedback
   - Write component tests for score display and turn indication
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 9.1, 9.2, 9.3_
 
 - [ ] 8. Build ScoreInput component
@@ -71,6 +72,7 @@
   - Add penalty button with confirmation dialog
   - Include visual feedback for score entry
   - Write component tests for all input scenarios and validation
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 3.1, 3.2, 3.3, 4.1, 4.2, 9.4, 9.5_
 
 - [ ] 9. Create game flow control system
@@ -80,6 +82,7 @@
   - Create game state transitions (setup → playing → finished)
   - Prevent player modifications during active gameplay
   - Write integration tests for complete game flow
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 3.6_
 
 - [ ] 10. Build WinnerDisplay component
@@ -90,6 +93,7 @@
   - Prevent further score entries after game completion
   - Style winner display with celebratory design
   - Write component tests for winner display and new game functionality
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 7.1, 7.2_
 
 - [ ] 11. Implement GameHistory component
@@ -100,6 +104,7 @@
   - Add close/dismiss functionality for history view
   - Style history component with responsive design
   - Write component tests for history display and interaction
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
 - [ ] 12. Create main App component and routing
@@ -109,6 +114,7 @@
   - Add navigation between different views (game, history)
   - Integrate all components with shared state management
   - Write integration tests for app-level functionality
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 13. Add responsive design and mobile optimization
@@ -118,6 +124,7 @@
   - Optimize input methods for mobile devices
   - Test and refine layouts across different screen sizes
   - Add CSS animations and transitions for better UX
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
 - [ ] 14. Implement error handling and user feedback
@@ -127,6 +134,7 @@
   - Implement form validation with clear error messages
   - Add loading states and visual feedback for user actions
   - Write tests for error scenarios and user feedback
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 1.4, 3.4, 9.5_
 
 - [ ] 15. Set up comprehensive testing suite
@@ -136,6 +144,7 @@
   - Create component tests using @testing-library/preact
   - Add integration tests for complete user workflows
   - Set up test coverage reporting
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: All requirements (testing coverage)_
 
 - [ ] 16. Configure GitHub Pages deployment
@@ -144,6 +153,7 @@
   - Configure Vite build for GitHub Pages with correct base path
   - Add deployment scripts and environment configuration
   - Test deployment process and verify live site functionality
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 9.1, 9.3_
 
 - [ ] 17. Add final polish and optimization
@@ -152,4 +162,5 @@
   - Implement accessibility improvements (ARIA labels, keyboard navigation)
   - Add final styling touches and animations
   - Perform cross-browser testing and bug fixes
+  - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
