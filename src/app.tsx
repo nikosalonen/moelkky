@@ -81,23 +81,23 @@ function GameApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 sm:p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+        <header className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">
             Mölkky Score Counter
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600 px-2">
             Track scores and manage your Mölkky games
           </p>
         </header>
 
         {/* Game History Button */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4 sm:mb-6">
           <button
             onClick={() => setIsHistoryVisible(true)}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            className="px-4 sm:px-6 py-3 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           >
             📊 View Game History
           </button>
@@ -111,7 +111,7 @@ function GameApp() {
 
         {/* Game State: Setup */}
         {gameState === "setup" && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Player Management */}
             <PlayerManager players={players} gameActive={false} />
 
@@ -120,7 +120,7 @@ function GameApp() {
               <button
                 onClick={handleStartGame}
                 disabled={!canStartGame}
-                className={`px-8 py-3 text-lg font-semibold rounded-lg transition-colors ${
+                className={`px-6 sm:px-8 py-4 sm:py-3 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation ${
                   canStartGame
                     ? "bg-green-500 text-white hover:bg-green-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -138,9 +138,9 @@ function GameApp() {
 
         {/* Game State: Playing */}
         {gameState === "playing" && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Game Board */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
               <GameBoard 
                 players={players}
                 currentPlayerIndex={gameFlow.currentPlayerIndex}
@@ -150,8 +150,8 @@ function GameApp() {
 
             {/* Score Input */}
             {currentPlayer && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold mb-4">
+              <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-center">
                   {currentPlayer.name}'s Turn
                 </h2>
                 <ScoreInput
@@ -163,8 +163,8 @@ function GameApp() {
             )}
 
             {/* Player modification prevention notice */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-yellow-800 text-sm">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+              <p className="text-yellow-800 text-xs sm:text-sm text-center">
                 <strong>Game in progress:</strong> Player modifications are
                 disabled during active gameplay.
               </p>
@@ -174,7 +174,7 @@ function GameApp() {
 
         {/* Game State: Finished */}
         {gameState === "finished" && winner && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Winner Display */}
             <WinnerDisplay
               winner={winner}

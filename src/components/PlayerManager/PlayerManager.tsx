@@ -123,13 +123,13 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   };
 
   return (
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">Players</h2>
+    <div class="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">Players</h2>
 
       {/* Error Display */}
       {error && (
         <div
-          class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+          class="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
           role="alert"
         >
           <span class="block sm:inline">{error}</span>
@@ -138,7 +138,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
 
       {/* Add Player Section */}
       {!gameActive && (
-        <div class="mb-6">
+        <div class="mb-4 sm:mb-6">
           <div class="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
@@ -148,14 +148,14 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               }
               onKeyDown={(e) => handleKeyPress(e, "add")}
               placeholder="Enter player name"
-              class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="flex-1 px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
               maxLength={50}
               disabled={gameActive}
             />
             <button
               onClick={handleAddPlayer}
               disabled={!newPlayerName.trim() || gameActive}
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px]"
+              class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
             >
               Add Player
             </button>
@@ -164,28 +164,28 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
       )}
 
       {/* Players List */}
-      <div class="space-y-3">
+      <div class="space-y-2 sm:space-y-3">
         {players.length === 0 ? (
-          <p class="text-gray-500 text-center py-4">
+          <p class="text-gray-500 text-center py-4 text-sm sm:text-base">
             No players added yet. Add at least 2 players to start a game.
           </p>
         ) : (
           players.map((player, index) => (
             <div
               key={player.id}
-              class={`flex items-center justify-between p-3 rounded-lg border ${
+              class={`flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3 rounded-lg border ${
                 player.isActive
                   ? "bg-blue-50 border-blue-200"
                   : "bg-gray-50 border-gray-200"
               }`}
             >
-              <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-3 mb-2 sm:mb-0">
                 <span class="text-sm font-medium text-gray-500 min-w-[20px]">
                   {index + 1}.
                 </span>
 
                 {editingPlayer === player.id ? (
-                  <div class="flex items-center space-x-2">
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
                     <input
                       type="text"
                       value={editingName}
@@ -193,58 +193,62 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
                         setEditingName((e.target as HTMLInputElement).value)
                       }
                       onKeyDown={(e) => handleKeyPress(e, "edit")}
-                      class="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      class="flex-1 px-2 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                       maxLength={50}
                       autoFocus
                     />
-                    <button
-                      onClick={handleSaveEdit}
-                      class="px-2 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      class="px-2 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                    >
-                      Cancel
-                    </button>
+                    <div class="flex space-x-2">
+                      <button
+                        onClick={handleSaveEdit}
+                        class="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        class="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div class="flex items-center space-x-2">
+                  <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                     <span
-                      class={`font-medium ${
+                      class={`font-medium text-sm sm:text-base ${
                         player.isActive ? "text-blue-700" : "text-gray-700"
                       }`}
                     >
                       {player.name}
                     </span>
-                    {player.isActive && (
-                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                        Current Turn
-                      </span>
-                    )}
-                    {gameActive && (
-                      <span class="text-sm text-gray-500">
-                        Score: {player.score}
-                      </span>
-                    )}
+                    <div class="flex flex-wrap gap-1 sm:gap-2">
+                      {player.isActive && (
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          Current Turn
+                        </span>
+                      )}
+                      {gameActive && (
+                        <span class="text-xs sm:text-sm text-gray-500">
+                          Score: {player.score}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Action Buttons */}
               {!gameActive && editingPlayer !== player.id && (
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                   <button
                     onClick={() => handleStartEdit(player)}
-                    class="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    class="px-3 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(player.id)}
-                    class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    class="px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
                   >
                     Remove
                   </button>
@@ -257,28 +261,28 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white rounded-lg p-4 sm:p-6 max-w-sm mx-4 w-full">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 sm:mb-4 text-center">
               Confirm Removal
             </h3>
-            <p class="text-gray-600 mb-6">
+            <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 text-center">
               Are you sure you want to remove{" "}
               <span class="font-medium">
                 {players.find((p) => p.id === showDeleteConfirm)?.name}
               </span>
               ? This action cannot be undone.
             </p>
-            <div class="flex justify-end space-x-3">
+            <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={() => setShowDeleteConfirm(null)}
-                class="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                class="px-4 py-3 sm:py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleRemovePlayer(showDeleteConfirm)}
-                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                class="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 Remove
               </button>
@@ -288,7 +292,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
       )}
 
       {/* Player Count Info */}
-      <div class="mt-4 text-sm text-gray-600">
+      <div class="mt-4 text-xs sm:text-sm text-gray-600 text-center">
         {players.length === 1 && <p>Add 1 more player to start a game.</p>}
         {players.length >= 2 && !gameActive && (
           <p class="text-green-600">

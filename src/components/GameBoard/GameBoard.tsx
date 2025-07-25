@@ -59,24 +59,24 @@ export function GameBoard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">
         Game Board
       </h2>
 
       {/* Mobile Layout - Stack cards vertically */}
-      <div className="block md:hidden space-y-4">
+      <div className="block md:hidden space-y-3 sm:space-y-4">
         {players.map((player, index) => (
           <div
             key={player.id}
-            className={`p-4 rounded-lg border-2 transition-all duration-200 ${getStatusClasses(
+            className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${getStatusClasses(
               player,
               index
             )}`}
           >
             <div className="flex justify-between items-start mb-2">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold truncate">
+                <h3 className="text-base sm:text-lg font-semibold truncate">
                   {player.name}
                 </h3>
                 {getPlayerStatus(player, index) && (
@@ -87,17 +87,17 @@ export function GameBoard({
               </div>
               <div className="text-right">
                 <div
-                  className={`text-2xl font-bold ${getScoreColor(
+                  className={`text-xl sm:text-2xl font-bold ${getScoreColor(
                     player.score
                   )}`}
                 >
                   {player.score}
                 </div>
-                <div className="text-sm text-gray-500">/ 50</div>
+                <div className="text-xs sm:text-sm text-gray-500">/ 50</div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-xs sm:text-sm">
               <span className="text-gray-600">
                 Points needed: {getPointsNeeded(player.score)}
               </span>
@@ -165,9 +165,9 @@ export function GameBoard({
       </div>
 
       {/* Game Progress Indicator */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-600">
-          <div className="mb-2 sm:mb-0">
+      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-600">
+          <div className="mb-2 sm:mb-0 text-center sm:text-left">
             {gameState === "playing" ? (
               <>
                 <span className="font-medium">Current Player:</span>{" "}

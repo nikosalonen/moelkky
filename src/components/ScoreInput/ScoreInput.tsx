@@ -128,7 +128,7 @@ export function ScoreInput({
           key="none"
           onClick={() => setScoreValue("0")}
           disabled={isSubmitting}
-          className="w-12 h-12 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+          className="w-14 h-14 sm:w-12 sm:h-12 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
         >
           None
         </button>
@@ -141,7 +141,7 @@ export function ScoreInput({
           key={i}
           onClick={() => setScoreValue(i.toString())}
           disabled={isSubmitting}
-          className="w-12 h-12 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+          className="w-14 h-14 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
         >
           {i}
         </button>
@@ -152,24 +152,24 @@ export function ScoreInput({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
         Score Entry
       </h2>
 
       {/* Current Player Display */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-blue-800 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-2">
             Current Player
           </h3>
-          <div className="text-2xl font-bold text-blue-900">
+          <div className="text-xl sm:text-2xl font-bold text-blue-900">
             {currentPlayer.name}
           </div>
-          <div className="text-sm text-blue-700 mt-1">
+          <div className="text-xs sm:text-sm text-blue-700 mt-1">
             Current Score: {currentPlayer.score} / 50
           </div>
-          <div className="text-sm text-blue-600">
+          <div className="text-xs sm:text-sm text-blue-600">
             Points Needed: {Math.max(0, 50 - currentPlayer.score)}
           </div>
         </div>
@@ -178,7 +178,7 @@ export function ScoreInput({
       {/* Error Display */}
       {error && (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+          className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
           role="alert"
         >
           <span className="block sm:inline">{error}</span>
@@ -186,8 +186,8 @@ export function ScoreInput({
       )}
 
       {/* Input Method Selection */}
-      <div className="mb-6">
-        <h4 className="text-lg font-medium text-gray-700 mb-3">
+      <div className="mb-4 sm:mb-6">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
           Scoring Method
         </h4>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -198,7 +198,7 @@ export function ScoreInput({
               setError(null);
             }}
             disabled={isSubmitting}
-            className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${
+            className={`flex-1 px-3 sm:px-4 py-3 sm:py-3 rounded-lg border-2 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation ${
               inputMethod === "single"
                 ? "bg-blue-500 text-white border-blue-500"
                 : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"
@@ -213,7 +213,7 @@ export function ScoreInput({
               setError(null);
             }}
             disabled={isSubmitting}
-            className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all duration-200 font-medium ${
+            className={`flex-1 px-3 sm:px-4 py-3 sm:py-3 rounded-lg border-2 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation ${
               inputMethod === "multiple"
                 ? "bg-blue-500 text-white border-blue-500"
                 : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"
@@ -222,7 +222,7 @@ export function ScoreInput({
             Multiple Pins (2-12)
           </button>
         </div>
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-xs sm:text-sm text-gray-600 mt-2 text-center">
           {inputMethod === "single"
             ? "Select the number on the single pin that was knocked down"
             : "Select the count of pins that were knocked down"}
@@ -230,16 +230,20 @@ export function ScoreInput({
       </div>
 
       {/* Number Buttons */}
-      <div className="mb-6">
-        <h4 className="text-lg font-medium text-gray-700 mb-3">Quick Select</h4>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
+      <div className="mb-4 sm:mb-6">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
+          Quick Select
+        </h4>
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2 sm:gap-2">
           {generateNumberButtons()}
         </div>
       </div>
 
       {/* Manual Input */}
-      <div className="mb-6">
-        <h4 className="text-lg font-medium text-gray-700 mb-3">Manual Entry</h4>
+      <div className="mb-4 sm:mb-6">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
+          Manual Entry
+        </h4>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="number"
@@ -253,14 +257,14 @@ export function ScoreInput({
             }
             min={inputMethod === "single" ? 0 : 2}
             max={12}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
             disabled={isSubmitting}
           />
           <button
             type="button"
             onClick={handleScoreSubmit}
             disabled={!scoreValue.trim() || isSubmitting}
-            className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-colors duration-200"
+            className="px-4 sm:px-6 py-3 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           >
             Submit Score
           </button>
@@ -268,44 +272,48 @@ export function ScoreInput({
       </div>
 
       {/* Penalty Section */}
-      <div className="border-t border-gray-200 pt-6">
-        <h4 className="text-lg font-medium text-gray-700 mb-3">Penalty</h4>
-        <p className="text-sm text-gray-600 mb-4">
+      <div className="border-t border-gray-200 pt-4 sm:pt-6">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
+          Penalty
+        </h4>
+        <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 text-center">
           Apply a penalty to reset the player's score to 25 points.
         </p>
-        <button
-          onClick={() => setShowPenaltyConfirm(true)}
-          disabled={isSubmitting}
-          className="w-full sm:w-auto px-6 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-colors duration-200"
-        >
-          Apply Penalty
-        </button>
+        <div className="text-center">
+          <button
+            onClick={() => setShowPenaltyConfirm(true)}
+            disabled={isSubmitting}
+            className="w-full sm:w-auto px-6 py-3 sm:py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+          >
+            Apply Penalty
+          </button>
+        </div>
       </div>
 
       {/* Penalty Confirmation Modal */}
       {showPenaltyConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-sm mx-4 w-full">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 sm:mb-4 text-center">
               Confirm Penalty
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 text-center">
               Are you sure you want to apply a penalty to{" "}
               <span className="font-medium">{currentPlayer.name}</span>? This
               will reset their score to 25 points.
             </p>
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={() => setShowPenaltyConfirm(false)}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 sm:py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handlePenalty()}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
               >
                 {isSubmitting ? "Applying..." : "Confirm Penalty"}
               </button>

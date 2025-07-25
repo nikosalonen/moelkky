@@ -107,7 +107,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 12. Create main App component and routing
+- [x] 12. Create main App component and routing
 
   - Build root App component that orchestrates all other components
   - Implement conditional rendering based on game state
