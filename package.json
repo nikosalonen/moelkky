@@ -17,8 +17,8 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
     "@tailwindcss/postcss": "^4.1.11",
-    "@testing-library/preact": "^3.2.3",
     "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/preact": "^3.2.3",
     "@types/node": "^20.10.0",
     "autoprefixer": "^10.4.21",
     "jsdom": "^23.0.1",

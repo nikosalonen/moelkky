@@ -9,6 +9,8 @@ import { useState } from "preact/hooks";
 import type { Player } from "../../utils/types";
 import { validatePlayerName } from "../../utils/validation";
 import { useGameContext } from "../../context/GameContext";
+import { useToast } from "../Toast";
+import { InlineSpinner } from "../LoadingSpinner";
 
 interface PlayerManagerProps {
   players: Player[];
@@ -18,6 +20,7 @@ interface PlayerManagerProps {
 
 export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   const { dispatch } = useGameContext();
+  const { addToast } = useToast();
   const [newPlayerName, setNewPlayerName] = useState("");
   const [editingPlayer, setEditingPlayer] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -25,6 +28,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Clear error after a delay
   const clearError = () => {
@@ -37,26 +41,53 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   };
 
   // Handle adding a new player
-  const handleAddPlayer = () => {
+  const handleAddPlayer = async () => {
+    if (isSubmitting) return;
+
     const validation = validatePlayerName(newPlayerName, players);
 
     if (!validation.isValid) {
       setError(validation.error || "Invalid player name");
+      addToast({
+        type: "error",
+        title: "Invalid Player Name",
+        message: validation.error || "Invalid player name",
+      });
       clearError();
       return;
     }
 
-    const newPlayer: Player = {
-      id: generatePlayerId(),
-      name: newPlayerName.trim(),
-      score: 0,
-      penalties: 0,
-      isActive: false,
-    };
+    setIsSubmitting(true);
 
-    dispatch({ type: "ADD_PLAYER", payload: newPlayer });
-    setNewPlayerName("");
-    setError(null);
+    try {
+      const newPlayer: Player = {
+        id: generatePlayerId(),
+        name: newPlayerName.trim(),
+        score: 0,
+        penalties: 0,
+        isActive: false,
+      };
+
+      dispatch({ type: "ADD_PLAYER", payload: newPlayer });
+      setNewPlayerName("");
+      setError(null);
+      
+      addToast({
+        type: "success",
+        title: "Player Added",
+        message: `Player "${newPlayer.name}" has been added successfully.`,
+      });
+    } catch (err) {
+      const errorMessage = "Failed to add player. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Failed to Add Player",
+        message: errorMessage,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle starting to edit a player name
@@ -69,29 +100,54 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   };
 
   // Handle saving edited player name
-  const handleSaveEdit = () => {
-    if (!editingPlayer) return;
+  const handleSaveEdit = async () => {
+    if (!editingPlayer || isSubmitting) return;
 
     const otherPlayers = players.filter((p) => p.id !== editingPlayer);
     const validation = validatePlayerName(editingName, otherPlayers);
 
     if (!validation.isValid) {
       setError(validation.error || "Invalid player name");
+      addToast({
+        type: "error",
+        title: "Invalid Player Name",
+        message: validation.error || "Invalid player name",
+      });
       clearError();
       return;
     }
 
-    dispatch({
-      type: "UPDATE_PLAYER",
-      payload: {
-        id: editingPlayer,
-        updates: { name: editingName.trim() },
-      },
-    });
+    setIsSubmitting(true);
 
-    setEditingPlayer(null);
-    setEditingName("");
-    setError(null);
+    try {
+      dispatch({
+        type: "UPDATE_PLAYER",
+        payload: {
+          id: editingPlayer,
+          updates: { name: editingName.trim() },
+        },
+      });
+
+      setEditingPlayer(null);
+      setEditingName("");
+      setError(null);
+      
+      addToast({
+        type: "success",
+        title: "Player Updated",
+        message: `Player name has been updated successfully.`,
+      });
+    } catch (err) {
+      const errorMessage = "Failed to update player. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Failed to Update Player",
+        message: errorMessage,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle canceling edit
@@ -102,11 +158,32 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   };
 
   // Handle removing a player
-  const handleRemovePlayer = (playerId: string) => {
-    if (gameActive) return;
+  const handleRemovePlayer = async (playerId: string) => {
+    if (gameActive || isSubmitting) return;
 
-    dispatch({ type: "REMOVE_PLAYER", payload: playerId });
-    setShowDeleteConfirm(null);
+    const playerToRemove = players.find(p => p.id === playerId);
+    if (!playerToRemove) return;
+
+    setIsSubmitting(true);
+
+    try {
+      dispatch({ type: "REMOVE_PLAYER", payload: playerId });
+      setShowDeleteConfirm(null);
+      
+      addToast({
+        type: "info",
+        title: "Player Removed",
+        message: `Player "${playerToRemove.name}" has been removed.`,
+      });
+    } catch (err) {
+      addToast({
+        type: "error",
+        title: "Failed to Remove Player",
+        message: "Failed to remove player. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle key press events
@@ -154,10 +231,17 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
             />
             <button
               onClick={handleAddPlayer}
-              disabled={!newPlayerName.trim() || gameActive}
-              class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+              disabled={!newPlayerName.trim() || gameActive || isSubmitting}
+              class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
             >
-              Add Player
+              {isSubmitting ? (
+                <>
+                  <InlineSpinner size="sm" variant="primary" />
+                  <span className="ml-2">Adding...</span>
+                </>
+              ) : (
+                "Add Player"
+              )}
             </button>
           </div>
         </div>
@@ -200,13 +284,22 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
                     <div class="flex space-x-2">
                       <button
                         onClick={handleSaveEdit}
-                        class="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                        disabled={isSubmitting}
+                        class="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center"
                       >
-                        Save
+                        {isSubmitting ? (
+                          <>
+                            <InlineSpinner size="sm" variant="primary" />
+                            <span className="ml-1">Saving...</span>
+                          </>
+                        ) : (
+                          "Save"
+                        )}
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        class="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                        disabled={isSubmitting}
+                        class="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
                       >
                         Cancel
                       </button>
@@ -282,9 +375,17 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               </button>
               <button
                 onClick={() => handleRemovePlayer(showDeleteConfirm)}
-                class="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                disabled={isSubmitting}
+                class="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
               >
-                Remove
+                {isSubmitting ? (
+                  <>
+                    <InlineSpinner size="sm" variant="primary" />
+                    <span className="ml-2">Removing...</span>
+                  </>
+                ) : (
+                  "Remove"
+                )}
               </button>
             </div>
           </div>

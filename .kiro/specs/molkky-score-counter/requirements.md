@@ -46,6 +46,8 @@ Mölkky is a Finnish throwing game where players attempt to knock down numbered 
 4. WHEN a player's score would exceed 50 points THEN the system SHALL reset their score to 25 points
 5. WHEN a player reaches exactly 50 points THEN the system SHALL declare them the winner and end the game
 6. WHEN a score is entered THEN the system SHALL advance to the next player's turn
+7. WHEN a player records zero points for three consecutive turns THEN the system SHALL eliminate that player from the game and display this in the UI and game history
+8. WHEN a player throws out of turn THEN the system SHALL void the result, and if their score is 37 or more, reset their score to 25, and display this in the UI
 
 ### Requirement 4
 

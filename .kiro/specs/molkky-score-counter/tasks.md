@@ -117,7 +117,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 13. Add responsive design and mobile optimization
+- [x] 13. Add responsive design and mobile optimization
 
   - Implement mobile-first responsive layouts for all components
   - Add touch-friendly button sizes and spacing
@@ -136,6 +136,23 @@
   - Write tests for error scenarios and user feedback
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 1.4, 3.4, 9.5_
+
+- [ ] 14a. Implement three consecutive misses elimination rule
+  - Track each player's consecutive zero-point turns
+  - Eliminate player after three consecutive misses
+  - Update UI and game history to reflect elimination
+  - _Requirements: Official Mölkky rules_
+
+- [ ] 14b. Implement out-of-turn throw penalty rule
+  - Void result for out-of-turn throws
+  - If player has 37 or more points, reset score to 25
+  - Add UI for recording/correcting out-of-turn throws
+  - _Requirements: Official Mölkky rules_
+
+- [ ] 14c. Clarify and test scoring edge cases
+  - Ensure over-50 resets to 25, exact-50 wins
+  - Add/adjust tests for these cases
+  - _Requirements: Official Mölkky rules_
 
 - [ ] 15. Set up comprehensive testing suite
 

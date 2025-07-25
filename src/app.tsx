@@ -12,6 +12,8 @@ import { GameBoard } from "./components/GameBoard/GameBoard";
 import { ScoreInput } from "./components/ScoreInput/ScoreInput";
 import { WinnerDisplay } from "./components/WinnerDisplay";
 import { GameHistory } from "./components/GameHistory";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ToastProvider, useToast } from "./components/Toast";
 import "./app.css";
 
 /**
@@ -20,6 +22,7 @@ import "./app.css";
 function GameApp() {
   const gameFlow = useGameFlow();
   const playerManagement = usePlayerManagement();
+  const { addToast } = useToast();
 
   const {
     gameState,
@@ -42,9 +45,18 @@ function GameApp() {
    */
   const handleStartGame = () => {
     const result = startGame();
-    if (!result.success && result.error) {
-      // Error handling could be enhanced with toast notifications
-      console.error("Failed to start game:", result.error);
+    if (result.success) {
+      addToast({
+        type: "success",
+        title: "Game Started!",
+        message: `Game started with ${players.length} players. Good luck!`,
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to Start Game",
+        message: result.error,
+      });
     }
   };
 
@@ -53,8 +65,18 @@ function GameApp() {
    */
   const handleScoreSubmit = (score: number) => {
     const result = submitScore(score);
-    if (!result.success && result.error) {
-      console.error("Failed to submit score:", result.error);
+    if (result.success) {
+      addToast({
+        type: "success",
+        title: "Score Submitted",
+        message: `Score of ${score} points recorded for ${currentPlayer?.name}.`,
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to Submit Score",
+        message: result.error,
+      });
     }
     // Turn advancement is handled automatically in the game logic
   };
@@ -64,8 +86,18 @@ function GameApp() {
    */
   const handlePenaltyApply = (reason?: string) => {
     const result = applyPenalty(reason);
-    if (!result.success && result.error) {
-      console.error("Failed to apply penalty:", result.error);
+    if (result.success) {
+      addToast({
+        type: "warning",
+        title: "Penalty Applied",
+        message: `Penalty applied to ${currentPlayer?.name}. Score reset to 25.`,
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to Apply Penalty",
+        message: result.error,
+      });
     }
     // Turn advancement is handled automatically in the game logic
   };
@@ -75,8 +107,18 @@ function GameApp() {
    */
   const handleNewGame = () => {
     const result = newGame();
-    if (!result.success && result.error) {
-      console.error("Failed to start new game:", result.error);
+    if (result.success) {
+      addToast({
+        type: "info",
+        title: "New Game Started",
+        message: "A new game has been started with the same players.",
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to Start New Game",
+        message: result.error,
+      });
     }
   };
 
@@ -193,8 +235,12 @@ function GameApp() {
  */
 export function App() {
   return (
-    <GameProvider>
-      <GameApp />
-    </GameProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <GameProvider>
+          <GameApp />
+        </GameProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
