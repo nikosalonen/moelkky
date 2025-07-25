@@ -220,9 +220,14 @@ function GameApp() {
         {gameState === "playing" && currentPlayer && (
           <GamePlayPanel
             players={players}
+            teams={teams}
             currentPlayerIndex={gameFlow.currentPlayerIndex}
+            currentTeamIndex={gameFlow.currentTeamIndex}
             gameState={gameState}
+            gameMode={gameMode}
             currentPlayer={currentPlayer}
+            currentTeam={gameFlow.currentTeam}
+            currentTeamPlayer={gameFlow.currentTeamPlayer}
             onScoreSubmit={(_playerId: string, score: number, scoringType: "single" | "multiple") => handleScoreSubmit(score, scoringType)}
             onPenalty={(_playerId: string, reason?: string) => handlePenaltyApply(reason)}
           />

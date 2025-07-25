@@ -29,6 +29,7 @@ import {
   hasTeamWon,
   getNextPlayerIndex,
   getNextTeamIndex,
+  getNextPlayerInTeam,
   completeGame,
   resetPlayersForNewGame,
   resetTeamsForNewGame,
@@ -160,6 +161,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
           penalties: 0,
           consecutiveMisses: 0,
           eliminated: false,
+          currentPlayerIndex: 0,
           players: team.players.map(player => ({
             ...player,
             score: 0,
@@ -394,19 +396,45 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         };
       }
 
-      // Move to next team, skipping eliminated
-      let nextTeamIndex = state.currentTeamIndex || 0;
-      for (let i = 1; i <= state.teams.length; i++) {
-        const idx = (nextTeamIndex + i) % state.teams.length;
-        if (!updatedTeams[idx].eliminated) {
-          nextTeamIndex = idx;
-          break;
+      // Move to next player within the team, or to next team if all players in current team have thrown
+      const currentTeamIndex = state.currentTeamIndex || 0;
+      const currentTeam = updatedTeams[currentTeamIndex];
+      const currentPlayerIndex = currentTeam.currentPlayerIndex || 0;
+      
+      // Get next player within the team
+      const nextPlayerInTeam = getNextPlayerInTeam(currentPlayerIndex, currentTeam.players.length);
+      
+      let nextTeamIndex = currentTeamIndex;
+      let updatedTeamsWithRotation = [...updatedTeams];
+      
+      if (nextPlayerInTeam === 0) {
+        // All players in current team have thrown, move to next team
+        for (let i = 1; i <= state.teams.length; i++) {
+          const idx = (currentTeamIndex + i) % state.teams.length;
+          if (!updatedTeams[idx].eliminated) {
+            nextTeamIndex = idx;
+            break;
+          }
         }
+        console.log(`[SUBMIT_TEAM_SCORE] Moving to next team: ${nextTeamIndex}`);
+      } else {
+        // Stay with current team, just move to next player
+        console.log(`[SUBMIT_TEAM_SCORE] Moving to next player in team: ${nextPlayerInTeam}`);
       }
-      console.log(`[SUBMIT_TEAM_SCORE] Next team index: ${nextTeamIndex}`);
+      
+      // Update team player indices
+      updatedTeamsWithRotation = updatedTeamsWithRotation.map((team, index) => {
+        if (index === currentTeamIndex) {
+          return {
+            ...team,
+            currentPlayerIndex: nextPlayerInTeam,
+          };
+        }
+        return team;
+      });
       
       // If no non-eliminated teams, end game
-      const nonEliminated = updatedTeams.filter((t) => !t.eliminated);
+      const nonEliminated = updatedTeamsWithRotation.filter((t) => !t.eliminated);
       console.log(`[SUBMIT_TEAM_SCORE] Non-eliminated teams:`, nonEliminated.map(t => ({ name: t.name, eliminated: t.eliminated })));
       console.log(`[SUBMIT_TEAM_SCORE] Non-eliminated count: ${nonEliminated.length}`);
       
@@ -422,12 +450,12 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         return {
           ...state,
           gameState: "finished",
-          teams: updatedTeams.map((t) => ({ ...t, isActive: false })),
+          teams: updatedTeamsWithRotation.map((t) => ({ ...t, isActive: false })),
           currentGame: completedGame,
         };
       }
 
-      const teamsWithUpdatedActive = updatedTeams.map((t, index) => ({
+      const teamsWithUpdatedActive = updatedTeamsWithRotation.map((t, index) => ({
         ...t,
         isActive: index === nextTeamIndex && !t.eliminated,
       }));
@@ -436,7 +464,8 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         name: t.name, 
         isActive: t.isActive, 
         eliminated: t.eliminated,
-        consecutiveMisses: t.consecutiveMisses 
+        consecutiveMisses: t.consecutiveMisses,
+        currentPlayerIndex: t.currentPlayerIndex
       })));
 
       return {

@@ -219,6 +219,19 @@ export function getNextTeamIndex(
 }
 
 /**
+ * Gets the next player index within a team
+ * @param currentIndex - Current player index within the team
+ * @param totalPlayers - Total number of players in the team
+ * @returns Next player index within the team
+ */
+export function getNextPlayerInTeam(
+  currentIndex: number,
+  totalPlayers: number
+): number {
+  return (currentIndex + 1) % totalPlayers;
+}
+
+/**
  * Gets the points needed for a player to win
  * @param player - The player to check
  * @returns Points needed to reach 50
@@ -262,6 +275,7 @@ export function resetTeamsForNewGame(teams: Team[]): Team[] {
     penalties: 0,
     consecutiveMisses: 0,
     eliminated: false,
+    currentPlayerIndex: 0,
     isActive: true,
     players: team.players.map((player: Player) => ({
       ...player,

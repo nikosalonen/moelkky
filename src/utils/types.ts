@@ -30,6 +30,7 @@ export interface Team {
   isActive: boolean;
   consecutiveMisses?: number; // Number of consecutive zero-point turns for the team
   eliminated?: boolean; // True if team is eliminated after three misses
+  currentPlayerIndex?: number; // Index of the current player throwing within the team
 }
 
 /**

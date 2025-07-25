@@ -36,7 +36,7 @@ Mölkky is a Finnish throwing game where players throw a wooden pin (the "mölkk
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/moelkky.git
+git clone https://github.com/nikosalonen/moelkky.git
 cd moelkky
 ```
 
@@ -71,6 +71,16 @@ The built files will be in the `dist` directory.
 5. **Start Game**: Click "Start Game" to begin
 6. **Track Scores**: Use the score input to record points for each player/team
 7. **Apply Penalties**: Use the penalty button if a player/team violates rules
+
+### Team Game Flow
+
+In team mode, the throwing order follows this pattern:
+- **Round 1**: Team 1 Player 1 → Team 2 Player 1 → Team 3 Player 1 → ...
+- **Round 2**: Team 1 Player 2 → Team 2 Player 2 → Team 3 Player 2 → ...
+- **Round 3**: Team 1 Player 3 → Team 2 Player 3 → Team 3 Player 3 → ...
+- And so on...
+
+This ensures each team gets one throw per round, and all players within each team throw in the order you've set.
 
 ### Scoring Rules
 

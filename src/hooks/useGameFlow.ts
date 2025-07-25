@@ -15,6 +15,7 @@ export interface UseGameFlowReturn {
   gameMode: GameMode;
   currentPlayer: Player | null;
   currentTeam: Team | null;
+  currentTeamPlayer: Player | null;
   currentPlayerIndex: number;
   currentTeamIndex: number;
   canStartGame: boolean;
@@ -289,6 +290,11 @@ export function useGameFlow(): UseGameFlowReturn {
     ? state.teams[state.currentTeamIndex] || null 
     : null;
 
+  // Get current player within the current team
+  const currentTeamPlayer = currentTeam && currentTeam.currentPlayerIndex !== undefined
+    ? currentTeam.players[currentTeam.currentPlayerIndex] || null
+    : null;
+
   // Find winning team if game is finished
   const winningTeam = state.gameState === "finished" && state.teams
     ? (state.currentGame?.winningTeam || findWinningTeam(state.teams))
@@ -299,6 +305,7 @@ export function useGameFlow(): UseGameFlowReturn {
     gameMode: state.gameMode,
     currentPlayer,
     currentTeam,
+    currentTeamPlayer,
     currentPlayerIndex: state.currentPlayerIndex,
     currentTeamIndex: state.currentTeamIndex || 0,
     canStartGame,
