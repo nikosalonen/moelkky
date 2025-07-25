@@ -56,6 +56,7 @@ type GameAction =
   | { type: "END_GAME"; payload: Player }
   | { type: "NEW_GAME" }
   | { type: "RESET_STATE" }
+  | { type: "RESET_TO_SETUP" }
   | { type: "OUT_OF_TURN_THROW"; payload: { playerId: string } };
 
 // Initial state
@@ -612,6 +613,43 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
 
     case "RESET_STATE":
       return initialState;
+
+    case "RESET_TO_SETUP": {
+      // Preserve players and teams but reset their game state
+      const resetPlayers = state.players.map(player => ({
+        ...player,
+        score: 0,
+        penalties: 0,
+        isActive: false,
+        consecutiveMisses: 0,
+        eliminated: false,
+      }));
+
+      const resetTeams = state.teams?.map(team => ({
+        ...team,
+        score: 0,
+        penalties: 0,
+        isActive: false,
+        consecutiveMisses: 0,
+        eliminated: false,
+        currentPlayerIndex: 0,
+        players: team.players.map(player => ({
+          ...player,
+          score: 0,
+          penalties: 0,
+        })),
+      }));
+
+      return {
+        ...state,
+        gameState: "setup",
+        players: resetPlayers,
+        teams: resetTeams,
+        currentPlayerIndex: 0,
+        currentTeamIndex: 0,
+        currentGame: null,
+      };
+    }
 
     case "OUT_OF_TURN_THROW": {
       const { playerId } = action.payload;

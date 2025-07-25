@@ -14,6 +14,7 @@ import { GameModeSelector } from "./components/GameModeSelector";
 import { TeamManager } from "./components/TeamManager";
 
 import { WinnerDisplay } from "./components/WinnerDisplay";
+import { NoWinnerDisplay } from "./components/NoWinnerDisplay";
 import { GameHistory } from "./components/GameHistory";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ToastProvider, useToast } from "./components/Toast";
@@ -36,6 +37,8 @@ function GameApp() {
     submitScore,
     applyPenalty,
     newGame,
+    resetGame,
+    resetToSetup,
   } = gameFlow;
 
   const { state } = useGameContext();
@@ -140,6 +143,28 @@ function GameApp() {
       addToast({
         type: "error",
         title: "Failed to Start New Game",
+        message: result.error,
+      });
+    }
+  };
+
+  /**
+   * Handle resetting the game to setup state
+   */
+  const handleReset = () => {
+    const result = resetToSetup();
+    if (result.success) {
+      addToast({
+        type: "info",
+        title: "Game Reset",
+        message: "Game has been reset to setup. You can now modify players and start a new game.",
+        duration: 4000,
+        priority: 'high',
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to Reset Game",
         message: result.error,
       });
     }
@@ -251,6 +276,19 @@ function GameApp() {
               winner={winner}
               players={players}
               onNewGame={handleNewGame}
+            />
+          </div>
+        )}
+
+        {/* Game State: Finished - No Winner */}
+        {gameState === "finished" && !winner && (
+          <div className="space-y-4 sm:space-y-6">
+            {/* No Winner Display */}
+            <NoWinnerDisplay
+              players={players}
+              teams={teams}
+              gameMode={gameMode}
+              onReset={handleReset}
             />
           </div>
         )}

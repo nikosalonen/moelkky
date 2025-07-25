@@ -30,6 +30,7 @@ export interface UseGameFlowReturn {
   endGame: () => { success: boolean; error?: string };
   newGame: () => { success: boolean; error?: string };
   resetGame: () => { success: boolean; error?: string };
+  resetToSetup: () => { success: boolean; error?: string };
   getPointsNeededForPlayer: (playerId: string) => number;
   getPointsNeededForTeam: (teamId: string) => number;
   isPlayerTurn: (playerId: string) => boolean;
@@ -264,7 +265,7 @@ export function useGameFlow(): UseGameFlowReturn {
   }, [state.gameState, dispatch]);
 
   /**
-   * Reset the entire game state
+   * Reset the entire game state (wipes out all players)
    */
   const resetGame = useCallback((): { success: boolean; error?: string } => {
     try {
@@ -274,6 +275,21 @@ export function useGameFlow(): UseGameFlowReturn {
       return {
         success: false,
         error: "Failed to reset game",
+      };
+    }
+  }, [dispatch]);
+
+  /**
+   * Reset to setup while preserving players and teams
+   */
+  const resetToSetup = useCallback((): { success: boolean; error?: string } => {
+    try {
+      dispatch({ type: "RESET_TO_SETUP" });
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to reset to setup",
       };
     }
   }, [dispatch]);
@@ -324,6 +340,7 @@ export function useGameFlow(): UseGameFlowReturn {
     endGame,
     newGame,
     resetGame,
+    resetToSetup,
     getPointsNeededForPlayer,
     getPointsNeededForTeam: (teamId: string) => {
       const team = state.teams?.find(t => t.id === teamId);

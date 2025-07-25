@@ -349,3 +349,111 @@ describe('GameContext integration - penalties and eliminations', () => {
     expect(state3.currentGame.penalties.some(p => p.reason === 'elimination (3 misses)' && p.playerId === '1')).toBe(true);
   });
 });
+
+  it('should preserve players when resetting to setup', () => {
+    const initialState = {
+      gameState: 'finished',
+      players: [
+        { id: '1', name: 'Alice', score: 50, penalties: 2, isActive: false, consecutiveMisses: 3, eliminated: true },
+        { id: '2', name: 'Bob', score: 30, penalties: 1, isActive: false, consecutiveMisses: 2, eliminated: false },
+      ],
+      teams: [],
+      currentPlayerIndex: 0,
+      currentTeamIndex: 0,
+      gameHistory: [],
+      currentGame: null,
+      gameMode: 'individual' as const,
+    };
+
+    const action = { type: 'RESET_TO_SETUP' as const };
+    const newState = gameReducer(initialState, action);
+
+    // Players should be preserved
+    expect(newState.players).toHaveLength(2);
+    expect(newState.players[0].name).toBe('Alice');
+    expect(newState.players[1].name).toBe('Bob');
+
+    // Game state should be reset
+    expect(newState.gameState).toBe('setup');
+    expect(newState.players[0].score).toBe(0);
+    expect(newState.players[0].penalties).toBe(0);
+    expect(newState.players[0].isActive).toBe(false);
+    expect(newState.players[0].consecutiveMisses).toBe(0);
+    expect(newState.players[0].eliminated).toBe(false);
+    expect(newState.players[1].score).toBe(0);
+    expect(newState.players[1].penalties).toBe(0);
+    expect(newState.players[1].isActive).toBe(false);
+    expect(newState.players[1].consecutiveMisses).toBe(0);
+    expect(newState.players[1].eliminated).toBe(false);
+
+    // Current game should be null
+    expect(newState.currentGame).toBeNull();
+  });
+
+  it('should preserve teams when resetting to setup', () => {
+    const initialState = {
+      gameState: 'finished',
+      players: [],
+      teams: [
+        { 
+          id: '1', 
+          name: 'Team Alpha', 
+          score: 45, 
+          penalties: 1, 
+          isActive: false, 
+          consecutiveMisses: 2, 
+          eliminated: false,
+          currentPlayerIndex: 1,
+          players: [
+            { id: '1', name: 'Alice', score: 25, penalties: 0 },
+            { id: '2', name: 'Bob', score: 20, penalties: 1 },
+          ]
+        },
+        { 
+          id: '2', 
+          name: 'Team Beta', 
+          score: 30, 
+          penalties: 0, 
+          isActive: false, 
+          consecutiveMisses: 1, 
+          eliminated: false,
+          currentPlayerIndex: 0,
+          players: [
+            { id: '3', name: 'Charlie', score: 15, penalties: 0 },
+            { id: '4', name: 'Diana', score: 15, penalties: 0 },
+          ]
+        }
+      ],
+      currentPlayerIndex: 0,
+      currentTeamIndex: 0,
+      gameHistory: [],
+      currentGame: null,
+      gameMode: 'team' as const,
+    };
+
+    const action = { type: 'RESET_TO_SETUP' as const };
+    const newState = gameReducer(initialState, action);
+
+    // Teams should be preserved
+    expect(newState.teams).toHaveLength(2);
+    expect(newState.teams![0].name).toBe('Team Alpha');
+    expect(newState.teams![1].name).toBe('Team Beta');
+
+    // Team game state should be reset
+    expect(newState.gameState).toBe('setup');
+    expect(newState.teams![0].score).toBe(0);
+    expect(newState.teams![0].penalties).toBe(0);
+    expect(newState.teams![0].isActive).toBe(false);
+    expect(newState.teams![0].consecutiveMisses).toBe(0);
+    expect(newState.teams![0].eliminated).toBe(false);
+    expect(newState.teams![0].currentPlayerIndex).toBe(0);
+
+    // Team players should also be reset
+    expect(newState.teams![0].players[0].score).toBe(0);
+    expect(newState.teams![0].players[0].penalties).toBe(0);
+    expect(newState.teams![0].players[1].score).toBe(0);
+    expect(newState.teams![0].players[1].penalties).toBe(0);
+
+    // Current game should be null
+    expect(newState.currentGame).toBeNull();
+  });
