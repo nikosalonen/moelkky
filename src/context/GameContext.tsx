@@ -343,31 +343,24 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       let updatedTeam = { ...team };
       let newPenaltyRecord: PenaltyRecord | null = null;
       
-      // Handle consecutive misses and elimination for team
-      if (score === 0) {
-        const previousMisses = updatedTeam.consecutiveMisses || 0;
-        updatedTeam.consecutiveMisses = previousMisses + 1;
-        console.log(`[SUBMIT_TEAM_SCORE] Miss recorded. Previous misses: ${previousMisses}, new total: ${updatedTeam.consecutiveMisses}`);
-        
-        if (updatedTeam.consecutiveMisses >= 3) {
-          updatedTeam.eliminated = true;
-          console.log(`[SUBMIT_TEAM_SCORE] TEAM ELIMINATED: ${updatedTeam.name} (${updatedTeam.consecutiveMisses} misses)`);
-          newPenaltyRecord = {
-            playerId: "", // No specific player for team elimination
-            playerName: updatedTeam.name,
-            teamId: updatedTeam.id,
-            teamName: updatedTeam.name,
-            timestamp: new Date(),
-            reason: 'team elimination (3 misses)',
-          };
-        }
-      } else {
-        updatedTeam.consecutiveMisses = 0;
-        console.log(`[SUBMIT_TEAM_SCORE] Score > 0, resetting consecutive misses to 0`);
-      }
+      // Get current player ID for updating individual player score
+      const currentPlayerId = team.players[team.currentPlayerIndex || 0]?.id;
       
-      // Apply team score using the utility function
-      updatedTeam = applyTeamScore(updatedTeam, score);
+      // Apply team score using the utility function (handles consecutive misses)
+      updatedTeam = applyTeamScore(updatedTeam, score, currentPlayerId);
+      
+      // Check if team was eliminated due to consecutive misses
+      if (updatedTeam.eliminated && score === 0) {
+        console.log(`[SUBMIT_TEAM_SCORE] TEAM ELIMINATED: ${updatedTeam.name} (${updatedTeam.consecutiveMisses} misses)`);
+        newPenaltyRecord = {
+          playerId: "", // No specific player for team elimination
+          playerName: updatedTeam.name,
+          teamId: updatedTeam.id,
+          teamName: updatedTeam.name,
+          timestamp: new Date(),
+          reason: 'team elimination (3 misses)',
+        };
+      }
       
       const updatedTeams = [...state.teams];
       updatedTeams[teamIndex] = updatedTeam;
@@ -396,41 +389,54 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         };
       }
 
-      // Move to next player within the team, or to next team if all players in current team have thrown
+      // Move to next team with the same player position, or to next player position if all teams have thrown
       const currentTeamIndex = state.currentTeamIndex || 0;
       const currentTeam = updatedTeams[currentTeamIndex];
       const currentPlayerIndex = currentTeam.currentPlayerIndex || 0;
       
-      // Get next player within the team
-      const nextPlayerInTeam = getNextPlayerInTeam(currentPlayerIndex, currentTeam.players.length);
-      
       let nextTeamIndex = currentTeamIndex;
+      let nextPlayerIndex = currentPlayerIndex;
       let updatedTeamsWithRotation = [...updatedTeams];
       
-      if (nextPlayerInTeam === 0) {
-        // All players in current team have thrown, move to next team
-        for (let i = 1; i <= state.teams.length; i++) {
-          const idx = (currentTeamIndex + i) % state.teams.length;
-          if (!updatedTeams[idx].eliminated) {
-            nextTeamIndex = idx;
+      // Try to move to next team with the same player position
+      let foundNextTeam = false;
+      for (let i = 1; i <= state.teams.length; i++) {
+        const idx = (currentTeamIndex + i) % state.teams.length;
+        if (!updatedTeams[idx].eliminated) {
+          nextTeamIndex = idx;
+          nextPlayerIndex = currentPlayerIndex; // Keep same player position
+          foundNextTeam = true;
+          console.log(`[SUBMIT_TEAM_SCORE] Moving to next team: ${nextTeamIndex} with player position: ${nextPlayerIndex}`);
+          break;
+        }
+      }
+      
+      // If no next team found, move to next player position in first non-eliminated team
+      if (!foundNextTeam) {
+        for (let i = 0; i < state.teams.length; i++) {
+          if (!updatedTeams[i].eliminated) {
+            nextTeamIndex = i;
+            nextPlayerIndex = (currentPlayerIndex + 1) % updatedTeams[i].players.length;
+            console.log(`[SUBMIT_TEAM_SCORE] Moving to next player position: ${nextPlayerIndex} in team: ${nextTeamIndex}`);
             break;
           }
         }
-        console.log(`[SUBMIT_TEAM_SCORE] Moving to next team: ${nextTeamIndex}`);
-      } else {
-        // Stay with current team, just move to next player
-        console.log(`[SUBMIT_TEAM_SCORE] Moving to next player in team: ${nextPlayerInTeam}`);
       }
       
-      // Update team player indices
+      // Update all teams to the correct player position
       updatedTeamsWithRotation = updatedTeamsWithRotation.map((team, index) => {
-        if (index === currentTeamIndex) {
+        if (index === nextTeamIndex) {
           return {
             ...team,
-            currentPlayerIndex: nextPlayerInTeam,
+            currentPlayerIndex: nextPlayerIndex,
+          };
+        } else {
+          // Keep other teams at the same player position for consistency
+          return {
+            ...team,
+            currentPlayerIndex: currentPlayerIndex,
           };
         }
-        return team;
       });
       
       // If no non-eliminated teams, end game

@@ -79,96 +79,16 @@ export function GamePlayPanel({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-2 sm:p-4 mb-2 flex flex-col min-h-[60vh]">
-      {/* Score List */}
-      <div className="flex-1 overflow-y-auto mb-2">
-        {gameMode === "individual" ? (
-          // Individual mode - show players
-          <div className="space-y-1">
-            {players.map((player, index) => (
-              <div
-                key={player.id}
-                className={`flex items-center justify-between p-2 rounded border ${getStatusClasses(player, index)}`}
-              >
-                <div className="flex-1 min-w-0">
-                  <span className="font-medium truncate text-sm">{player.name}</span>
-                  {getPlayerStatus(player, index) && (
-                    <span className="ml-2 text-xs px-1 py-0.5 rounded-full bg-current bg-opacity-20">
-                      {getPlayerStatus(player, index)}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className={`text-base font-bold ${getScoreColor(player.score)}`}>{player.score}</span>
-                  <span className="text-xs text-gray-500">/ 50</span>
-                  {player.penalties > 0 && (
-                    <span className="text-xs text-red-600">({player.penalties})</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          // Team mode - show teams grouped
-          <div className="space-y-3">
-            {teams?.map((team, teamIndex) => (
-              <div key={team.id} className="border rounded-lg p-2">
-                {/* Team Header */}
-                <div className={`flex items-center justify-between mb-2 p-1 rounded ${team.isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>
-                  <span className="font-semibold text-sm text-gray-800">{team.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-base font-bold ${getScoreColor(team.score)}`}>{team.score}</span>
-                    <span className="text-xs text-gray-500">/ 50</span>
-                    {team.penalties > 0 && (
-                      <span className="text-xs text-red-600">({team.penalties})</span>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Team Players */}
-                <div className="space-y-1 ml-2">
-                  {team.players.map((player, playerIndex) => {
-                    const isCurrentPlayer = currentTeam?.id === team.id && 
-                                          team.currentPlayerIndex === playerIndex;
-                    const playerStatus = isCurrentPlayer ? "Current Turn" : "";
-                    
-                    return (
-                      <div
-                        key={player.id}
-                        className={`flex items-center justify-between p-1 rounded text-xs ${
-                          isCurrentPlayer 
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                            : 'bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium">{player.name}</span>
-                          {playerStatus && (
-                            <span className="px-1 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs">
-                              {playerStatus}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-gray-600">{player.score}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Current Turn & Score Input */}
-      <div className="sticky bottom-0 bg-white pt-2 pb-1 z-10 border-t border-gray-200">
-        <div className="mb-2 text-center">
+    <div className="bg-white rounded-lg shadow-md p-2 sm:p-4 mb-2 flex flex-col min-h-[40vh]">
+      {/* Current Turn & Score Input - Now at the top */}
+      <div className="mb-4">
+        <div className="mb-3 text-center">
           {gameMode === "individual" ? (
-            <span className="text-sm font-semibold text-blue-700">
+            <span className="text-lg font-semibold text-blue-700">
               {currentPlayer.name}'s Turn (Score: {currentPlayer.score} / 50)
             </span>
           ) : (
-            <div className="text-sm">
+            <div className="text-lg">
               <span className="font-semibold text-blue-700">
                 {currentTeam?.name}'s Turn
               </span>
@@ -183,6 +103,94 @@ export function GamePlayPanel({
           onScoreSubmit={onScoreSubmit}
           onPenalty={onPenalty}
         />
+      </div>
+
+      {/* Score Board - Now at the bottom, collapsible */}
+      <div className="border-t border-gray-200 pt-3">
+        <details className="group">
+          <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-between">
+            <span>📊 Score Board</span>
+            <span className="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="mt-3 max-h-64 overflow-y-auto">
+            {gameMode === "individual" ? (
+              // Individual mode - show players
+              <div className="space-y-1">
+                {players.map((player, index) => (
+                  <div
+                    key={player.id}
+                    className={`flex items-center justify-between p-2 rounded border ${getStatusClasses(player, index)}`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium truncate text-sm">{player.name}</span>
+                      {getPlayerStatus(player, index) && (
+                        <span className="ml-2 text-xs px-1 py-0.5 rounded-full bg-current bg-opacity-20">
+                          {getPlayerStatus(player, index)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className={`text-base font-bold ${getScoreColor(player.score)}`}>{player.score}</span>
+                      <span className="text-xs text-gray-500">/ 50</span>
+                      {player.penalties > 0 && (
+                        <span className="text-xs text-red-600">({player.penalties})</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Team mode - show teams grouped
+              <div className="space-y-3">
+                {teams?.map((team, teamIndex) => (
+                  <div key={team.id} className="border rounded-lg p-2">
+                    {/* Team Header */}
+                    <div className={`flex items-center justify-between mb-2 p-1 rounded ${team.isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>
+                      <span className="font-semibold text-sm text-gray-800">{team.name}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-base font-bold ${getScoreColor(team.score)}`}>{team.score}</span>
+                        <span className="text-xs text-gray-500">/ 50</span>
+                        {team.penalties > 0 && (
+                          <span className="text-xs text-red-600">({team.penalties})</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Team Players */}
+                    <div className="space-y-1 ml-2">
+                      {team.players.map((player, playerIndex) => {
+                        const isCurrentPlayer = currentTeam?.id === team.id && 
+                                              team.currentPlayerIndex === playerIndex;
+                        const playerStatus = isCurrentPlayer ? "Current Turn" : "";
+                        
+                        return (
+                          <div
+                            key={player.id}
+                            className={`flex items-center justify-between p-1 rounded text-xs ${
+                              isCurrentPlayer 
+                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                : 'bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium">{player.name}</span>
+                              {playerStatus && (
+                                <span className="px-1 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs">
+                                  {playerStatus}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-gray-600">{player.score}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </details>
       </div>
     </div>
   );

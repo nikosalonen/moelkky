@@ -45,6 +45,16 @@ export function useGameFlow(): UseGameFlowReturn {
   // Get current player
   const currentPlayer = state.players[state.currentPlayerIndex] || null;
   
+  // Get current team for team games
+  const currentTeam = state.teams && state.currentTeamIndex !== undefined 
+    ? state.teams[state.currentTeamIndex] || null 
+    : null;
+
+  // Get current player within the current team
+  const currentTeamPlayer = currentTeam && currentTeam.currentPlayerIndex !== undefined
+    ? currentTeam.players[currentTeam.currentPlayerIndex] || null
+    : null;
+  
   // Debug logging
   console.log(`[useGameFlow] Current player calculation:`, {
     currentPlayerIndex: state.currentPlayerIndex,
@@ -54,8 +64,9 @@ export function useGameFlow(): UseGameFlowReturn {
     players: state.players.map(p => ({ name: p.name, isActive: p.isActive, eliminated: p.eliminated }))
   });
 
-  // Check if game can be started (minimum 2 players)
-  const canStartGame = state.gameState === "setup" && state.players.length >= 2;
+  // Check if game can be started (minimum 2 players for individual, 2 teams for team mode)
+  const canStartGame = state.gameState === "setup" && 
+    (state.gameMode === "individual" ? state.players.length >= 2 : (state.teams?.length || 0) >= 2);
 
   // Find winner if game is finished
   const winner =
@@ -110,34 +121,37 @@ export function useGameFlow(): UseGameFlowReturn {
         };
       }
 
-      if (!currentPlayer) {
-        return {
-          success: false,
-          error: "No current player found",
-        };
-      }
+      if (state.gameMode === "team") {
+        if (!currentTeam) {
+          return { success: false, error: "No current team found" };
+        }
+        dispatch({
+          type: "SUBMIT_TEAM_SCORE",
+          payload: { teamId: currentTeam.id, score, scoringType },
+        });
+      } else {
+        if (!currentPlayer) {
+          return {
+            success: false,
+            error: "No current player found",
+          };
+        }
 
-      if (score < 0 || score > 50) {
-        return {
-          success: false,
-          error: "Score must be between 0 and 50",
-        };
-      }
+        if (score < 0 || score > 50) {
+          return {
+            success: false,
+            error: "Score must be between 0 and 50",
+          };
+        }
 
-      try {
         dispatch({
           type: "SUBMIT_SCORE",
           payload: { playerId: currentPlayer.id, score, scoringType },
         });
-        return { success: true };
-      } catch (error) {
-        return {
-          success: false,
-          error: "Failed to submit score",
-        };
       }
+      return { success: true };
     },
-    [state.gameState, currentPlayer, dispatch]
+    [state.gameState, state.gameMode, currentPlayer, currentTeam, dispatch]
   );
 
   /**
@@ -285,16 +299,6 @@ export function useGameFlow(): UseGameFlowReturn {
     [currentPlayer]
   );
 
-  // Get current team for team games
-  const currentTeam = state.teams && state.currentTeamIndex !== undefined 
-    ? state.teams[state.currentTeamIndex] || null 
-    : null;
-
-  // Get current player within the current team
-  const currentTeamPlayer = currentTeam && currentTeam.currentPlayerIndex !== undefined
-    ? currentTeam.players[currentTeam.currentPlayerIndex] || null
-    : null;
-
   // Find winning team if game is finished
   const winningTeam = state.gameState === "finished" && state.teams
     ? (state.currentGame?.winningTeam || findWinningTeam(state.teams))
@@ -313,9 +317,9 @@ export function useGameFlow(): UseGameFlowReturn {
     winningTeam,
     startGame,
     submitScore,
-    submitTeamScore: () => ({ success: false, error: "Not implemented yet" }),
+    submitTeamScore: submitScore, // Use the same function for both individual and team
     applyPenalty,
-    applyTeamPenalty: () => ({ success: false, error: "Not implemented yet" }),
+    applyTeamPenalty: applyPenalty, // Use the same function for both individual and team
     nextTurn,
     endGame,
     newGame,

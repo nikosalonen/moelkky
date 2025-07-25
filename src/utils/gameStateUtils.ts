@@ -114,9 +114,10 @@ export function applyScore(player: Player, score: number): Player {
  * Applies a score to a team, handling Mölkky scoring rules and consecutive misses
  * @param team - The team to update
  * @param score - The score to add
+ * @param currentPlayerId - The ID of the player who scored (optional)
  * @returns Updated team with new score and consecutive misses tracking
  */
-export function applyTeamScore(team: Team, score: number): Team {
+export function applyTeamScore(team: Team, score: number, currentPlayerId?: string): Team {
   const newScore = team.score + score;
   let updatedTeam = { ...team };
 
@@ -134,17 +135,32 @@ export function applyTeamScore(team: Team, score: number): Team {
     updatedTeam.consecutiveMisses = 0;
   }
 
+  // Update individual player scores within the team
+  const updatedPlayers = team.players.map(player => {
+    if (currentPlayerId && player.id === currentPlayerId) {
+      // Update the current player's score
+      const playerNewScore = player.score + score;
+      return {
+        ...player,
+        score: playerNewScore > 50 ? 25 : playerNewScore, // Apply Mölkky rule to individual player too
+      };
+    }
+    return player;
+  });
+
   // If score exceeds 50, reset to 25 (Mölkky rule)
   if (newScore > 50) {
     return {
       ...updatedTeam,
       score: 25,
+      players: updatedPlayers,
     };
   }
 
   return {
     ...updatedTeam,
     score: newScore,
+    players: updatedPlayers,
   };
 }
 

@@ -38,9 +38,8 @@ function GameApp() {
     newGame,
   } = gameFlow;
 
-  const { players } = playerManagement;
   const { state } = useGameContext();
-  const { gameMode, teams } = state;
+  const { gameMode, teams, players } = state;
 
   // State for game history modal
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
@@ -54,7 +53,7 @@ function GameApp() {
       addToast({
         type: "success",
         title: "Game Started!",
-        message: `Game started with ${players.length} players. Good luck!`,
+        message: `Game started with ${playerManagement.players.length} players. Good luck!`,
         duration: 4000,
         priority: 'high',
       });
@@ -182,13 +181,13 @@ function GameApp() {
             <GameModeSelector gameActive={false} />
 
             {/* Player Management */}
-            <PlayerManager players={players} gameActive={false} />
+            <PlayerManager players={playerManagement.players} gameActive={false} />
 
             {/* Team Management (only show for team mode) */}
             {gameMode === "team" && (
               <TeamManager 
                 teams={teams || []} 
-                players={players} 
+                players={playerManagement.players} 
                 gameActive={false} 
               />
             )}
@@ -208,8 +207,8 @@ function GameApp() {
                   ? `Start ${gameMode === "team" ? "Team " : ""}Game`
                   : gameMode === "team"
                   ? `Need ${Math.max(0, 2 - (teams?.length || 0))} more team${(teams?.length || 0) === 1 ? "" : "s"}`
-                  : `Need ${Math.max(0, 2 - players.length)} more player${
-                      players.length === 1 ? "" : "s"
+                  : `Need ${Math.max(0, 2 - playerManagement.players.length)} more player${
+                      playerManagement.players.length === 1 ? "" : "s"
                     }`}
               </button>
             </div>
@@ -217,7 +216,7 @@ function GameApp() {
         )}
 
         {/* Game State: Playing */}
-        {gameState === "playing" && currentPlayer && (
+        {gameState === "playing" && (gameMode === "individual" ? currentPlayer : gameFlow.currentTeamPlayer) && (
           <GamePlayPanel
             players={players}
             teams={teams}
@@ -225,7 +224,7 @@ function GameApp() {
             currentTeamIndex={gameFlow.currentTeamIndex}
             gameState={gameState}
             gameMode={gameMode}
-            currentPlayer={currentPlayer}
+            currentPlayer={gameMode === "individual" ? currentPlayer! : gameFlow.currentTeamPlayer!}
             currentTeam={gameFlow.currentTeam}
             currentTeamPlayer={gameFlow.currentTeamPlayer}
             onScoreSubmit={(_playerId: string, score: number, scoringType: "single" | "multiple") => handleScoreSubmit(score, scoringType)}
