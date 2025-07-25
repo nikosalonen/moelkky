@@ -18,8 +18,8 @@ export function GameBoard({
   currentPlayerIndex,
   gameState,
 }: GameBoardProps) {
-  // Don't render if no players or not in playing state
-  if (players.length === 0 || gameState !== "playing") {
+  // Don't render if no players or not in playing/finished state
+  if (players.length === 0 || (gameState !== "playing" && gameState !== "finished")) {
     return null;
   }
 
@@ -30,11 +30,11 @@ export function GameBoard({
 
   // Get status text for player
   const getPlayerStatus = (player: Player, _index: number): string => {
-    if (player.isActive) {
-      return "Current Turn";
-    }
-    if (player.score === 50) {
+    if (gameState === "finished" && player.score === 50) {
       return "Winner!";
+    }
+    if (gameState === "playing" && player.isActive) {
+      return "Current Turn";
     }
     return "";
   };
@@ -168,10 +168,16 @@ export function GameBoard({
       <div className="mt-6 pt-4 border-t border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-600">
           <div className="mb-2 sm:mb-0">
-            <span className="font-medium">Current Player:</span>{" "}
-            <span className="text-blue-600 font-semibold">
-              {players[currentPlayerIndex]?.name || "Unknown"}
-            </span>
+            {gameState === "playing" ? (
+              <>
+                <span className="font-medium">Current Player:</span>{" "}
+                <span className="text-blue-600 font-semibold">
+                  {players[currentPlayerIndex]?.name || "Unknown"}
+                </span>
+              </>
+            ) : (
+              <span className="font-medium text-green-600">Game Completed</span>
+            )}
           </div>
           <div className="text-center sm:text-right">
             <span className="font-medium">Players:</span> {players.length}

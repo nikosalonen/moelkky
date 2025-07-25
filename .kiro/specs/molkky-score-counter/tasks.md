@@ -75,7 +75,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 3.1, 3.2, 3.3, 4.1, 4.2, 9.4, 9.5_
 
-- [ ] 9. Create game flow control system
+- [x] 9. Create game flow control system
 
   - Implement "Start Game" functionality with minimum player validation
   - Add turn advancement logic after score entry

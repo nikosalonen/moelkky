@@ -9,6 +9,7 @@ import { GameProvider, useGameFlow, usePlayerManagement } from "./hooks";
 import { PlayerManager } from "./components/PlayerManager/PlayerManager";
 import { GameBoard } from "./components/GameBoard/GameBoard";
 import { ScoreInput } from "./components/ScoreInput/ScoreInput";
+import { WinnerDisplay } from "./components/WinnerDisplay";
 import "./app.css";
 
 /**
@@ -155,33 +156,12 @@ function GameApp() {
         {/* Game State: Finished */}
         {gameState === "finished" && winner && (
           <div className="space-y-6">
-            {/* Final Game Board */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Final Scores</h2>
-              <GameBoard 
-                players={players}
-                currentPlayerIndex={gameFlow.currentPlayerIndex}
-                gameState={gameState}
-              />
-            </div>
-
-            {/* Winner Display - TODO: Implement in task 10 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-center">
-                <h2 className="text-3xl font-bold text-green-600 mb-4">
-                  🎉 {winner.name} Wins! 🎉
-                </h2>
-                <p className="text-lg text-gray-600 mb-6">
-                  Congratulations on reaching exactly 50 points!
-                </p>
-                <button
-                  onClick={handleNewGame}
-                  className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  Start New Game
-                </button>
-              </div>
-            </div>
+            {/* Winner Display */}
+            <WinnerDisplay
+              winner={winner}
+              players={players}
+              onNewGame={handleNewGame}
+            />
           </div>
         )}
       </div>
