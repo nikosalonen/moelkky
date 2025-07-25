@@ -18,7 +18,7 @@
   - Write unit tests for data models and validation
   - _Requirements: 1.3, 1.4, 3.4_
 
-- [ ] 3. Create session storage utilities
+- [x] 3. Create session storage utilities
 
   - Implement storage service for persisting game state and history
   - Create functions for saving and loading game data from sessionStorage
