@@ -128,12 +128,6 @@ Tests cover:
 - **Testing**: [Vitest](https://vitest.dev/) - Fast unit testing framework
 - **Testing Library**: [@testing-library/preact](https://testing-library.com/docs/preact-testing-library/intro/) - Testing utilities
 
-## 📱 Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
 
 ## 🤝 Contributing
 
