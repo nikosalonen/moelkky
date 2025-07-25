@@ -17,7 +17,7 @@ export interface UseGameFlowReturn {
   canStartGame: boolean;
   winner: Player | null;
   startGame: () => { success: boolean; error?: string };
-  submitScore: (score: number) => { success: boolean; error?: string };
+  submitScore: (score: number, scoringType: "single" | "multiple") => { success: boolean; error?: string };
   applyPenalty: (reason?: string) => { success: boolean; error?: string };
   nextTurn: () => { success: boolean; error?: string };
   endGame: () => { success: boolean; error?: string };
@@ -72,7 +72,7 @@ export function useGameFlow(): UseGameFlowReturn {
    * Submit a score for the current player
    */
   const submitScore = useCallback(
-    (score: number): { success: boolean; error?: string } => {
+    (score: number, scoringType: "single" | "multiple"): { success: boolean; error?: string } => {
       if (state.gameState !== "playing") {
         return {
           success: false,
@@ -97,7 +97,7 @@ export function useGameFlow(): UseGameFlowReturn {
       try {
         dispatch({
           type: "SUBMIT_SCORE",
-          payload: { playerId: currentPlayer.id, score },
+          payload: { playerId: currentPlayer.id, score, scoringType },
         });
         return { success: true };
       } catch (error) {

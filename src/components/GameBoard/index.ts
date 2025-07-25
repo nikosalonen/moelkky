@@ -4,4 +4,4 @@
  * @format
  */
 
-export { GameBoard } from "./GameBoard";
+export { GamePlayPanel } from "./GameBoard";

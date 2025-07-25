@@ -21,13 +21,13 @@ import { sessionStorageUtil } from "../utils/storage/sessionStorage";
 import {
   createGame,
   createPenaltyRecord,
-  applyScore,
   applyPenalty,
   hasPlayerWon,
   getNextPlayerIndex,
   completeGame,
   resetPlayersForNewGame,
 } from "../utils/gameStateUtils";
+import { GameEngine, ScoringType } from "../utils/gameLogic";
 
 // Action types for the game state reducer
 type GameAction =
@@ -36,7 +36,7 @@ type GameAction =
   | { type: "UPDATE_PLAYER"; payload: { id: string; updates: Partial<Player> } }
   | { type: "REMOVE_PLAYER"; payload: string }
   | { type: "START_GAME" }
-  | { type: "SUBMIT_SCORE"; payload: { playerId: string; score: number } }
+  | { type: "SUBMIT_SCORE"; payload: { playerId: string; score: number; scoringType: "single" | "multiple" } }
   | { type: "APPLY_PENALTY"; payload: { playerId: string; reason?: string } }
   | { type: "NEXT_TURN" }
   | { type: "END_GAME"; payload: Player }
@@ -54,7 +54,7 @@ const initialState: AppState = {
 };
 
 // Game state reducer
-function gameReducer(state: AppState, action: GameAction): AppState {
+export function gameReducer(state: AppState, action: GameAction): AppState {
   switch (action.type) {
     case "LOAD_STATE":
       return action.payload;
@@ -104,7 +104,7 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       };
 
     case "SUBMIT_SCORE": {
-      const { playerId, score } = action.payload;
+      const { playerId, score, scoringType } = action.payload;
       const playerIndex = state.players.findIndex((p) => p.id === playerId);
 
       if (playerIndex === -1 || state.gameState !== "playing") {
@@ -113,13 +113,20 @@ function gameReducer(state: AppState, action: GameAction): AppState {
 
       const player = state.players[playerIndex];
       let updatedPlayer = { ...player };
-      let eliminated = false;
       let newPenaltyRecord: PenaltyRecord | null = null;
+      // Use GameEngine for scoring logic first
+      const { updatedPlayer: scoredPlayer } = GameEngine.applyPlayerScore(
+        updatedPlayer,
+        score,
+        scoringType === "single" ? ScoringType.SINGLE_PIN : ScoringType.MULTIPLE_PINS
+      );
+      updatedPlayer = scoredPlayer;
+      
+      // Then handle consecutive misses and elimination
       if (score === 0) {
         updatedPlayer.consecutiveMisses = (player.consecutiveMisses || 0) + 1;
         if (updatedPlayer.consecutiveMisses >= 3) {
           updatedPlayer.eliminated = true;
-          eliminated = true;
           newPenaltyRecord = {
             playerId: updatedPlayer.id,
             playerName: updatedPlayer.name,
@@ -130,7 +137,6 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       } else {
         updatedPlayer.consecutiveMisses = 0;
       }
-      updatedPlayer = applyScore(updatedPlayer, score);
       const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
 
@@ -159,12 +165,10 @@ function gameReducer(state: AppState, action: GameAction): AppState {
 
       // Move to next player, skipping eliminated
       let nextPlayerIndex = state.currentPlayerIndex;
-      let found = false;
       for (let i = 1; i <= state.players.length; i++) {
         const idx = (state.currentPlayerIndex + i) % state.players.length;
         if (!updatedPlayers[idx].eliminated) {
           nextPlayerIndex = idx;
-          found = true;
           break;
         }
       }

@@ -14,11 +14,9 @@ import { InlineSpinner } from "../LoadingSpinner";
 
 interface ScoreInputProps {
   currentPlayer: Player;
-  onScoreSubmit?: (playerId: string, score: number) => void;
+  onScoreSubmit?: (playerId: string, score: number, scoringType: "single" | "multiple") => void;
   onPenalty?: (playerId: string, reason?: string) => void;
 }
-
-type InputMethod = "single" | "multiple";
 
 export function ScoreInput({
   currentPlayer,
@@ -27,8 +25,7 @@ export function ScoreInput({
 }: ScoreInputProps) {
   const { dispatch } = useGameContext();
   const { addToast } = useToast();
-  const [inputMethod, setInputMethod] = useState<InputMethod>("single");
-  const [scoreValue, setScoreValue] = useState<string>("");
+  const [selectedPins, setSelectedPins] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showPenaltyConfirm, setShowPenaltyConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,52 +43,95 @@ export function ScoreInput({
     setTimeout(() => setError(null), 3000);
   };
 
+  // Calculate score and scoring type
+  let score = 0;
+  let scoringType: "single" | "multiple" = "single";
+  if (selectedPins.length === 1) {
+    score = selectedPins[0];
+    scoringType = "single";
+  } else if (selectedPins.length > 1) {
+    score = selectedPins.length;
+    scoringType = "multiple";
+  } else {
+    score = 0;
+    scoringType = "single";
+  }
+
+  // Handle pin selection
+  const togglePin = (pin: number) => {
+    setSelectedPins((prev) =>
+      prev.includes(pin) ? prev.filter((p) => p !== pin) : [...prev, pin]
+    );
+  };
+
   // Handle score submission
   const handleScoreSubmit = async () => {
     if (isSubmitting) return;
 
-    const score = parseInt(scoreValue);
-    if (isNaN(score)) {
-      const errorMessage = "Please enter a valid number";
-      setError(errorMessage);
-      addToast({
-        type: "error",
-        title: "Invalid Score",
-        message: errorMessage,
-      });
-      clearError();
+    // If no pins selected, always treat as miss
+    if (selectedPins.length === 0) {
+      setIsSubmitting(true);
+      setError(null);
+      try {
+        if (onScoreSubmit) {
+          onScoreSubmit(currentPlayer.id, 0, "single");
+        } else {
+          dispatch({
+            type: "SUBMIT_SCORE",
+            payload: { playerId: currentPlayer.id, score: 0, scoringType: "single" },
+          });
+        }
+        setSelectedPins([]);
+        addToast({
+          type: "info",
+          title: "Missed Throw",
+          message: `No pins knocked down for ${currentPlayer.name}.`,
+        });
+      } catch (err) {
+        const errorMessage = "Failed to submit miss. Please try again.";
+        setError(errorMessage);
+        addToast({
+          type: "error",
+          title: "Failed to Submit Miss",
+          message: errorMessage,
+        });
+        clearError();
+      } finally {
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 100);
+      }
       return;
     }
 
-    const validation = validateScore(score, inputMethod === "single");
-    if (!validation.isValid) {
-      setError(validation.error || "Invalid score");
-      addToast({
-        type: "error",
-        title: "Invalid Score",
-        message: validation.error || "Invalid score",
-      });
-      clearError();
-      return;
+    // Otherwise, validate and submit as before
+    if (score !== 0) {
+      const validation = validateScore(score, scoringType === "single");
+      if (!validation.isValid) {
+        setError(validation.error || "Invalid score");
+        addToast({
+          type: "error",
+          title: "Invalid Score",
+          message: validation.error || "Invalid score",
+        });
+        clearError();
+        return;
+      }
     }
 
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Use context dispatch if no callback provided
       if (onScoreSubmit) {
-        onScoreSubmit(currentPlayer.id, score);
+        onScoreSubmit(currentPlayer.id, score, scoringType);
       } else {
         dispatch({
           type: "SUBMIT_SCORE",
-          payload: { playerId: currentPlayer.id, score },
+          payload: { playerId: currentPlayer.id, score, scoringType },
         });
       }
-
-      // Clear input after successful submission
-      setScoreValue("");
-      
+      setSelectedPins([]);
       addToast({
         type: "success",
         title: "Score Submitted",
@@ -107,22 +147,18 @@ export function ScoreInput({
       });
       clearError();
     } finally {
-      // Reset submitting state after a brief delay to show loading state
       setTimeout(() => {
         setIsSubmitting(false);
       }, 100);
     }
   };
 
-  // Handle penalty application
+  // Handle penalty application (unchanged)
   const handlePenalty = async (reason: string = "Rule violation") => {
     if (isSubmitting) return;
-
     setIsSubmitting(true);
     setShowPenaltyConfirm(false);
-
     try {
-      // Use context dispatch if no callback provided
       if (onPenalty) {
         onPenalty(currentPlayer.id, reason);
       } else {
@@ -131,7 +167,6 @@ export function ScoreInput({
           payload: { playerId: currentPlayer.id, reason },
         });
       }
-      
       addToast({
         type: "warning",
         title: "Penalty Applied",
@@ -147,56 +182,13 @@ export function ScoreInput({
       });
       clearError();
     } finally {
-      // Reset submitting state after a brief delay to show loading state
       setTimeout(() => {
         setIsSubmitting(false);
       }, 100);
     }
   };
 
-  // Handle key press events
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleScoreSubmit();
-    }
-  };
-
-  // Generate number buttons for quick input
-  const generateNumberButtons = () => {
-    const min = inputMethod === "single" ? 1 : 2;
-    const max = 12;
-    const buttons = [];
-
-    // Add "None" button for 0 points (only in single pin mode)
-    if (inputMethod === "single") {
-      buttons.push(
-        <button
-          key="none"
-          onClick={() => setScoreValue("0")}
-          disabled={isSubmitting}
-          className="w-14 h-14 sm:w-12 sm:h-12 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
-        >
-          None
-        </button>
-      );
-    }
-
-    for (let i = min; i <= max; i++) {
-      buttons.push(
-        <button
-          key={i}
-          onClick={() => setScoreValue(i.toString())}
-          disabled={isSubmitting}
-          className="w-14 h-14 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return buttons;
-  };
-
+  // Handle out-of-turn throw (unchanged)
   const handleOutOfTurn = () => {
     dispatch({ type: "OUT_OF_TURN_THROW", payload: { playerId: currentPlayer.id } });
     addToast({
@@ -206,29 +198,44 @@ export function ScoreInput({
     });
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
-        Score Entry
-      </h2>
+  // Handle miss (zero-point throw)
+  const handleMiss = async () => {
+    setSelectedPins([]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      if (onScoreSubmit) {
+        onScoreSubmit(currentPlayer.id, 0, "single");
+      } else {
+        dispatch({
+          type: "SUBMIT_SCORE",
+          payload: { playerId: currentPlayer.id, score: 0, scoringType: "single" },
+        });
+      }
+      addToast({
+        type: "info",
+        title: "Missed Throw",
+        message: `No pins knocked down for ${currentPlayer.name}.`,
+      });
+    } catch (err) {
+      const errorMessage = "Failed to submit miss. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Failed to Submit Miss",
+        message: errorMessage,
+      });
+      clearError();
+    } finally {
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 100);
+    }
+  };
 
-      {/* Current Player Display */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-        <div className="text-center">
-          <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-2">
-            Current Player
-          </h3>
-          <div className="text-xl sm:text-2xl font-bold text-blue-900">
-            {currentPlayer.name}
-          </div>
-          <div className="text-xs sm:text-sm text-blue-700 mt-1">
-            Current Score: {currentPlayer.score} / 50
-          </div>
-          <div className="text-xs sm:text-sm text-blue-600">
-            Points Needed: {Math.max(0, 50 - currentPlayer.score)}
-          </div>
-        </div>
-      </div>
+  return (
+    <div>
 
       {/* Error Display */}
       {error && (
@@ -241,102 +248,75 @@ export function ScoreInput({
         </div>
       )}
 
-      {/* Input Method Selection */}
+      {/* Pin Selection */}
       <div className="mb-4 sm:mb-6">
         <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
-          Scoring Method
+          Select Pins Knocked Down
         </h4>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <button
-            onClick={() => {
-              setInputMethod("single");
-              setScoreValue("");
-              setError(null);
-            }}
-            disabled={isSubmitting}
-            className={`flex-1 px-3 sm:px-4 py-3 sm:py-3 rounded-lg border-2 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation ${
-              inputMethod === "single"
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            Single Pin (1-12)
-          </button>
-          <button
-            onClick={() => {
-              setInputMethod("multiple");
-              setScoreValue("");
-              setError(null);
-            }}
-            disabled={isSubmitting}
-            className={`flex-1 px-3 sm:px-4 py-3 sm:py-3 rounded-lg border-2 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation ${
-              inputMethod === "multiple"
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            Multiple Pins (2-12)
-          </button>
+        <div className="grid grid-cols-6 gap-2 justify-center mb-2">
+          {[...Array(12)].map((_, i) => {
+            const pin = i + 1;
+            const selected = selectedPins.includes(pin);
+            return (
+              <button
+                key={pin}
+                type="button"
+                onClick={() => togglePin(pin)}
+                disabled={isSubmitting}
+                className={`w-12 h-12 rounded-lg font-bold text-lg border-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation
+                  ${selected ? "bg-blue-500 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"}
+                  disabled:bg-gray-300 disabled:cursor-not-allowed`}
+                aria-pressed={selected}
+              >
+                {pin}
+              </button>
+            );
+          })}
         </div>
-        <p className="text-xs sm:text-sm text-gray-600 mt-2 text-center">
-          {inputMethod === "single"
-            ? "Select the number on the single pin that was knocked down"
-            : "Select the count of pins that were knocked down"}
-        </p>
-      </div>
-
-      {/* Number Buttons */}
-      <div className="mb-4 sm:mb-6">
-        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
-          Quick Select
-        </h4>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2 sm:gap-2">
-          {generateNumberButtons()}
-        </div>
-      </div>
-
-      {/* Manual Input */}
-      <div className="mb-4 sm:mb-6">
-        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
-          Manual Entry
-        </h4>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="number"
-            aria-label={inputMethod === 'single' ? 'Single pin score' : 'Multiple pins score'}
-            value={scoreValue}
-            onInput={(e) => setScoreValue((e.target as HTMLInputElement).value)}
-            onKeyDown={handleKeyPress}
-            placeholder={
-              inputMethod === "single" 
-                ? "Enter score (0-12)" 
-                : "Number of pins (2-12)"
-            }
-            min={inputMethod === "single" ? 0 : 2}
-            max={12}
-            className="flex-1 px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-            disabled={isSubmitting}
-          />
+        <div className="flex justify-center mt-2">
           <button
             type="button"
-            aria-label="Submit score"
-            onClick={handleScoreSubmit}
-            disabled={!scoreValue.trim() || isSubmitting}
-            className="px-4 sm:px-6 py-3 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
+            onClick={handleMiss}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           >
-            {isSubmitting ? (
-              <>
-                <InlineSpinner size="sm" variant="primary" />
-                <span className="ml-2">Submitting...</span>
-              </>
-            ) : (
-              "Submit Score"
-            )}
+            Miss (0 points)
           </button>
+        </div>
+        <div className="text-xs sm:text-sm text-gray-600 text-center mt-1">
+          Tap pins to select. If no pins were knocked down, use the Miss button.
         </div>
       </div>
 
-      {/* Penalty Section */}
+      {/* Calculated Score Display */}
+      <div className="mb-4 sm:mb-6 text-center">
+        <span className="text-base sm:text-lg font-medium text-gray-700">
+          Calculated Score: <span className="font-bold text-blue-700">{score}</span>
+        </span>
+        <span className="ml-4 text-sm text-gray-500">({scoringType === "single" && selectedPins.length === 1 ? `Single Pin: ${selectedPins[0]}` : scoringType === "multiple" ? `Multiple Pins: ${selectedPins.length}` : "Miss"})</span>
+      </div>
+
+      {/* Submit Button */}
+      <div className="mb-4 sm:mb-6 flex justify-center">
+        <button
+          type="button"
+          aria-label="Submit score"
+          onClick={handleScoreSubmit}
+          disabled={isSubmitting}
+          className="px-6 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
+        >
+          {isSubmitting ? (
+            <>
+              <InlineSpinner size="sm" variant="primary" />
+              <span className="ml-2">Submitting...</span>
+            </>
+          ) : (
+            "Submit Score"
+          )}
+        </button>
+      </div>
+
+      {/* Penalty Section (unchanged) */}
       <div className="border-t border-gray-200 pt-4 sm:pt-6">
         <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
           Penalty
@@ -355,7 +335,7 @@ export function ScoreInput({
         </div>
       </div>
 
-      {/* Out-of-Turn Throw Button */}
+      {/* Out-of-Turn Throw Button (unchanged) */}
       <div className="mt-4 flex flex-col items-center">
         <button
           type="button"
@@ -369,7 +349,7 @@ export function ScoreInput({
         <span className="text-xs text-gray-500 mt-1">Use if this player threw out of turn</span>
       </div>
 
-      {/* Penalty Confirmation Modal */}
+      {/* Penalty Confirmation Modal (unchanged) */}
       {showPenaltyConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 max-w-sm mx-4 w-full">

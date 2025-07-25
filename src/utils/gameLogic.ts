@@ -240,7 +240,7 @@ export class GameEngine {
 
     switch (scoringType) {
       case ScoringType.SINGLE_PIN:
-        return score >= 1 && score <= 12;
+        return score >= 0 && score <= 12;
       case ScoringType.MULTIPLE_PINS:
         return score >= 2 && score <= 12;
       default:

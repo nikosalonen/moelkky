@@ -8,8 +8,8 @@
 import { useState } from "preact/hooks";
 import { GameProvider, useGameFlow, usePlayerManagement } from "./hooks";
 import { PlayerManager } from "./components/PlayerManager/PlayerManager";
-import { GameBoard } from "./components/GameBoard/GameBoard";
-import { ScoreInput } from "./components/ScoreInput/ScoreInput";
+import { GamePlayPanel } from "./components/GameBoard/GameBoard";
+
 import { WinnerDisplay } from "./components/WinnerDisplay";
 import { GameHistory } from "./components/GameHistory";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -63,8 +63,8 @@ function GameApp() {
   /**
    * Handle score submission with automatic turn advancement
    */
-  const handleScoreSubmit = (score: number) => {
-    const result = submitScore(score);
+  const handleScoreSubmit = (score: number, scoringType: "single" | "multiple") => {
+    const result = submitScore(score, scoringType);
     if (result.success) {
       addToast({
         type: "success",
@@ -179,39 +179,15 @@ function GameApp() {
         )}
 
         {/* Game State: Playing */}
-        {gameState === "playing" && (
-          <div className="space-y-4 sm:space-y-6">
-            {/* Game Board */}
-            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-              <GameBoard 
-                players={players}
-                currentPlayerIndex={gameFlow.currentPlayerIndex}
-                gameState={gameState}
-              />
-            </div>
-
-            {/* Score Input */}
-            {currentPlayer && (
-              <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-                <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-center">
-                  {currentPlayer.name}'s Turn
-                </h2>
-                <ScoreInput
-                  currentPlayer={currentPlayer}
-                  onScoreSubmit={(_playerId: string, score: number) => handleScoreSubmit(score)}
-                  onPenalty={(_playerId: string, reason?: string) => handlePenaltyApply(reason)}
-                />
-              </div>
-            )}
-
-            {/* Player modification prevention notice */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
-              <p className="text-yellow-800 text-xs sm:text-sm text-center">
-                <strong>Game in progress:</strong> Player modifications are
-                disabled during active gameplay.
-              </p>
-            </div>
-          </div>
+        {gameState === "playing" && currentPlayer && (
+          <GamePlayPanel
+            players={players}
+            currentPlayerIndex={gameFlow.currentPlayerIndex}
+            gameState={gameState}
+            currentPlayer={currentPlayer}
+            onScoreSubmit={(_playerId: string, score: number, scoringType: "single" | "multiple") => handleScoreSubmit(score, scoringType)}
+            onPenalty={(_playerId: string, reason?: string) => handlePenaltyApply(reason)}
+          />
         )}
 
         {/* Game State: Finished */}

@@ -162,10 +162,10 @@ describe("applyScore edge cases", () => {
     expect(updatedPlayer.score).toBe(25);
   });
 
-  it("should reset to 25 when player is at 48 and scores 2", () => {
+  it("should reach 50 when player is at 48 and scores 2", () => {
     player.score = 48;
     const updatedPlayer = applyScore(player, 2);
-    expect(updatedPlayer.score).toBe(25);
+    expect(updatedPlayer.score).toBe(50);
   });
 
   it("should remain 50 when player is at 50 and scores 0", () => {

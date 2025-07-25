@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, act } from "@testing-library/preact";
-import { GameProvider, useGameContext } from "../../src/context/GameContext";
+import { GameProvider, useGameContext, gameReducer } from "../../src/context/GameContext";
 import { createPlayer } from "../../src/utils/gameStateUtils";
 import type { AppState } from "../../src/utils/types";
 
@@ -48,7 +48,7 @@ function TestComponent() {
         onClick={() =>
           dispatch({
             type: "SUBMIT_SCORE",
-            payload: { playerId: state.players[0]?.id || "", score: 5 },
+            payload: { playerId: state.players[0]?.id || "", score: 5, scoringType: "single" },
           })
         }
       >
@@ -244,12 +244,12 @@ describe('GameContext integration - penalties and eliminations', () => {
     // Setup initial state with one player
     const initialState = {
       gameState: 'playing',
-      players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true }],
+      players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true, consecutiveMisses: 0 }],
       currentPlayerIndex: 0,
       gameHistory: [],
       currentGame: {
         id: 'game1',
-        players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true }],
+        players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true, consecutiveMisses: 0 }],
         winner: null,
         startTime: new Date(),
         endTime: null,
@@ -257,7 +257,7 @@ describe('GameContext integration - penalties and eliminations', () => {
         penalties: [],
       },
     };
-    const action1 = { type: 'SUBMIT_SCORE', payload: { playerId: '1', score: 0 } };
+    const action1 = { type: 'SUBMIT_SCORE', payload: { playerId: '1', score: 0, scoringType: 'single' } };
     const state1 = gameReducer(initialState, action1);
     const state2 = gameReducer(state1, action1);
     const state3 = gameReducer(state2, action1);

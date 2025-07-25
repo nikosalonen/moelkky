@@ -88,12 +88,16 @@ describe("GameEngine", () => {
       const player = createPlayer("Test");
 
       expect(() => {
-        GameEngine.applyPlayerScore(player, 0, ScoringType.SINGLE_PIN);
-      }).toThrow("Invalid score 0 for single_pin");
-
-      expect(() => {
         GameEngine.applyPlayerScore(player, 13, ScoringType.SINGLE_PIN);
       }).toThrow("Invalid score 13 for single_pin");
+    });
+
+    it("should accept zero score for missed throw", () => {
+      const player = createPlayer("Test");
+      
+      expect(() => {
+        GameEngine.applyPlayerScore(player, 0, ScoringType.SINGLE_PIN);
+      }).not.toThrow();
     });
 
     it("should throw error for invalid multiple pin score", () => {
@@ -266,9 +270,9 @@ describe("GameEngine", () => {
 
   describe("isValidScore", () => {
     it("should validate single pin scores correctly", () => {
+      expect(GameEngine.isValidScore(0, ScoringType.SINGLE_PIN)).toBe(true);
       expect(GameEngine.isValidScore(1, ScoringType.SINGLE_PIN)).toBe(true);
       expect(GameEngine.isValidScore(12, ScoringType.SINGLE_PIN)).toBe(true);
-      expect(GameEngine.isValidScore(0, ScoringType.SINGLE_PIN)).toBe(false);
       expect(GameEngine.isValidScore(13, ScoringType.SINGLE_PIN)).toBe(false);
       expect(GameEngine.isValidScore(5.5, ScoringType.SINGLE_PIN)).toBe(false);
     });

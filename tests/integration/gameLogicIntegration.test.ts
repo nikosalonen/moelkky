@@ -241,12 +241,14 @@ describe("Game Logic Integration", () => {
 
     it("should handle invalid scoring attempts", () => {
       expect(() => {
-        GameEngine.processTurn(players, 0, 0, ScoringType.SINGLE_PIN);
-      }).toThrow("Invalid score 0 for single_pin");
-
-      expect(() => {
         GameEngine.processTurn(players, 0, 13, ScoringType.MULTIPLE_PINS);
       }).toThrow("Invalid score 13 for multiple_pins");
+    });
+
+    it("should accept zero score for missed throw", () => {
+      expect(() => {
+        GameEngine.processTurn(players, 0, 0, ScoringType.SINGLE_PIN);
+      }).not.toThrow();
     });
 
     it("should handle invalid player indices", () => {
