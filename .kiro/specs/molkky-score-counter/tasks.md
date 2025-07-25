@@ -26,7 +26,7 @@
   - Write unit tests for storage utilities
   - _Requirements: 8.1, 8.5_
 
-- [ ] 4. Build core game logic engine
+- [x] 4. Build core game logic engine
 
   - Implement Mölkky scoring rules (single pin, multiple pins, exact 50, over 50)
   - Create turn management system for player rotation
