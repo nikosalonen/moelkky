@@ -10,7 +10,7 @@
   - Create basic folder structure for components, utils, and tests
   - _Requirements: 9.1, 9.3_
 
-- [ ] 2. Implement core data models and types
+- [x] 2. Implement core data models and types
 
   - Create TypeScript interfaces for Player, Game, and PenaltyRecord models
   - Implement data validation functions for player names and scores
