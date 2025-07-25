@@ -7,7 +7,9 @@
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/preact";
 import { describe, it, expect, beforeEach } from "vitest";
+import { h } from "preact";
 import { App } from "../../src/app";
+import React from "preact/compat";
 
 describe("Game Flow Control System Integration", () => {
   beforeEach(() => {
@@ -136,9 +138,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Should start with Alice's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
     });
 
@@ -161,9 +164,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Should start with Alice
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       // Submit score to advance to Bob
@@ -199,9 +203,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Should cycle back to Alice's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
     });
 
@@ -222,9 +227,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Initial state: Alice's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       // Apply penalty
@@ -348,9 +354,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Try to submit invalid score via multiple pins
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       // Switch to multiple pins method
@@ -370,9 +377,10 @@ describe("Game Flow Control System Integration", () => {
       });
 
       // Turn should not advance (still Alice's turn)
-      expect(screen.getByText((content, element) => {
+      const aliceTurnElements = screen.getAllByText((content, element) => {
         return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-      })).toBeInTheDocument();
+      });
+      expect(aliceTurnElements.length).toBeGreaterThan(0);
     });
 
     it("should handle over-50 score penalty correctly", async () => {
@@ -393,9 +401,10 @@ describe("Game Flow Control System Integration", () => {
       // Get Alice to 45 points first (9 x 5 = 45)
       for (let i = 0; i < 9; i++) {
         await waitFor(() => {
-          expect(screen.getByText((content, element) => {
+          const aliceTurnElements = screen.getAllByText((content, element) => {
             return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-          })).toBeInTheDocument();
+          });
+          expect(aliceTurnElements.length).toBeGreaterThan(0);
         });
 
         const pin5Button = screen.getByRole("button", { name: "5" });
@@ -405,9 +414,10 @@ describe("Game Flow Control System Integration", () => {
         fireEvent.click(submitButton);
 
         // Handle Bob's turn
-        if (screen.queryByText((content, element) => {
+        const bobTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
-        })) {
+        });
+        if (bobTurnElements.length > 0) {
           const noneButton = screen.getByRole("button", { name: "None" });
           fireEvent.click(noneButton);
           const submitButton2 = screen.getByRole("button", { name: /submit score/i });
@@ -417,9 +427,10 @@ describe("Game Flow Control System Integration", () => {
 
       // Now Alice should have 45 points, score 6 more to go over 50
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
+        const aliceTurnElements = screen.getAllByText((content, element) => {
           return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        });
+        expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       const pin6Button = screen.getByRole("button", { name: "6" });
