@@ -152,7 +152,9 @@ export function WinnerDisplay({ winner, players, onNewGame }: WinnerDisplayProps
                   className={`grid grid-cols-4 gap-4 p-3 rounded-lg mb-2 ${
                     isWinner
                       ? "bg-green-100 border border-green-300"
-                      : "bg-white border border-gray-200"
+                      : player.eliminated
+                        ? "bg-gray-200 border border-gray-300 opacity-60"
+                        : "bg-white border border-gray-200"
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -163,7 +165,7 @@ export function WinnerDisplay({ winner, players, onNewGame }: WinnerDisplayProps
                   </div>
                   
                   <div className="flex items-center">
-                    <span className={`font-semibold ${isWinner ? "text-green-700" : "text-gray-800"}`}>
+                    <span className={`font-semibold ${isWinner ? "text-green-700" : player.eliminated ? "text-gray-400" : "text-gray-800"}`}>
                       {player.name}
                     </span>
                     {isWinner && (
@@ -171,17 +173,22 @@ export function WinnerDisplay({ winner, players, onNewGame }: WinnerDisplayProps
                         Winner
                       </span>
                     )}
+                    {player.eliminated && (
+                      <span className="ml-2 text-xs bg-gray-300 text-gray-600 px-2 py-1 rounded-full">
+                        Eliminated
+                      </span>
+                    )}
                   </div>
                   
-                  <div className={`text-center font-bold ${isWinner ? "text-green-600" : "text-gray-700"}`}>
+                  <div className={`text-center font-bold ${isWinner ? "text-green-600" : player.eliminated ? "text-gray-400" : "text-gray-700"}`}>
                     {player.score}
                   </div>
                   
                   <div className="text-center">
                     {player.penalties > 0 ? (
-                      <span className="text-red-600 font-medium">{player.penalties}</span>
+                      <span className={player.eliminated ? "text-gray-400" : "text-red-600 font-medium"}>{player.penalties}</span>
                     ) : (
-                      <span className="text-gray-400">-</span>
+                      <span className={player.eliminated ? "text-gray-300" : "text-gray-400"}>-</span>
                     )}
                   </div>
                 </div>

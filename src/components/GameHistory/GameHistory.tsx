@@ -208,35 +208,35 @@ export function GameHistory({ isVisible, onClose }: GameHistoryProps) {
                           {sortedPlayers.map((player, index) => (
                             <div
                               key={player.id}
-                              className={`flex items-center justify-between p-2 rounded ${
-                                game.winner?.id === player.id
-                                  ? "bg-green-100 border border-green-300"
+                              className={`grid grid-cols-4 gap-4 p-2 rounded-lg mb-1 ${
+                                player.eliminated
+                                  ? "bg-gray-200 border border-gray-300 opacity-60"
                                   : "bg-white border border-gray-200"
                               }`}
                             >
                               <div className="flex items-center space-x-2">
-                                <span className="text-xs sm:text-sm font-medium text-gray-600">
-                                  {index + 1}.
+                                <span className="font-bold text-gray-600">
+                                  {index + 1}
                                 </span>
-                                <span className="font-medium text-gray-800 text-sm sm:text-base">
+                              </div>
+                              <div className="flex items-center">
+                                <span className={`font-semibold ${player.eliminated ? "text-gray-400" : "text-gray-800"}`}>
                                   {player.name}
                                 </span>
-                                {game.winner?.id === player.id && (
-                                  <span className="text-xs bg-green-200 text-green-800 px-1 sm:px-2 py-1 rounded-full">
-                                    Winner
+                                {player.eliminated && (
+                                  <span className="ml-2 text-xs bg-gray-300 text-gray-600 px-2 py-1 rounded-full">
+                                    Eliminated
                                   </span>
                                 )}
                               </div>
-                              <div className="text-right">
-                                <div className="font-semibold text-gray-800 text-sm sm:text-base">
-                                  {player.score} pts
-                                </div>
-                                {player.penalties > 0 && (
-                                  <div className="text-xs text-red-600">
-                                    {player.penalties} penalty{player.penalties !== 1 ? "ies" : "y"}
-                                  </div>
-                                )}
+                              <div className={`text-center font-bold ${player.eliminated ? "text-gray-400" : "text-gray-700"}`}>
+                                {player.score}
                               </div>
+                              {player.penalties > 0 ? (
+                                <span className={player.eliminated ? "text-gray-400" : "text-red-600 font-medium"}>{player.penalties}</span>
+                              ) : (
+                                <span className={player.eliminated ? "text-gray-300" : "text-gray-400"}>-</span>
+                              )}
                             </div>
                           ))}
                         </div>

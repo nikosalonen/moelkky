@@ -198,14 +198,6 @@ describe("GameContext", () => {
 
 describe("GameContext reducer", () => {
   it("should handle LOAD_STATE action", () => {
-    const mockState: AppState = {
-      gameState: "playing",
-      players: [createPlayer("Test Player")],
-      currentPlayerIndex: 0,
-      gameHistory: [],
-      currentGame: null,
-    };
-
     const { getByTestId } = render(
       <GameProvider>
         <TestComponent />
@@ -244,5 +236,54 @@ describe("GameContext reducer", () => {
     });
 
     expect(getByTestId("players-count")).toHaveTextContent("1");
+  });
+});
+
+describe('GameContext integration - penalties and eliminations', () => {
+  it('records elimination after three consecutive misses', () => {
+    // Setup initial state with one player
+    const initialState = {
+      gameState: 'playing',
+      players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true }],
+      currentPlayerIndex: 0,
+      gameHistory: [],
+      currentGame: {
+        id: 'game1',
+        players: [{ id: '1', name: 'Alice', score: 0, penalties: 0, isActive: true }],
+        winner: null,
+        startTime: new Date(),
+        endTime: null,
+        totalRounds: 0,
+        penalties: [],
+      },
+    };
+    const action1 = { type: 'SUBMIT_SCORE', payload: { playerId: '1', score: 0 } };
+    const state1 = gameReducer(initialState, action1);
+    const state2 = gameReducer(state1, action1);
+    const state3 = gameReducer(state2, action1);
+    expect(state3.players[0].eliminated).toBe(true);
+    expect(state3.currentGame.penalties.some(p => p.reason === 'elimination (3 misses)' && p.playerId === '1')).toBe(true);
+  });
+
+  it('records out-of-turn penalty in game history', () => {
+    const initialState = {
+      gameState: 'playing',
+      players: [{ id: '1', name: 'Bob', score: 40, penalties: 0, isActive: true }],
+      currentPlayerIndex: 0,
+      gameHistory: [],
+      currentGame: {
+        id: 'game2',
+        players: [{ id: '1', name: 'Bob', score: 40, penalties: 0, isActive: true }],
+        winner: null,
+        startTime: new Date(),
+        endTime: null,
+        totalRounds: 0,
+        penalties: [],
+      },
+    };
+    const action = { type: 'OUT_OF_TURN_THROW', payload: { playerId: '1' } };
+    const state = gameReducer(initialState, action);
+    expect(state.players[0].score).toBe(25);
+    expect(state.currentGame.penalties.some(p => p.reason === 'out-of-turn' && p.playerId === '1')).toBe(true);
   });
 });

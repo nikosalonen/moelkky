@@ -15,6 +15,7 @@ import type { ReactNode } from "preact/compat";
 import type {
   AppState,
   Player,
+  PenaltyRecord,
 } from "../utils/types";
 import { sessionStorageUtil } from "../utils/storage/sessionStorage";
 import {
@@ -113,11 +114,18 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       const player = state.players[playerIndex];
       let updatedPlayer = { ...player };
       let eliminated = false;
+      let newPenaltyRecord: PenaltyRecord | null = null;
       if (score === 0) {
         updatedPlayer.consecutiveMisses = (player.consecutiveMisses || 0) + 1;
         if (updatedPlayer.consecutiveMisses >= 3) {
           updatedPlayer.eliminated = true;
           eliminated = true;
+          newPenaltyRecord = {
+            playerId: updatedPlayer.id,
+            playerName: updatedPlayer.name,
+            timestamp: new Date(),
+            reason: 'elimination (3 misses)',
+          };
         }
       } else {
         updatedPlayer.consecutiveMisses = 0;
@@ -125,6 +133,15 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       updatedPlayer = applyScore(updatedPlayer, score);
       const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
+
+      // Add penalty record if needed
+      let updatedCurrentGame = state.currentGame;
+      if (newPenaltyRecord && updatedCurrentGame) {
+        updatedCurrentGame = {
+          ...updatedCurrentGame,
+          penalties: [...updatedCurrentGame.penalties, newPenaltyRecord],
+        };
+      }
 
       // Check if player won
       if (hasPlayerWon(updatedPlayer)) {
@@ -170,12 +187,12 @@ function gameReducer(state: AppState, action: GameAction): AppState {
         ...state,
         players: playersWithUpdatedActive,
         currentPlayerIndex: nextPlayerIndex,
-        currentGame: state.currentGame
+        currentGame: updatedCurrentGame
           ? {
-              ...state.currentGame,
+              ...updatedCurrentGame,
               players: playersWithUpdatedActive,
               totalRounds:
-                state.currentGame.totalRounds + (nextPlayerIndex === 0 ? 1 : 0),
+                updatedCurrentGame.totalRounds + (nextPlayerIndex === 0 ? 1 : 0),
             }
           : null,
       };
@@ -290,16 +307,30 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       if (playerIndex === -1) return state;
       const player = state.players[playerIndex];
       let updatedPlayer = { ...player };
+      let newPenaltyRecord: PenaltyRecord | null = null;
       // If score is 37 or more, reset to 25
       if (updatedPlayer.score >= 37) {
         updatedPlayer.score = 25;
+        newPenaltyRecord = {
+          playerId: updatedPlayer.id,
+          playerName: updatedPlayer.name,
+          timestamp: new Date(),
+          reason: 'out-of-turn',
+        };
       }
-      // Optionally, could log this event in game history or penalties
       const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
+      let updatedCurrentGame = state.currentGame;
+      if (newPenaltyRecord && updatedCurrentGame) {
+        updatedCurrentGame = {
+          ...updatedCurrentGame,
+          penalties: [...updatedCurrentGame.penalties, newPenaltyRecord],
+        };
+      }
       return {
         ...state,
         players: updatedPlayers,
+        currentGame: updatedCurrentGame,
       };
     }
 
