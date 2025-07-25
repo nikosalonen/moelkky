@@ -85,7 +85,7 @@ export class GameEngine {
    */
   static applyPlayerPenalty(
     player: Player,
-    reason: string = "Rule violation"
+    _reason: string = "Rule violation"
   ): Player {
     return applyPenalty(player);
   }

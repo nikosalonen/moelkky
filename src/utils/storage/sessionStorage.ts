@@ -5,7 +5,8 @@
  * @format
  */
 
-import { AppState, Game, ErrorType } from "../types";
+import type { AppState, Game } from "../types";
+import { ErrorType } from "../types";
 
 // Storage keys as defined in the design document
 export const STORAGE_KEYS = {
@@ -180,14 +181,6 @@ export class SessionStorageUtil {
    * Load complete application state
    */
   loadAppState(): AppState | null {
-    const defaultState: AppState = {
-      gameState: "setup",
-      players: [],
-      currentPlayerIndex: 0,
-      gameHistory: [],
-      currentGame: null,
-    };
-
     const loaded = this.loadFromStorage(STORAGE_KEYS.APP_STATE, null);
     return loaded || null;
   }

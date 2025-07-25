@@ -7,8 +7,8 @@
 export {
   SessionStorageUtil,
   StorageError,
-  StorageService,
   defaultStorageService,
   sessionStorageUtil,
   STORAGE_KEYS,
 } from "./sessionStorage";
+export type { StorageService } from "./sessionStorage";

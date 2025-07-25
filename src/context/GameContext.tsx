@@ -10,14 +10,11 @@ import {
   useContext,
   useReducer,
   useEffect,
-  ReactNode,
 } from "preact/compat";
+import type { ReactNode } from "preact/compat";
 import type {
   AppState,
   Player,
-  Game,
-  GameState,
-  PenaltyRecord,
 } from "../utils/types";
 import { sessionStorageUtil } from "../utils/storage/sessionStorage";
 import {
@@ -27,10 +24,8 @@ import {
   applyPenalty,
   hasPlayerWon,
   getNextPlayerIndex,
-  findWinner,
   completeGame,
   resetPlayersForNewGame,
-  isValidStateTransition,
 } from "../utils/gameStateUtils";
 
 // Action types for the game state reducer

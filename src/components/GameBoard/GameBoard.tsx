@@ -29,7 +29,7 @@ export function GameBoard({
   };
 
   // Get status text for player
-  const getPlayerStatus = (player: Player, index: number): string => {
+  const getPlayerStatus = (player: Player, _index: number): string => {
     if (player.isActive) {
       return "Current Turn";
     }
@@ -40,7 +40,7 @@ export function GameBoard({
   };
 
   // Get status color classes
-  const getStatusClasses = (player: Player, index: number): string => {
+  const getStatusClasses = (player: Player, _index: number): string => {
     if (player.isActive) {
       return "bg-blue-100 text-blue-800 border-blue-200";
     }

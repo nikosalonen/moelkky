@@ -64,7 +64,7 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 9.1, 9.2, 9.3_
 
-- [ ] 8. Build ScoreInput component
+- [x] 8. Build ScoreInput component
 
   - Create input interface for single pin scores (1-12)
   - Add input method for multiple pin counts (2-12)
