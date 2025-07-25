@@ -65,7 +65,11 @@ export function GameBoard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+    <div
+      className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6"
+      role="region"
+      aria-label="Game board and player scores"
+    >
       <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">
         Game Board
       </h2>
@@ -86,7 +90,10 @@ export function GameBoard({
                   {player.name}
                 </h3>
                 {getPlayerStatus(player, index) && (
-                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-current bg-opacity-20 mt-1">
+                  <span
+                    className="inline-block text-xs px-2 py-1 rounded-full bg-current bg-opacity-20 mt-1"
+                    aria-label={getPlayerStatus(player, index) || undefined}
+                  >
                     {getPlayerStatus(player, index)}
                   </span>
                 )}
@@ -96,6 +103,7 @@ export function GameBoard({
                   className={`text-xl sm:text-2xl font-bold ${getScoreColor(
                     player.score
                   )}`}
+                  aria-label={`Player ${player.name} score: ${player.score}`}
                 >
                   {player.score}
                 </div>
@@ -131,13 +139,17 @@ export function GameBoard({
               <h3
                 className="text-lg font-semibold mb-2 truncate"
                 title={player.name}
+                aria-label={`Player ${player.name} name`}
               >
                 {player.name}
               </h3>
 
               {getPlayerStatus(player, index) && (
                 <div className="mb-3">
-                  <span className="inline-block text-xs px-3 py-1 rounded-full bg-current bg-opacity-20 font-medium">
+                  <span
+                    className="inline-block text-xs px-3 py-1 rounded-full bg-current bg-opacity-20 font-medium"
+                    aria-label={getPlayerStatus(player, index) || undefined}
+                  >
                     {getPlayerStatus(player, index)}
                   </span>
                 </div>
@@ -147,6 +159,7 @@ export function GameBoard({
                 className={`text-3xl font-bold mb-2 ${getScoreColor(
                   player.score
                 )}`}
+                aria-label={`Player ${player.name} score: ${player.score}`}
               >
                 {player.score}
                 <span className="text-lg text-gray-500 font-normal"> / 50</span>

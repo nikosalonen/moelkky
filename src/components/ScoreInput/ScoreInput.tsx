@@ -233,8 +233,9 @@ export function ScoreInput({
       {/* Error Display */}
       {error && (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
           role="alert"
+          aria-live="assertive"
+          className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
         >
           <span className="block sm:inline">{error}</span>
         </div>
@@ -302,6 +303,7 @@ export function ScoreInput({
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="number"
+            aria-label={inputMethod === 'single' ? 'Single pin score' : 'Multiple pins score'}
             value={scoreValue}
             onInput={(e) => setScoreValue((e.target as HTMLInputElement).value)}
             onKeyDown={handleKeyPress}
@@ -317,6 +319,7 @@ export function ScoreInput({
           />
           <button
             type="button"
+            aria-label="Submit score"
             onClick={handleScoreSubmit}
             disabled={!scoreValue.trim() || isSubmitting}
             className="px-4 sm:px-6 py-3 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
@@ -356,6 +359,7 @@ export function ScoreInput({
       <div className="mt-4 flex flex-col items-center">
         <button
           type="button"
+          aria-label="Mark out-of-turn throw"
           onClick={handleOutOfTurn}
           className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           disabled={isSubmitting}

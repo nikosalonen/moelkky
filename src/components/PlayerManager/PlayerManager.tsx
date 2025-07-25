@@ -206,8 +206,9 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
       {/* Error Display */}
       {error && (
         <div
-          class="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
           role="alert"
+          aria-live="assertive"
+          class="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm"
         >
           <span class="block sm:inline">{error}</span>
         </div>
@@ -219,6 +220,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
           <div class="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
+              aria-label="Player name"
               value={newPlayerName}
               onInput={(e) =>
                 setNewPlayerName((e.target as HTMLInputElement).value)
@@ -230,6 +232,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               disabled={gameActive}
             />
             <button
+              aria-label="Add player"
               onClick={handleAddPlayer}
               disabled={!newPlayerName.trim() || gameActive || isSubmitting}
               class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
@@ -272,6 +275,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
                   <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
                     <input
                       type="text"
+                      aria-label="Edit player name"
                       value={editingName}
                       onInput={(e) =>
                         setEditingName((e.target as HTMLInputElement).value)
@@ -283,6 +287,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
                     />
                     <div class="flex space-x-2">
                       <button
+                        aria-label="Save player name"
                         onClick={handleSaveEdit}
                         disabled={isSubmitting}
                         class="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center"
@@ -297,6 +302,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
                         )}
                       </button>
                       <button
+                        aria-label="Cancel player name edit"
                         onClick={handleCancelEdit}
                         disabled={isSubmitting}
                         class="px-3 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
@@ -334,12 +340,14 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               {!gameActive && editingPlayer !== player.id && (
                 <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                   <button
+                    aria-label="Edit player"
                     onClick={() => handleStartEdit(player)}
                     class="px-3 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
                   >
                     Edit
                   </button>
                   <button
+                    aria-label="Delete player"
                     onClick={() => setShowDeleteConfirm(player.id)}
                     class="px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
                   >
