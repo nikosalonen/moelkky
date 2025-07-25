@@ -197,6 +197,15 @@ export function ScoreInput({
     return buttons;
   };
 
+  const handleOutOfTurn = () => {
+    dispatch({ type: "OUT_OF_TURN_THROW", payload: { playerId: currentPlayer.id } });
+    addToast({
+      type: "info",
+      title: "Out-of-Turn Throw",
+      message: `${currentPlayer.name}'s throw was voided. Score reset to 25 if 37 or more.`,
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
@@ -341,6 +350,19 @@ export function ScoreInput({
             Apply Penalty
           </button>
         </div>
+      </div>
+
+      {/* Out-of-Turn Throw Button */}
+      <div className="mt-4 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={handleOutOfTurn}
+          className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+          disabled={isSubmitting}
+        >
+          Mark Out-of-Turn Throw
+        </button>
+        <span className="text-xs text-gray-500 mt-1">Use if this player threw out of turn</span>
       </div>
 
       {/* Penalty Confirmation Modal */}

@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ScoreInput } from "../../src/components/ScoreInput/ScoreInput";
 import { GameProvider } from "../../src/context/GameContext";
 import type { Player } from "../../src/utils/types";
+import { h } from 'preact';
 
 // Mock session storage
 const mockSessionStorage = {
@@ -680,5 +681,23 @@ describe("ScoreInput Component", () => {
 
       expect(submitButton.disabled).toBe(false);
     });
+  });
+
+  it('handles out-of-turn throw and shows feedback', () => {
+    const currentPlayer = { id: '1', name: 'Alice', score: 40, penalties: 0, isActive: true };
+    const dispatch = vi.fn();
+    const addToast = vi.fn();
+    vi.mock('../../context/GameContext', () => ({ useGameContext: () => ({ dispatch }) }));
+    vi.mock('../Toast', () => ({ useToast: () => ({ addToast }) }));
+    const { getByText } = render(
+      <ScoreInput currentPlayer={currentPlayer} />
+    );
+    getByText('Mark Out-of-Turn Throw').click();
+    expect(dispatch).toHaveBeenCalledWith({ type: 'OUT_OF_TURN_THROW', payload: { playerId: '1' } });
+    expect(addToast).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'info',
+      title: 'Out-of-Turn Throw',
+      message: expect.stringContaining('voided'),
+    }));
   });
 });

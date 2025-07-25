@@ -40,7 +40,8 @@ type GameAction =
   | { type: "NEXT_TURN" }
   | { type: "END_GAME"; payload: Player }
   | { type: "NEW_GAME" }
-  | { type: "RESET_STATE" };
+  | { type: "RESET_STATE" }
+  | { type: "OUT_OF_TURN_THROW"; payload: { playerId: string } };
 
 // Initial state
 const initialState: AppState = {
@@ -282,6 +283,25 @@ function gameReducer(state: AppState, action: GameAction): AppState {
 
     case "RESET_STATE":
       return initialState;
+
+    case "OUT_OF_TURN_THROW": {
+      const { playerId } = action.payload;
+      const playerIndex = state.players.findIndex((p) => p.id === playerId);
+      if (playerIndex === -1) return state;
+      const player = state.players[playerIndex];
+      let updatedPlayer = { ...player };
+      // If score is 37 or more, reset to 25
+      if (updatedPlayer.score >= 37) {
+        updatedPlayer.score = 25;
+      }
+      // Optionally, could log this event in game history or penalties
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = updatedPlayer;
+      return {
+        ...state,
+        players: updatedPlayers,
+      };
+    }
 
     default:
       return state;
