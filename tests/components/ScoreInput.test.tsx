@@ -9,6 +9,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/preact";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ScoreInput } from "../../src/components/ScoreInput/ScoreInput";
 import { GameProvider } from "../../src/context/GameContext";
+import { ToastProvider } from "../../src/components/Toast/Toast";
 import type { Player } from "../../src/utils/types";
 import { h } from 'preact';
 
@@ -28,7 +29,9 @@ Object.defineProperty(window, "sessionStorage", {
 const renderWithContext = (props: any) => {
   return render(
     <GameProvider>
-      <ScoreInput {...props} />
+      <ToastProvider>
+        <ScoreInput {...props} />
+      </ToastProvider>
     </GameProvider>
   );
 };

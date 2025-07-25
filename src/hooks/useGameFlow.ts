@@ -35,13 +35,34 @@ export function useGameFlow(): UseGameFlowReturn {
 
   // Get current player
   const currentPlayer = state.players[state.currentPlayerIndex] || null;
+  
+  // Debug logging
+  console.log(`[useGameFlow] Current player calculation:`, {
+    currentPlayerIndex: state.currentPlayerIndex,
+    playersCount: state.players.length,
+    currentPlayer: currentPlayer?.name,
+    gameState: state.gameState,
+    players: state.players.map(p => ({ name: p.name, isActive: p.isActive, eliminated: p.eliminated }))
+  });
 
   // Check if game can be started (minimum 2 players)
   const canStartGame = state.gameState === "setup" && state.players.length >= 2;
 
   // Find winner if game is finished
   const winner =
-    state.gameState === "finished" ? findWinner(state.players) : null;
+    state.gameState === "finished" 
+      ? (state.currentGame?.winner || findWinner(state.players))
+      : null;
+      
+  // Debug logging for winner calculation
+  if (state.gameState === "finished") {
+    console.log(`[useGameFlow] Winner calculation:`, {
+      gameState: state.gameState,
+      currentGameWinner: state.currentGame?.winner,
+      findWinnerResult: findWinner(state.players),
+      finalWinner: winner
+    });
+  }
 
   /**
    * Start a new game

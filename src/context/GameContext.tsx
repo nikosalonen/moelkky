@@ -26,6 +26,7 @@ import {
   getNextPlayerIndex,
   completeGame,
   resetPlayersForNewGame,
+  reorderPlayersByPreviousScores,
 } from "../utils/gameStateUtils";
 import { GameEngine, ScoringType } from "../utils/gameLogic";
 
@@ -105,20 +106,31 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
 
     case "SUBMIT_SCORE": {
       const { playerId, score, scoringType } = action.payload;
+      console.log(`[SUBMIT_SCORE] Player ${playerId} scored ${score} (${scoringType})`);
+      
       const playerIndex = state.players.findIndex((p) => p.id === playerId);
+      console.log(`[SUBMIT_SCORE] Player index: ${playerIndex}, game state: ${state.gameState}`);
 
       if (playerIndex === -1 || state.gameState !== "playing") {
+        console.log(`[SUBMIT_SCORE] Early return - invalid player index or game state`);
         return state;
       }
 
       const player = state.players[playerIndex];
+      console.log(`[SUBMIT_SCORE] Current player:`, player);
+      
       let updatedPlayer = { ...player };
       let newPenaltyRecord: PenaltyRecord | null = null;
+      
       // Handle consecutive misses and elimination first
       if (score === 0) {
-        updatedPlayer.consecutiveMisses = (player.consecutiveMisses || 0) + 1;
+        const previousMisses = updatedPlayer.consecutiveMisses || 0;
+        updatedPlayer.consecutiveMisses = previousMisses + 1;
+        console.log(`[SUBMIT_SCORE] Miss recorded. Previous misses: ${previousMisses}, new total: ${updatedPlayer.consecutiveMisses}`);
+        
         if (updatedPlayer.consecutiveMisses >= 3) {
           updatedPlayer.eliminated = true;
+          console.log(`[SUBMIT_SCORE] PLAYER ELIMINATED: ${updatedPlayer.name} (${updatedPlayer.consecutiveMisses} misses)`);
           newPenaltyRecord = {
             playerId: updatedPlayer.id,
             playerName: updatedPlayer.name,
@@ -128,6 +140,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         }
       } else {
         updatedPlayer.consecutiveMisses = 0;
+        console.log(`[SUBMIT_SCORE] Score > 0, resetting consecutive misses to 0`);
       }
       
       // Use GameEngine for scoring logic, but preserve elimination state and consecutive misses
@@ -158,6 +171,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
 
       // Check if player won
       if (hasPlayerWon(updatedPlayer)) {
+        console.log(`[SUBMIT_SCORE] PLAYER WON: ${updatedPlayer.name} reached 50 points`);
         const completedGame = state.currentGame
           ? completeGame(state.currentGame, updatedPlayer)
           : null;
@@ -179,20 +193,43 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
           break;
         }
       }
+      console.log(`[SUBMIT_SCORE] Next player index: ${nextPlayerIndex}`);
+      
       // If no non-eliminated players, end game
       const nonEliminated = updatedPlayers.filter((p) => !p.eliminated);
+      console.log(`[SUBMIT_SCORE] Non-eliminated players:`, nonEliminated.map(p => ({ name: p.name, eliminated: p.eliminated })));
+      console.log(`[SUBMIT_SCORE] Non-eliminated count: ${nonEliminated.length}`);
+      
       if (nonEliminated.length <= 1) {
+        // If there's exactly one non-eliminated player, they win
+        const winner = nonEliminated.length === 1 ? nonEliminated[0] : null;
+        console.log(`[SUBMIT_SCORE] GAME ENDING DUE TO ELIMINATION. Winner:`, winner);
+        
+        const completedGame = state.currentGame && winner
+          ? completeGame(updatedCurrentGame || state.currentGame, winner)
+          : updatedCurrentGame || state.currentGame;
+
+        console.log(`[SUBMIT_SCORE] Completed game:`, completedGame);
+
         return {
           ...state,
           gameState: "finished",
           players: updatedPlayers.map((p) => ({ ...p, isActive: false })),
-          currentGame: state.currentGame,
+          currentGame: completedGame,
         };
       }
       const playersWithUpdatedActive = updatedPlayers.map((p, index) => ({
         ...p,
         isActive: index === nextPlayerIndex && !p.eliminated,
       }));
+
+      console.log(`[SUBMIT_SCORE] Final state - players:`, playersWithUpdatedActive.map(p => ({ 
+        name: p.name, 
+        isActive: p.isActive, 
+        eliminated: p.eliminated,
+        consecutiveMisses: p.consecutiveMisses 
+      })));
+      console.log(`[SUBMIT_SCORE] Final state - currentPlayerIndex: ${nextPlayerIndex}, gameState: playing`);
 
       return {
         ...state,
@@ -294,7 +331,28 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
     }
 
     case "NEW_GAME": {
-      const resetPlayers = resetPlayersForNewGame(state.players);
+      console.log(`[NEW_GAME] Starting new game. Players before reordering:`, state.players.map(p => ({ 
+        name: p.name, 
+        score: p.score,
+        eliminated: p.eliminated, 
+        consecutiveMisses: p.consecutiveMisses 
+      })));
+      
+      // First reorder players based on previous scores (inverted order)
+      const reorderedPlayers = reorderPlayersByPreviousScores(state.players);
+      console.log(`[NEW_GAME] Players after reordering:`, reorderedPlayers.map(p => ({ 
+        name: p.name, 
+        score: p.score
+      })));
+      
+      // Then reset all player stats for the new game
+      const resetPlayers = resetPlayersForNewGame(reorderedPlayers);
+      console.log(`[NEW_GAME] Players after reset:`, resetPlayers.map(p => ({ 
+        name: p.name, 
+        eliminated: p.eliminated, 
+        consecutiveMisses: p.consecutiveMisses 
+      })));
+      
       const gameHistory = state.currentGame
         ? [...state.gameHistory, state.currentGame]
         : state.gameHistory;

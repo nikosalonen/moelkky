@@ -50,6 +50,8 @@ function GameApp() {
         type: "success",
         title: "Game Started!",
         message: `Game started with ${players.length} players. Good luck!`,
+        duration: 4000,
+        priority: 'high',
       });
     } else if (result.error) {
       addToast({
@@ -64,12 +66,20 @@ function GameApp() {
    * Handle score submission with automatic turn advancement
    */
   const handleScoreSubmit = (score: number, scoringType: "single" | "multiple") => {
+    console.log(`[App] handleScoreSubmit called with score: ${score}, type: ${scoringType}`);
+    console.log(`[App] Current game state:`, gameState);
+    console.log(`[App] Current player:`, currentPlayer);
+    
     const result = submitScore(score, scoringType);
+    console.log(`[App] submitScore result:`, result);
+    
     if (result.success) {
       addToast({
         type: "success",
         title: "Score Submitted",
         message: `Score of ${score} points recorded for ${currentPlayer?.name}.`,
+        duration: 2000,
+        priority: 'low',
       });
     } else if (result.error) {
       addToast({
@@ -78,6 +88,11 @@ function GameApp() {
         message: result.error,
       });
     }
+    
+    console.log(`[App] After submitScore - game state:`, gameState);
+    console.log(`[App] After submitScore - current player:`, currentPlayer);
+    console.log(`[App] After submitScore - winner:`, winner);
+    
     // Turn advancement is handled automatically in the game logic
   };
 
@@ -91,6 +106,8 @@ function GameApp() {
         type: "warning",
         title: "Penalty Applied",
         message: `Penalty applied to ${currentPlayer?.name}. Score reset to 25.`,
+        duration: 3000,
+        priority: 'normal',
       });
     } else if (result.error) {
       addToast({
@@ -112,6 +129,8 @@ function GameApp() {
         type: "info",
         title: "New Game Started",
         message: "A new game has been started with the same players.",
+        duration: 4000,
+        priority: 'high',
       });
     } else if (result.error) {
       addToast({
@@ -188,6 +207,17 @@ function GameApp() {
             onScoreSubmit={(_playerId: string, score: number, scoringType: "single" | "multiple") => handleScoreSubmit(score, scoringType)}
             onPenalty={(_playerId: string, reason?: string) => handlePenaltyApply(reason)}
           />
+        )}
+        
+        {/* Debug: Show when no game panel is rendered */}
+        {gameState === "playing" && !currentPlayer && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <strong>Debug:</strong> Game state is "playing" but no current player found.
+            <br />
+            Players: {JSON.stringify(players.map(p => ({ name: p.name, isActive: p.isActive, eliminated: p.eliminated })))}
+            <br />
+            Current Player Index: {gameFlow.currentPlayerIndex}
+          </div>
         )}
 
         {/* Game State: Finished */}

@@ -25,7 +25,16 @@ export function GamePlayPanel({
   onScoreSubmit,
   onPenalty,
 }: GamePlayPanelProps) {
+  console.log(`[GamePlayPanel] Rendering with:`, {
+    playersCount: players.length,
+    gameState,
+    currentPlayerIndex,
+    currentPlayer: currentPlayer?.name,
+    players: players.map(p => ({ name: p.name, eliminated: p.eliminated, isActive: p.isActive }))
+  });
+  
   if (players.length === 0 || (gameState !== "playing" && gameState !== "finished")) {
+    console.log(`[GamePlayPanel] Early return - players.length: ${players.length}, gameState: ${gameState}`);
     return null;
   }
 

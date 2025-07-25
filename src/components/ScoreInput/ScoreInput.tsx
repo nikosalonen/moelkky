@@ -86,6 +86,8 @@ export function ScoreInput({
           type: "info",
           title: "Missed Throw",
           message: `No pins knocked down for ${currentPlayer.name}.`,
+          duration: 2000,
+          priority: 'low',
         });
       } catch (err) {
         const errorMessage = "Failed to submit miss. Please try again.";
@@ -132,11 +134,13 @@ export function ScoreInput({
         });
       }
       setSelectedPins([]);
-      addToast({
-        type: "success",
-        title: "Score Submitted",
-        message: `Score of ${score} points recorded for ${currentPlayer.name}.`,
-      });
+              addToast({
+          type: "success",
+          title: "Score Submitted",
+          message: `Score of ${score} points recorded for ${currentPlayer.name}.`,
+          duration: 2000,
+          priority: 'low',
+        });
     } catch (err) {
       const errorMessage = "Failed to submit score. Please try again.";
       setError(errorMessage);
@@ -171,6 +175,8 @@ export function ScoreInput({
         type: "warning",
         title: "Penalty Applied",
         message: `Penalty applied to ${currentPlayer.name}. Score reset to 25.`,
+        duration: 3000,
+        priority: 'normal',
       });
     } catch (err) {
       const errorMessage = "Failed to apply penalty. Please try again.";
@@ -191,11 +197,13 @@ export function ScoreInput({
   // Handle out-of-turn throw (unchanged)
   const handleOutOfTurn = () => {
     dispatch({ type: "OUT_OF_TURN_THROW", payload: { playerId: currentPlayer.id } });
-    addToast({
-      type: "info",
-      title: "Out-of-Turn Throw",
-      message: `${currentPlayer.name}'s throw was voided. Score reset to 25 if 37 or more.`,
-    });
+          addToast({
+        type: "info",
+        title: "Out-of-Turn Throw",
+        message: `${currentPlayer.name}'s throw was voided. Score reset to 25 if 37 or more.`,
+        duration: 3000,
+        priority: 'normal',
+      });
   };
 
   // Handle miss (zero-point throw)
@@ -217,6 +225,8 @@ export function ScoreInput({
         type: "info",
         title: "Missed Throw",
         message: `No pins knocked down for ${currentPlayer.name}.`,
+        duration: 2000,
+        priority: 'low',
       });
     } catch (err) {
       const errorMessage = "Failed to submit miss. Please try again.";

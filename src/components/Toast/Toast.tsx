@@ -18,6 +18,7 @@ export interface Toast {
   message?: string;
   duration?: number;
   persistent?: boolean;
+  priority?: 'low' | 'normal' | 'high';
 }
 
 interface ToastContextType {
@@ -34,16 +35,43 @@ const ToastContext = createContext<ToastContextType | null>(null);
  */
 export function ToastProvider({ children }: { children: any }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const MAX_TOASTS = 3; // Limit maximum number of visible toasts
 
   const addToast = useCallback((toast: Omit<Toast, "id">) => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const newToast: Toast = {
       id,
-      duration: 5000, // Default 5 seconds
+      duration: 3000, // Reduced default duration to 3 seconds for faster gameplay
+      priority: 'normal',
       ...toast,
     };
 
-    setToasts((prev) => [...prev, newToast]);
+    setToasts((prev) => {
+      // Check for duplicate toasts (same title and message)
+      const isDuplicate = prev.some(
+        existingToast => 
+          existingToast.title === newToast.title && 
+          existingToast.message === newToast.message &&
+          existingToast.type === newToast.type
+      );
+
+      if (isDuplicate) {
+        return prev; // Don't add duplicate
+      }
+
+      // Limit the number of toasts
+      const updatedToasts = [...prev, newToast];
+      if (updatedToasts.length > MAX_TOASTS) {
+        // Remove oldest low-priority toasts first
+        const sortedToasts = updatedToasts.sort((a, b) => {
+          const priorityOrder = { high: 3, normal: 2, low: 1 };
+          return (priorityOrder[b.priority || 'normal'] - priorityOrder[a.priority || 'normal']);
+        });
+        return sortedToasts.slice(0, MAX_TOASTS);
+      }
+
+      return updatedToasts;
+    });
 
     // Auto-remove toast after duration (unless persistent)
     if (!newToast.persistent && newToast.duration) {
@@ -168,14 +196,29 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
  * Toast Container that displays all toasts
  */
 function ToastContainer() {
-  const { toasts, removeToast } = useToast();
+  const { toasts, removeToast, clearToasts } = useToast();
 
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm pointer-events-none">
+      {/* Clear All Button */}
+      {toasts.length > 1 && (
+        <div className="pointer-events-auto">
+          <button
+            onClick={clearToasts}
+            className="bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity"
+            title="Clear all notifications"
+          >
+            Clear All ({toasts.length})
+          </button>
+        </div>
+      )}
+      
       {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+        <div key={toast.id} className="pointer-events-auto">
+          <ToastItem toast={toast} onRemove={removeToast} />
+        </div>
       ))}
     </div>
   );

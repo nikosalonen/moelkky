@@ -136,7 +136,29 @@ export function resetPlayersForNewGame(players: Player[]): Player[] {
     score: 0,
     penalties: 0,
     isActive: false,
+    eliminated: false,
+    consecutiveMisses: 0,
   }));
+}
+
+/**
+ * Reorders players for a new game based on previous scores (inverted order)
+ * Players with higher scores go later in the order
+ * @param players - Array of players to reorder
+ * @returns Array of players reordered by previous scores (ascending)
+ */
+export function reorderPlayersByPreviousScores(players: Player[]): Player[] {
+  // Create a copy of players with their current scores (before reset)
+  const playersWithScores = players.map(player => ({
+    ...player,
+    previousScore: player.score // Store the previous score before resetting
+  }));
+  
+  // Sort by previous score in ascending order (lowest score first, highest score last)
+  const sortedPlayers = playersWithScores.sort((a, b) => a.previousScore - b.previousScore);
+  
+  // Remove the previousScore property and return the reordered players
+  return sortedPlayers.map(({ previousScore, ...player }) => player);
 }
 
 /**
