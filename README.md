@@ -1,6 +1,11 @@
 # Mölkky Score Counter
 
+![VIBE CODE](https://img.shields.io/badge/VIBECODE-brightgreen)
+
+
 A modern, responsive web application for tracking scores and managing Mölkky games. Built with Preact, TypeScript, and Tailwind CSS.
+
+**This project was entirely vibecoded** - every line of code, feature, and design decision was created through AI-assisted development.
 
 ## 🎯 About Mölkky
 
