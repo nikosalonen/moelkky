@@ -16,16 +16,22 @@ import type {
   AppState,
   Player,
   PenaltyRecord,
+  Team,
+  GameMode,
 } from "../utils/types";
 import { sessionStorageUtil } from "../utils/storage/sessionStorage";
 import {
   createGame,
   createPenaltyRecord,
   applyPenalty,
+  applyTeamScore,
   hasPlayerWon,
+  hasTeamWon,
   getNextPlayerIndex,
+  getNextTeamIndex,
   completeGame,
   resetPlayersForNewGame,
+  resetTeamsForNewGame,
   reorderPlayersByPreviousScores,
 } from "../utils/gameStateUtils";
 import { GameEngine, ScoringType } from "../utils/gameLogic";
@@ -36,9 +42,15 @@ type GameAction =
   | { type: "ADD_PLAYER"; payload: Player }
   | { type: "UPDATE_PLAYER"; payload: { id: string; updates: Partial<Player> } }
   | { type: "REMOVE_PLAYER"; payload: string }
+  | { type: "ADD_TEAM"; payload: Team }
+  | { type: "UPDATE_TEAM"; payload: { teamId: string; updates: Partial<Team> } }
+  | { type: "REMOVE_TEAM"; payload: string }
+  | { type: "SET_GAME_MODE"; payload: GameMode }
   | { type: "START_GAME" }
   | { type: "SUBMIT_SCORE"; payload: { playerId: string; score: number; scoringType: "single" | "multiple" } }
+  | { type: "SUBMIT_TEAM_SCORE"; payload: { teamId: string; score: number; scoringType: "single" | "multiple" } }
   | { type: "APPLY_PENALTY"; payload: { playerId: string; reason?: string } }
+  | { type: "APPLY_TEAM_PENALTY"; payload: { teamId: string; reason?: string } }
   | { type: "NEXT_TURN" }
   | { type: "END_GAME"; payload: Player }
   | { type: "NEW_GAME" }
@@ -49,9 +61,12 @@ type GameAction =
 const initialState: AppState = {
   gameState: "setup",
   players: [],
+  teams: [],
   currentPlayerIndex: 0,
+  currentTeamIndex: 0,
   gameHistory: [],
   currentGame: null,
+  gameMode: "individual",
 };
 
 // Game state reducer
@@ -82,27 +97,86 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         players: state.players.filter((player) => player.id !== action.payload),
       };
 
-    case "START_GAME":
-      if (state.players.length < 2) {
-        return state; // Cannot start game with less than 2 players
-      }
-
-      const gamePlayersWithActiveFirst = state.players.map((player, index) => ({
-        ...player,
-        isActive: index === 0,
-        score: 0,
-        penalties: 0,
-      }));
-
-      const newGame = createGame(gamePlayersWithActiveFirst);
-
+    case "ADD_TEAM":
       return {
         ...state,
-        gameState: "playing",
-        players: gamePlayersWithActiveFirst,
-        currentPlayerIndex: 0,
-        currentGame: newGame,
+        teams: [...(state.teams || []), action.payload],
       };
+
+    case "UPDATE_TEAM":
+      return {
+        ...state,
+        teams: (state.teams || []).map((team) =>
+          team.id === action.payload.teamId
+            ? { ...team, ...action.payload.updates }
+            : team
+        ),
+      };
+
+    case "REMOVE_TEAM":
+      return {
+        ...state,
+        teams: (state.teams || []).filter((team) => team.id !== action.payload),
+      };
+
+    case "SET_GAME_MODE":
+      return {
+        ...state,
+        gameMode: action.payload,
+      };
+
+    case "START_GAME":
+      if (state.gameMode === "individual") {
+        if (state.players.length < 2) {
+          return state; // Cannot start game with less than 2 players
+        }
+
+        const gamePlayersWithActiveFirst = state.players.map((player, index) => ({
+          ...player,
+          isActive: index === 0,
+          score: 0,
+          penalties: 0,
+        }));
+
+        const newGame = createGame(gamePlayersWithActiveFirst, "individual");
+
+        return {
+          ...state,
+          gameState: "playing",
+          players: gamePlayersWithActiveFirst,
+          currentPlayerIndex: 0,
+          currentGame: newGame,
+        };
+      } else {
+        // Team game
+        if (!state.teams || state.teams.length < 2) {
+          return state; // Cannot start team game with less than 2 teams
+        }
+
+        const gameTeamsWithActiveFirst = state.teams.map((team, index) => ({
+          ...team,
+          isActive: index === 0,
+          score: 0,
+          penalties: 0,
+          consecutiveMisses: 0,
+          eliminated: false,
+          players: team.players.map(player => ({
+            ...player,
+            score: 0,
+            penalties: 0,
+          })),
+        }));
+
+        const newGame = createGame([], "team", gameTeamsWithActiveFirst);
+
+        return {
+          ...state,
+          gameState: "playing",
+          teams: gameTeamsWithActiveFirst,
+          currentTeamIndex: 0,
+          currentGame: newGame,
+        };
+      }
 
     case "SUBMIT_SCORE": {
       const { playerId, score, scoringType } = action.payload;
@@ -173,7 +247,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       if (hasPlayerWon(updatedPlayer)) {
         console.log(`[SUBMIT_SCORE] PLAYER WON: ${updatedPlayer.name} reached 50 points`);
         const completedGame = state.currentGame
-          ? completeGame(state.currentGame, updatedPlayer)
+          ? completeGame(state.currentGame, updatedPlayer, null)
           : null;
 
         return {
@@ -206,7 +280,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         console.log(`[SUBMIT_SCORE] GAME ENDING DUE TO ELIMINATION. Winner:`, winner);
         
         const completedGame = state.currentGame && winner
-          ? completeGame(updatedCurrentGame || state.currentGame, winner)
+          ? completeGame(updatedCurrentGame || state.currentGame, winner, null)
           : updatedCurrentGame || state.currentGame;
 
         console.log(`[SUBMIT_SCORE] Completed game:`, completedGame);
@@ -241,6 +315,140 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
               players: playersWithUpdatedActive,
               totalRounds:
                 updatedCurrentGame.totalRounds + (nextPlayerIndex === 0 ? 1 : 0),
+            }
+          : null,
+      };
+    }
+
+    case "SUBMIT_TEAM_SCORE": {
+      const { teamId, score, scoringType } = action.payload;
+      console.log(`[SUBMIT_TEAM_SCORE] Team ${teamId} scored ${score} (${scoringType})`);
+      
+      if (!state.teams || state.gameState !== "playing") {
+        console.log(`[SUBMIT_TEAM_SCORE] Early return - no teams or invalid game state`);
+        return state;
+      }
+
+      const teamIndex = state.teams.findIndex((t) => t.id === teamId);
+      if (teamIndex === -1) {
+        console.log(`[SUBMIT_TEAM_SCORE] Team not found`);
+        return state;
+      }
+
+      const team = state.teams[teamIndex];
+      console.log(`[SUBMIT_TEAM_SCORE] Current team:`, team);
+      
+      let updatedTeam = { ...team };
+      let newPenaltyRecord: PenaltyRecord | null = null;
+      
+      // Handle consecutive misses and elimination for team
+      if (score === 0) {
+        const previousMisses = updatedTeam.consecutiveMisses || 0;
+        updatedTeam.consecutiveMisses = previousMisses + 1;
+        console.log(`[SUBMIT_TEAM_SCORE] Miss recorded. Previous misses: ${previousMisses}, new total: ${updatedTeam.consecutiveMisses}`);
+        
+        if (updatedTeam.consecutiveMisses >= 3) {
+          updatedTeam.eliminated = true;
+          console.log(`[SUBMIT_TEAM_SCORE] TEAM ELIMINATED: ${updatedTeam.name} (${updatedTeam.consecutiveMisses} misses)`);
+          newPenaltyRecord = {
+            playerId: "", // No specific player for team elimination
+            playerName: updatedTeam.name,
+            teamId: updatedTeam.id,
+            teamName: updatedTeam.name,
+            timestamp: new Date(),
+            reason: 'team elimination (3 misses)',
+          };
+        }
+      } else {
+        updatedTeam.consecutiveMisses = 0;
+        console.log(`[SUBMIT_TEAM_SCORE] Score > 0, resetting consecutive misses to 0`);
+      }
+      
+      // Apply team score using the utility function
+      updatedTeam = applyTeamScore(updatedTeam, score);
+      
+      const updatedTeams = [...state.teams];
+      updatedTeams[teamIndex] = updatedTeam;
+
+      // Add penalty record if needed
+      let updatedCurrentGame = state.currentGame;
+      if (newPenaltyRecord && updatedCurrentGame) {
+        updatedCurrentGame = {
+          ...updatedCurrentGame,
+          penalties: [...updatedCurrentGame.penalties, newPenaltyRecord],
+        };
+      }
+
+      // Check if team won
+      if (hasTeamWon(updatedTeam)) {
+        console.log(`[SUBMIT_TEAM_SCORE] TEAM WON: ${updatedTeam.name} reached 50 points`);
+        const completedGame = state.currentGame
+          ? completeGame(state.currentGame, null, updatedTeam)
+          : null;
+
+        return {
+          ...state,
+          gameState: "finished",
+          teams: updatedTeams.map((t) => ({ ...t, isActive: false })),
+          currentGame: completedGame,
+        };
+      }
+
+      // Move to next team, skipping eliminated
+      let nextTeamIndex = state.currentTeamIndex || 0;
+      for (let i = 1; i <= state.teams.length; i++) {
+        const idx = (nextTeamIndex + i) % state.teams.length;
+        if (!updatedTeams[idx].eliminated) {
+          nextTeamIndex = idx;
+          break;
+        }
+      }
+      console.log(`[SUBMIT_TEAM_SCORE] Next team index: ${nextTeamIndex}`);
+      
+      // If no non-eliminated teams, end game
+      const nonEliminated = updatedTeams.filter((t) => !t.eliminated);
+      console.log(`[SUBMIT_TEAM_SCORE] Non-eliminated teams:`, nonEliminated.map(t => ({ name: t.name, eliminated: t.eliminated })));
+      console.log(`[SUBMIT_TEAM_SCORE] Non-eliminated count: ${nonEliminated.length}`);
+      
+      if (nonEliminated.length <= 1) {
+        // If there's exactly one non-eliminated team, they win
+        const winner = nonEliminated.length === 1 ? nonEliminated[0] : null;
+        console.log(`[SUBMIT_TEAM_SCORE] GAME ENDING DUE TO ELIMINATION. Winner:`, winner);
+        
+        const completedGame = state.currentGame && winner
+          ? completeGame(updatedCurrentGame || state.currentGame, null, winner)
+          : updatedCurrentGame || state.currentGame;
+
+        return {
+          ...state,
+          gameState: "finished",
+          teams: updatedTeams.map((t) => ({ ...t, isActive: false })),
+          currentGame: completedGame,
+        };
+      }
+
+      const teamsWithUpdatedActive = updatedTeams.map((t, index) => ({
+        ...t,
+        isActive: index === nextTeamIndex && !t.eliminated,
+      }));
+
+      console.log(`[SUBMIT_TEAM_SCORE] Final state - teams:`, teamsWithUpdatedActive.map(t => ({ 
+        name: t.name, 
+        isActive: t.isActive, 
+        eliminated: t.eliminated,
+        consecutiveMisses: t.consecutiveMisses 
+      })));
+
+      return {
+        ...state,
+        teams: teamsWithUpdatedActive,
+        currentTeamIndex: nextTeamIndex,
+        currentGame: updatedCurrentGame
+          ? {
+              ...updatedCurrentGame,
+              teams: teamsWithUpdatedActive,
+              totalRounds:
+                updatedCurrentGame.totalRounds + (nextTeamIndex === 0 ? 1 : 0),
             }
           : null,
       };
@@ -349,8 +557,8 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       const resetPlayers = resetPlayersForNewGame(reorderedPlayers);
       console.log(`[NEW_GAME] Players after reset:`, resetPlayers.map(p => ({ 
         name: p.name, 
-        eliminated: p.eliminated, 
-        consecutiveMisses: p.consecutiveMisses 
+        score: p.score,
+        penalties: p.penalties
       })));
       
       const gameHistory = state.currentGame

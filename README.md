@@ -8,7 +8,10 @@ Mölkky is a Finnish throwing game where players throw a wooden pin (the "mölkk
 
 ## ✨ Features
 
+- **Game Modes**: Support for both individual and team-based games
 - **Player Management**: Add, remove, and manage players for your game
+- **Team Management**: Create and manage teams with up to 4 players per team
+- **Team Player Ordering**: Reorder players within teams to set throwing sequence
 - **Score Tracking**: Record scores with automatic turn advancement
 - **Penalty System**: Apply penalties that reset player scores to 25
 - **Game History**: View and manage previous games
@@ -56,17 +59,23 @@ The built files will be in the `dist` directory.
 
 ### Starting a Game
 
-1. **Add Players**: Enter player names and click "Add Player" (minimum 2 players required)
-2. **Start Game**: Click "Start Game" to begin
-3. **Track Scores**: Use the score input to record points for each player
-4. **Apply Penalties**: Use the penalty button if a player violates rules
+1. **Choose Game Mode**: Select between Individual or Team mode
+2. **Add Players**: Enter player names and click "Add Player" (minimum 2 players required)
+3. **Create Teams** (Team Mode): Create teams and assign players (2-4 players per team, minimum 2 teams)
+4. **Reorder Team Players** (Team Mode): Use the "Reorder" button to arrange players in throwing order
+5. **Start Game**: Click "Start Game" to begin
+6. **Track Scores**: Use the score input to record points for each player/team
+7. **Apply Penalties**: Use the penalty button if a player/team violates rules
 
 ### Scoring Rules
 
 - **Single Pin**: Score the number on the pin
 - **Multiple Pins**: Score the number of pins knocked down
 - **Exceeding 50**: Score resets to 25
-- **Winning**: First player to reach exactly 50 points wins
+- **Winning**: First player/team to reach exactly 50 points wins
+- **Consecutive Misses**: 
+  - **Individual Mode**: Players are eliminated after 3 consecutive zero-point turns
+  - **Team Mode**: Teams are eliminated after 3 consecutive zero-point turns
 
 ### Game History
 

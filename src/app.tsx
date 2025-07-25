@@ -7,8 +7,11 @@
 
 import { useState } from "preact/hooks";
 import { GameProvider, useGameFlow, usePlayerManagement } from "./hooks";
+import { useGameContext } from "./context/GameContext";
 import { PlayerManager } from "./components/PlayerManager/PlayerManager";
 import { GamePlayPanel } from "./components/GameBoard/GameBoard";
+import { GameModeSelector } from "./components/GameModeSelector";
+import { TeamManager } from "./components/TeamManager";
 
 import { WinnerDisplay } from "./components/WinnerDisplay";
 import { GameHistory } from "./components/GameHistory";
@@ -36,6 +39,8 @@ function GameApp() {
   } = gameFlow;
 
   const { players } = playerManagement;
+  const { state } = useGameContext();
+  const { gameMode, teams } = state;
 
   // State for game history modal
   const [isHistoryVisible, setIsHistoryVisible] = useState(false);
@@ -173,8 +178,20 @@ function GameApp() {
         {/* Game State: Setup */}
         {gameState === "setup" && (
           <div className="space-y-4 sm:space-y-6">
+            {/* Game Mode Selector */}
+            <GameModeSelector gameActive={false} />
+
             {/* Player Management */}
             <PlayerManager players={players} gameActive={false} />
+
+            {/* Team Management (only show for team mode) */}
+            {gameMode === "team" && (
+              <TeamManager 
+                teams={teams || []} 
+                players={players} 
+                gameActive={false} 
+              />
+            )}
 
             {/* Start Game Button */}
             <div className="text-center">
@@ -188,7 +205,9 @@ function GameApp() {
                 }`}
               >
                 {canStartGame
-                  ? "Start Game"
+                  ? `Start ${gameMode === "team" ? "Team " : ""}Game`
+                  : gameMode === "team"
+                  ? `Need ${Math.max(0, 2 - (teams?.length || 0))} more team${(teams?.length || 0) === 1 ? "" : "s"}`
                   : `Need ${Math.max(0, 2 - players.length)} more player${
                       players.length === 1 ? "" : "s"
                     }`}

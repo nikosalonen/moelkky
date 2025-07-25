@@ -7,24 +7,32 @@
 
 import { useCallback } from "preact/hooks";
 import { useGameContext } from "../context/GameContext";
-import { findWinner, getPointsNeeded } from "../utils/gameStateUtils";
-import type { Player, GameState } from "../utils/types";
+import { findWinner, findWinningTeam, getPointsNeeded, getTeamPointsNeeded } from "../utils/gameStateUtils";
+import type { Player, Team, GameState, GameMode } from "../utils/types";
 
 export interface UseGameFlowReturn {
   gameState: GameState;
+  gameMode: GameMode;
   currentPlayer: Player | null;
+  currentTeam: Team | null;
   currentPlayerIndex: number;
+  currentTeamIndex: number;
   canStartGame: boolean;
   winner: Player | null;
+  winningTeam: Team | null;
   startGame: () => { success: boolean; error?: string };
   submitScore: (score: number, scoringType: "single" | "multiple") => { success: boolean; error?: string };
+  submitTeamScore: (score: number, scoringType: "single" | "multiple") => { success: boolean; error?: string };
   applyPenalty: (reason?: string) => { success: boolean; error?: string };
+  applyTeamPenalty: (reason?: string) => { success: boolean; error?: string };
   nextTurn: () => { success: boolean; error?: string };
   endGame: () => { success: boolean; error?: string };
   newGame: () => { success: boolean; error?: string };
   resetGame: () => { success: boolean; error?: string };
   getPointsNeededForPlayer: (playerId: string) => number;
+  getPointsNeededForTeam: (teamId: string) => number;
   isPlayerTurn: (playerId: string) => boolean;
+  isTeamTurn: (teamId: string) => boolean;
 }
 
 /**
@@ -276,20 +284,41 @@ export function useGameFlow(): UseGameFlowReturn {
     [currentPlayer]
   );
 
+  // Get current team for team games
+  const currentTeam = state.teams && state.currentTeamIndex !== undefined 
+    ? state.teams[state.currentTeamIndex] || null 
+    : null;
+
+  // Find winning team if game is finished
+  const winningTeam = state.gameState === "finished" && state.teams
+    ? (state.currentGame?.winningTeam || findWinningTeam(state.teams))
+    : null;
+
   return {
     gameState: state.gameState,
+    gameMode: state.gameMode,
     currentPlayer,
+    currentTeam,
     currentPlayerIndex: state.currentPlayerIndex,
+    currentTeamIndex: state.currentTeamIndex || 0,
     canStartGame,
     winner,
+    winningTeam,
     startGame,
     submitScore,
+    submitTeamScore: () => ({ success: false, error: "Not implemented yet" }),
     applyPenalty,
+    applyTeamPenalty: () => ({ success: false, error: "Not implemented yet" }),
     nextTurn,
     endGame,
     newGame,
     resetGame,
     getPointsNeededForPlayer,
+    getPointsNeededForTeam: (teamId: string) => {
+      const team = state.teams?.find(t => t.id === teamId);
+      return team ? getTeamPointsNeeded(team) : 0;
+    },
     isPlayerTurn,
+    isTeamTurn: (teamId: string) => currentTeam?.id === teamId,
   };
 }
