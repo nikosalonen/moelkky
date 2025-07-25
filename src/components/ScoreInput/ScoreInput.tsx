@@ -9,6 +9,8 @@ import { useState } from "preact/hooks";
 import type { Player } from "../../utils/types";
 import { validateScore } from "../../utils/validation";
 import { useGameContext } from "../../context/GameContext";
+import { useToast } from "../Toast";
+import { InlineSpinner } from "../LoadingSpinner";
 
 interface ScoreInputProps {
   currentPlayer: Player;
@@ -24,11 +26,20 @@ export function ScoreInput({
   onPenalty,
 }: ScoreInputProps) {
   const { dispatch } = useGameContext();
+  const { addToast } = useToast();
   const [inputMethod, setInputMethod] = useState<InputMethod>("single");
   const [scoreValue, setScoreValue] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [showPenaltyConfirm, setShowPenaltyConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (currentPlayer.eliminated) {
+    return (
+      <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 text-center text-gray-500">
+        <span className="text-lg font-semibold">{currentPlayer.name} has been eliminated and cannot play further turns.</span>
+      </div>
+    );
+  }
 
   // Clear error after a delay
   const clearError = () => {
@@ -41,7 +52,13 @@ export function ScoreInput({
 
     const score = parseInt(scoreValue);
     if (isNaN(score)) {
-      setError("Please enter a valid number");
+      const errorMessage = "Please enter a valid number";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Invalid Score",
+        message: errorMessage,
+      });
       clearError();
       return;
     }
@@ -49,6 +66,11 @@ export function ScoreInput({
     const validation = validateScore(score, inputMethod === "single");
     if (!validation.isValid) {
       setError(validation.error || "Invalid score");
+      addToast({
+        type: "error",
+        title: "Invalid Score",
+        message: validation.error || "Invalid score",
+      });
       clearError();
       return;
     }
@@ -69,15 +91,27 @@ export function ScoreInput({
 
       // Clear input after successful submission
       setScoreValue("");
+      
+      addToast({
+        type: "success",
+        title: "Score Submitted",
+        message: `Score of ${score} points recorded for ${currentPlayer.name}.`,
+      });
     } catch (err) {
-      setError("Failed to submit score. Please try again.");
+      const errorMessage = "Failed to submit score. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Failed to Submit Score",
+        message: errorMessage,
+      });
       clearError();
+    } finally {
+      // Reset submitting state after a brief delay to show loading state
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 100);
     }
-
-    // Reset submitting state after a brief delay to show loading state
-    setTimeout(() => {
-      setIsSubmitting(false);
-    }, 100);
   };
 
   // Handle penalty application
@@ -97,15 +131,27 @@ export function ScoreInput({
           payload: { playerId: currentPlayer.id, reason },
         });
       }
+      
+      addToast({
+        type: "warning",
+        title: "Penalty Applied",
+        message: `Penalty applied to ${currentPlayer.name}. Score reset to 25.`,
+      });
     } catch (err) {
-      setError("Failed to apply penalty. Please try again.");
+      const errorMessage = "Failed to apply penalty. Please try again.";
+      setError(errorMessage);
+      addToast({
+        type: "error",
+        title: "Failed to Apply Penalty",
+        message: errorMessage,
+      });
       clearError();
+    } finally {
+      // Reset submitting state after a brief delay to show loading state
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 100);
     }
-
-    // Reset submitting state after a brief delay to show loading state
-    setTimeout(() => {
-      setIsSubmitting(false);
-    }, 100);
   };
 
   // Handle key press events
@@ -264,9 +310,16 @@ export function ScoreInput({
             type="button"
             onClick={handleScoreSubmit}
             disabled={!scoreValue.trim() || isSubmitting}
-            className="px-4 sm:px-6 py-3 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+            className="px-4 sm:px-6 py-3 sm:py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
           >
-            Submit Score
+            {isSubmitting ? (
+              <>
+                <InlineSpinner size="sm" variant="primary" />
+                <span className="ml-2">Submitting...</span>
+              </>
+            ) : (
+              "Submit Score"
+            )}
           </button>
         </div>
       </div>
@@ -313,9 +366,16 @@ export function ScoreInput({
               <button
                 onClick={() => handlePenalty()}
                 disabled={isSubmitting}
-                className="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+                className="px-4 py-3 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
               >
-                {isSubmitting ? "Applying..." : "Confirm Penalty"}
+                {isSubmitting ? (
+                  <>
+                    <InlineSpinner size="sm" variant="primary" />
+                    <span className="ml-2">Applying...</span>
+                  </>
+                ) : (
+                  "Confirm Penalty"
+                )}
               </button>
             </div>
           </div>

@@ -110,7 +110,18 @@ function gameReducer(state: AppState, action: GameAction): AppState {
       }
 
       const player = state.players[playerIndex];
-      const updatedPlayer = applyScore(player, score);
+      let updatedPlayer = { ...player };
+      let eliminated = false;
+      if (score === 0) {
+        updatedPlayer.consecutiveMisses = (player.consecutiveMisses || 0) + 1;
+        if (updatedPlayer.consecutiveMisses >= 3) {
+          updatedPlayer.eliminated = true;
+          eliminated = true;
+        }
+      } else {
+        updatedPlayer.consecutiveMisses = 0;
+      }
+      updatedPlayer = applyScore(updatedPlayer, score);
       const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
 
@@ -128,14 +139,30 @@ function gameReducer(state: AppState, action: GameAction): AppState {
         };
       }
 
-      // Move to next player
-      const nextPlayerIndex = getNextPlayerIndex(
-        state.currentPlayerIndex,
-        state.players.length
-      );
+      // Move to next player, skipping eliminated
+      let nextPlayerIndex = state.currentPlayerIndex;
+      let found = false;
+      for (let i = 1; i <= state.players.length; i++) {
+        const idx = (state.currentPlayerIndex + i) % state.players.length;
+        if (!updatedPlayers[idx].eliminated) {
+          nextPlayerIndex = idx;
+          found = true;
+          break;
+        }
+      }
+      // If no non-eliminated players, end game
+      const nonEliminated = updatedPlayers.filter((p) => !p.eliminated);
+      if (nonEliminated.length <= 1) {
+        return {
+          ...state,
+          gameState: "finished",
+          players: updatedPlayers.map((p) => ({ ...p, isActive: false })),
+          currentGame: state.currentGame,
+        };
+      }
       const playersWithUpdatedActive = updatedPlayers.map((p, index) => ({
         ...p,
-        isActive: index === nextPlayerIndex,
+        isActive: index === nextPlayerIndex && !p.eliminated,
       }));
 
       return {

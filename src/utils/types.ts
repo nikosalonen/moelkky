@@ -13,6 +13,8 @@ export interface Player {
   score: number;
   penalties: number;
   isActive: boolean;
+  consecutiveMisses?: number; // Number of consecutive zero-point turns
+  eliminated?: boolean; // True if eliminated after three misses
 }
 
 /**

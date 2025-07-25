@@ -30,6 +30,9 @@ export function GameBoard({
 
   // Get status text for player
   const getPlayerStatus = (player: Player, _index: number): string => {
+    if (player.eliminated) {
+      return "Eliminated";
+    }
     if (gameState === "finished" && player.score === 50) {
       return "Winner!";
     }
@@ -41,6 +44,9 @@ export function GameBoard({
 
   // Get status color classes
   const getStatusClasses = (player: Player, _index: number): string => {
+    if (player.eliminated) {
+      return "bg-gray-200 text-gray-400 border-gray-300 opacity-60";
+    }
     if (player.isActive) {
       return "bg-blue-100 text-blue-800 border-blue-200";
     }

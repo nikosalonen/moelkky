@@ -10,6 +10,7 @@ import { describe, it, expect } from "vitest";
 import { GameBoard } from "../../src/components/GameBoard/GameBoard";
 import type { Player, GameState } from "../../src/utils/types";
 import { beforeEach } from "node:test";
+import { h } from 'preact';
 
 // Mock players for testing
 const createMockPlayer = (
@@ -397,5 +398,17 @@ describe("GameBoard Component", () => {
       );
       expect(elementWithTitle).toHaveAttribute("title", "VeryLongName");
     });
+  });
+
+  it('shows eliminated players as Eliminated and visually distinct', () => {
+    const players = [
+      { id: '1', name: 'Alice', score: 0, penalties: 0, isActive: false, eliminated: true },
+      { id: '2', name: 'Bob', score: 10, penalties: 0, isActive: true, eliminated: false },
+    ];
+    const { getByText } = render(
+      <GameBoard players={players} currentPlayerIndex={1} gameState="playing" />
+    );
+    expect(getByText('Eliminated')).toBeInTheDocument();
+    expect(getByText('Alice').parentElement).toHaveClass('text-gray-400');
   });
 });
