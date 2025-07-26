@@ -626,4 +626,138 @@ export class GamePlayPage extends BasePage {
     const hasNoWinner = await this.hasNoWinner();
     expect(hasNoWinner).toBe(true);
   }
+
+  /**
+   * End the current game and return to setup
+   */
+  async endGame(): Promise<void> {
+    await this.page.click('button:has-text("End Game")');
+    
+    // Wait for the game to end and return to setup
+    await this.page.waitForSelector('button:has-text("Start Game"), button:has-text("Start Team Game")');
+  }
+
+  /**
+   * Check if end game button is visible
+   */
+  async isEndGameButtonVisible(): Promise<boolean> {
+    try {
+      const endGameButton = this.page.locator('button:has-text("End Game")');
+      await endGameButton.waitFor({ timeout: 1000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Assert that end game button is visible
+   */
+  async assertEndGameButtonVisible(visible: boolean = true): Promise<void> {
+    const isVisible = await this.isEndGameButtonVisible();
+    expect(isVisible).toBe(visible);
+  }
+
+  /**
+   * Wait for toast notification to appear
+   */
+  async waitForToastNotification(expectedText: string): Promise<void> {
+    // Try different toast selectors
+    const selectors = [
+      `.toast:has-text("${expectedText}")`,
+      `[role="alert"]:has-text("${expectedText}")`,
+      `.notification:has-text("${expectedText}")`,
+      `div:has-text("${expectedText}"):has-text("Game")`
+    ];
+    
+    for (const selector of selectors) {
+      try {
+        await this.page.waitForSelector(selector, { timeout: 2000 });
+        return;
+      } catch {
+        continue;
+      }
+    }
+    
+    // If none of the specific selectors work, just wait for any text containing the expected text
+    await this.page.waitForSelector(`*:has-text("${expectedText}")`, { timeout: 5000 });
+  }
+
+  /**
+   * Assert that a toast notification appears with specific text
+   */
+  async assertToastNotification(expectedText: string): Promise<void> {
+    await this.waitForToastNotification(expectedText);
+    const toast = this.page.locator(`*:has-text("${expectedText}")`).first();
+    await expect(toast).toBeVisible();
+  }
+
+  /**
+   * Open game history modal
+   */
+  async openGameHistory(): Promise<void> {
+    await this.page.click('button:has-text("View Game History")');
+    // Try different modal selectors
+    const selectors = [
+      '.modal:has-text("Game History")',
+      '[role="dialog"]:has-text("Game History")',
+      '.fixed:has-text("Game History")',
+      'div:has-text("Game History"):has-text("Previous")'
+    ];
+    
+    for (const selector of selectors) {
+      try {
+        await this.page.waitForSelector(selector, { timeout: 2000 });
+        return;
+      } catch {
+        continue;
+      }
+    }
+    
+    // If none work, just wait for any element with "Game History"
+    await this.page.waitForSelector('*:has-text("Game History")', { timeout: 5000 });
+  }
+
+  /**
+   * Close game history modal
+   */
+  async closeGameHistory(): Promise<void> {
+    await this.page.click('.modal button:has-text("Close"), .modal button:has-text("×")');
+    await this.page.waitForSelector('.modal:has-text("Game History")', { state: 'hidden' });
+  }
+
+  /**
+   * Check if game history modal is visible
+   */
+  async isGameHistoryVisible(): Promise<boolean> {
+    try {
+      const selectors = [
+        '.modal:has-text("Game History")',
+        '[role="dialog"]:has-text("Game History")',
+        '.fixed:has-text("Game History")',
+        'div:has-text("Game History"):has-text("Previous")'
+      ];
+      
+      for (const selector of selectors) {
+        try {
+          const modal = this.page.locator(selector);
+          await modal.waitFor({ timeout: 1000 });
+          return true;
+        } catch {
+          continue;
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Assert that game history modal is visible
+   */
+  async assertGameHistoryVisible(visible: boolean = true): Promise<void> {
+    const isVisible = await this.isGameHistoryVisible();
+    expect(isVisible).toBe(visible);
+  }
 }

@@ -452,4 +452,96 @@ export class GameSetupPage extends BasePage {
   async assertStartGameEnabled(enabled: boolean = true): Promise<void> {
     await this.assertElementEnabled(this.startGameButton, enabled);
   }
+
+  /**
+   * Start reordering players for a specific team
+   */
+  async startTeamReorder(teamName: string): Promise<void> {
+    const reorderButton = this.page.locator(`.border:has-text("${teamName}") button:has-text("Reorder")`);
+    await reorderButton.click();
+    
+    // Wait for reordering interface to appear
+    await this.page.waitForSelector('.bg-blue-50:has-text("Click the arrows to reorder players")');
+  }
+
+  /**
+   * Move a player up in the team order
+   */
+  async movePlayerUp(playerName: string): Promise<void> {
+    const upButton = this.page.locator(`text=${playerName} >> xpath=..//button[text()="↑"]`);
+    await upButton.click();
+  }
+
+  /**
+   * Move a player down in the team order
+   */
+  async movePlayerDown(playerName: string): Promise<void> {
+    const downButton = this.page.locator(`text=${playerName} >> xpath=..//button[text()="↓"]`);
+    await downButton.click();
+  }
+
+  /**
+   * Save the current team player order
+   */
+  async saveTeamOrder(): Promise<void> {
+    await this.page.click('button:has-text("Save Order")');
+    
+    // Wait for reordering to complete
+    await this.page.waitForSelector('button:has-text("Reorder")');
+  }
+
+  /**
+   * Cancel team reordering and restore original order
+   */
+  async cancelTeamReorder(): Promise<void> {
+    await this.page.click('button:has-text("Cancel")');
+    
+    // Wait for reordering to complete
+    await this.page.waitForSelector('button:has-text("Reorder")');
+  }
+
+  /**
+   * Get the current player order for a team
+   */
+  async getTeamPlayerOrder(teamName: string): Promise<string[]> {
+    const teamElement = this.page.locator(`.border:has-text("${teamName}")`);
+    const playerListText = await teamElement.locator('.text-sm.text-gray-600').textContent();
+    
+    if (!playerListText) return [];
+    
+    // Extract player names from format "1. Alice, 2. Bob, 3. Charlie"
+    const playerMatches = playerListText.match(/\d+\.\s*([^,]+)/g);
+    return playerMatches 
+      ? playerMatches.map(match => match.replace(/\d+\.\s*/, '').trim())
+      : [];
+  }
+
+  /**
+   * Assert that a team has the expected player order
+   */
+  async assertTeamPlayerOrder(teamName: string, expectedOrder: string[]): Promise<void> {
+    const actualOrder = await this.getTeamPlayerOrder(teamName);
+    expect(actualOrder).toEqual(expectedOrder);
+  }
+
+  /**
+   * Check if reorder button is visible for a team
+   */
+  async isReorderButtonVisible(teamName: string): Promise<boolean> {
+    try {
+      const reorderButton = this.page.locator(`.border:has-text("${teamName}") button:has-text("Reorder")`);
+      await reorderButton.waitFor({ timeout: 1000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Assert that reorder button is visible for a team
+   */
+  async assertReorderButtonVisible(teamName: string, visible: boolean = true): Promise<void> {
+    const isVisible = await this.isReorderButtonVisible(teamName);
+    expect(isVisible).toBe(visible);
+  }
 }
