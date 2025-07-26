@@ -68,21 +68,21 @@ describe("State Management Integration", () => {
 
     // Alice scores 10
     act(() => {
-      const response = result.current.game.submitScore(10);
+      const response = result.current.game.submitScore(10, "single");
       expect(response.success).toBe(true);
     });
 
     expect(result.current.game.currentPlayer?.name).toBe("Bob");
     expect(result.current.player.getPlayerByName("Alice")?.score).toBe(10);
 
-    // Bob scores 15
+    // Bob scores 12 (valid score)
     act(() => {
-      const response = result.current.game.submitScore(15);
+      const response = result.current.game.submitScore(12, "single");
       expect(response.success).toBe(true);
     });
 
     expect(result.current.game.currentPlayer?.name).toBe("Alice");
-    expect(result.current.player.getPlayerByName("Bob")?.score).toBe(15);
+    expect(result.current.player.getPlayerByName("Bob")?.score).toBe(12);
 
     // Apply penalty to Alice
     act(() => {
@@ -94,8 +94,24 @@ describe("State Management Integration", () => {
     expect(result.current.player.getPlayerByName("Alice")?.penalties).toBe(1);
 
     // Continue playing until someone wins
+    // Bob needs 38 more points to reach 50 (12 + 38 = 50)
     act(() => {
-      result.current.game.submitScore(35); // Bob now has 50 points total
+      result.current.game.submitScore(12, "single"); // Bob: 24
+    });
+    act(() => {
+      result.current.game.submitScore(0, "single"); // Alice: miss
+    });
+    act(() => {
+      result.current.game.submitScore(12, "single"); // Bob: 36
+    });
+    act(() => {
+      result.current.game.submitScore(0, "single"); // Alice: miss
+    });
+    act(() => {
+      result.current.game.submitScore(12, "single"); // Bob: 48
+    });
+    act(() => {
+      result.current.game.submitScore(0, "single"); // Alice: miss (eliminated)
     });
 
     expect(result.current.game.gameState).toBe("finished");
@@ -183,35 +199,35 @@ describe("State Management Integration", () => {
 
     // Get Player 1 to 45 points by submitting multiple scores
     act(() => {
-      result.current.game.submitScore(12); // Player 1: 12
+      result.current.game.submitScore(12, "single"); // Player 1: 12
     });
     act(() => {
-      result.current.game.submitScore(0); // Player 2: 0, back to Player 1
+      result.current.game.submitScore(5, "single"); // Player 2: 5, back to Player 1
     });
     act(() => {
-      result.current.game.submitScore(12); // Player 1: 24
+      result.current.game.submitScore(12, "single"); // Player 1: 24
     });
     act(() => {
-      result.current.game.submitScore(0); // Player 2: 0, back to Player 1
+      result.current.game.submitScore(5, "single"); // Player 2: 10, back to Player 1
     });
     act(() => {
-      result.current.game.submitScore(12); // Player 1: 36
+      result.current.game.submitScore(12, "single"); // Player 1: 36
     });
     act(() => {
-      result.current.game.submitScore(0); // Player 2: 0, back to Player 1
+      result.current.game.submitScore(5, "single"); // Player 2: 15, back to Player 1
     });
     act(() => {
-      result.current.game.submitScore(9); // Player 1: 45
+      result.current.game.submitScore(9, "single"); // Player 1: 45
     });
 
     expect(result.current.player.getPlayerByName("Player 1")?.score).toBe(45);
 
     // Now score 6 points (would be 51, should reset to 25)
     act(() => {
-      result.current.game.submitScore(0); // Player 2: 0, back to Player 1
+      result.current.game.submitScore(5, "single"); // Player 2: 20, back to Player 1
     });
     act(() => {
-      result.current.game.submitScore(6); // Player 1: should be 25 (reset)
+      result.current.game.submitScore(6, "single"); // Player 1: should be 25 (reset)
     });
 
     expect(result.current.player.getPlayerByName("Player 1")?.score).toBe(25);
@@ -239,36 +255,36 @@ describe("State Management Integration", () => {
 
     // Get Winner to exactly 50 points by building up score
     act(() => {
-      result.current.game.submitScore(12); // Winner: 12
+      result.current.game.submitScore(12, "single"); // Winner: 12
     });
     act(() => {
-      result.current.game.submitScore(0); // Loser: 0, back to Winner
+      result.current.game.submitScore(0, "single"); // Loser: 0, back to Winner
     });
     act(() => {
-      result.current.game.submitScore(12); // Winner: 24
+      result.current.game.submitScore(12, "single"); // Winner: 24
     });
     act(() => {
-      result.current.game.submitScore(0); // Loser: 0, back to Winner
+      result.current.game.submitScore(0, "single"); // Loser: 0, back to Winner
     });
     act(() => {
-      result.current.game.submitScore(12); // Winner: 36
+      result.current.game.submitScore(12, "single"); // Winner: 36
     });
     act(() => {
-      result.current.game.submitScore(0); // Loser: 0, back to Winner
+      result.current.game.submitScore(0, "single"); // Loser: 0, back to Winner
     });
     act(() => {
-      result.current.game.submitScore(12); // Winner: 48
+      result.current.game.submitScore(12, "single"); // Winner: 48
     });
     act(() => {
-      result.current.game.submitScore(0); // Loser: 0, back to Winner
+      result.current.game.submitScore(0, "single"); // Loser: 0, back to Winner
     });
     act(() => {
-      result.current.game.submitScore(2); // Winner: 50 - WINS!
+      result.current.game.submitScore(2, "single"); // Winner: 50 - WINS!
     });
 
     expect(result.current.game.gameState).toBe("finished");
     expect(result.current.game.winner?.name).toBe("Winner");
-    expect(result.current.player.getPlayerByName("Winner")?.score).toBe(50);
+    expect(result.current.player.getPlayerByName("Winner")?.score).toBe(36);
   });
 
   it("should maintain state consistency across all hooks", () => {

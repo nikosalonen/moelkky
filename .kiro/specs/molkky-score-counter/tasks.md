@@ -138,23 +138,26 @@
   - _Requirements: 1.4, 3.4, 9.5_
 
 - [ ] 14a. Implement three consecutive misses elimination rule
+
   - Track each player's consecutive zero-point turns
   - Eliminate player after three consecutive misses
   - Update UI and game history to reflect elimination
   - _Requirements: Official Mölkky rules_
 
 - [ ] 14b. Implement out-of-turn throw penalty rule
+
   - Void result for out-of-turn throws
   - If player has 37 or more points, reset score to 25
   - Add UI for recording/correcting out-of-turn throws
   - _Requirements: Official Mölkky rules_
 
 - [ ] 14c. Clarify and test scoring edge cases
+
   - Ensure over-50 resets to 25, exact-50 wins
   - Add/adjust tests for these cases
   - _Requirements: Official Mölkky rules_
 
-- [ ] 15. Set up comprehensive testing suite
+- [x] 15. Set up comprehensive unit and component testing suite
 
   - Configure Vitest testing environment
   - Write unit tests for all utility functions and game logic
@@ -163,6 +166,46 @@
   - Set up test coverage reporting
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: All requirements (testing coverage)_
+
+- [ ] 15a. Set up Playwright end-to-end testing foundation
+
+  - Install Playwright as a development dependency with browser binaries
+  - Create playwright.config.ts with multi-browser support (Chromium, Firefox, WebKit)
+  - Configure test execution settings, timeouts, and reporting options
+  - Add Playwright scripts to package.json for test execution
+  - _Requirements: 9.5, All requirements (E2E testing coverage)_
+
+- [ ] 15b. Create Playwright testing infrastructure and Page Object Models
+
+  - Implement BasePage class with common page interactions and utilities
+  - Create test fixtures for consistent test setup and data management
+  - Build GameSetupPage, GamePlayPage, and GameResultsPage classes
+  - Set up test directory structure for organized E2E test management
+  - _Requirements: 9.5, All requirements (E2E testing coverage)_
+
+- [ ] 15c. Write comprehensive Playwright test specifications
+
+  - Create E2E tests for complete game setup workflows (player management, game start)
+  - Implement scoring system tests (score input, validation, turn advancement)
+  - Add full game flow tests from setup to winner determination
+  - Write penalty application and edge case handling tests
+  - _Requirements: All requirements (E2E testing coverage)_
+
+- [ ] 15d. Add cross-browser and responsive testing with Playwright
+
+  - Implement browser-specific functionality validation tests
+  - Add responsive design testing across different viewport sizes
+  - Create accessibility validation tests using Playwright's accessibility features
+  - Write visual regression tests for UI consistency validation
+  - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
+
+- [ ] 15e. Configure Playwright CI/CD integration
+
+  - Configure GitHub Actions workflow for automated Playwright test execution
+  - Implement test artifact collection (screenshots, videos, reports)
+  - Add test result reporting and failure notification systems
+  - Configure parallel test execution for improved CI performance
+  - _Requirements: 9.3, 9.5_
 
 - [ ] 16. Configure GitHub Pages deployment
 
