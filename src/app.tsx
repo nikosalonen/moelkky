@@ -160,6 +160,29 @@ function GameApp() {
   };
 
   /**
+   * Handle ending the current game and returning to start screen
+   */
+  const handleEndGame = () => {
+    const result = resetToSetup();
+    if (result.success) {
+      addToast({
+        type: "info",
+        title: "Game Ended",
+        message:
+          "Game has been ended and reset to setup. You can now modify players and start a new game.",
+        duration: 4000,
+        priority: "high",
+      });
+    } else if (result.error) {
+      addToast({
+        type: "error",
+        title: "Failed to End Game",
+        message: result.error,
+      });
+    }
+  };
+
+  /**
    * Handle resetting the game to setup state
    */
   const handleReset = () => {
@@ -331,6 +354,7 @@ function GameApp() {
                 onPenalty={(_playerId: string, reason?: string) =>
                   handlePenaltyApply(reason)
                 }
+                onEndGame={handleEndGame}
               />
             </section>
           )}

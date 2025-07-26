@@ -20,6 +20,7 @@ Mölkky is a Finnish throwing game where players throw a wooden pin (the "mölkk
 - **Score Tracking**: Record scores with automatic turn advancement
 - **Penalty System**: Apply penalties that reset player scores to 25
 - **Game History**: View and manage previous games
+- **End Game Functionality**: End current game and return to start screen at any time
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Real-time Updates**: Live score updates and game state management
 - **Toast Notifications**: User-friendly feedback for all game actions
@@ -71,6 +72,7 @@ The built files will be in the `dist` directory.
 5. **Start Game**: Click "Start Game" to begin
 6. **Track Scores**: Use the score input to record points for each player/team
 7. **Apply Penalties**: Use the penalty button if a player/team violates rules
+8. **End Game**: Click the "End Game" button to return to the start screen and reset all scores
 
 ### Team Game Flow
 

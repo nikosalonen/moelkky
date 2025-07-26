@@ -20,6 +20,7 @@ interface GamePlayPanelProps {
   currentTeamPlayer?: Player | null;
   onScoreSubmit: (playerId: string, score: number, scoringType: "single" | "multiple") => void;
   onPenalty: (playerId: string, reason?: string) => void;
+  onEndGame?: () => void;
 }
 
 export function GamePlayPanel({
@@ -34,6 +35,7 @@ export function GamePlayPanel({
   currentTeamPlayer,
   onScoreSubmit,
   onPenalty,
+  onEndGame,
 }: GamePlayPanelProps) {
   console.log(`[GamePlayPanel] Rendering with:`, {
     playersCount: players.length,
@@ -104,6 +106,23 @@ export function GamePlayPanel({
           onPenalty={onPenalty}
         />
       </div>
+
+      {/* End Game Button */}
+      {gameState === "playing" && onEndGame && (
+        <div className="text-center mb-4">
+          <button
+            onClick={onEndGame}
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            aria-label="End current game and return to start screen"
+            type="button"
+          >
+            <span aria-hidden="true">🏁</span> End Game
+          </button>
+          <p className="text-xs text-gray-500 mt-1">
+            Return to start screen and reset scores
+          </p>
+        </div>
+      )}
 
       {/* Score Board - Now at the bottom, collapsible */}
       <div className="border-t border-gray-200 pt-3">
