@@ -327,11 +327,10 @@ describe("Game Flow Control System Integration", () => {
             );
           })
         ).toBeInTheDocument();
-        expect(screen.getByText(/Single Pin/i)).toBeInTheDocument();
-        // Player modification notice should be visible
-        expect(
-          screen.getByText(/player modifications are disabled/i)
-        ).toBeInTheDocument();
+        // Check for pin selection interface instead of old tabs
+        expect(screen.getByText("Select Pins Knocked Down")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "1" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "12" })).toBeInTheDocument();
       });
 
       // Simulate game to completion (Alice reaches exactly 50)

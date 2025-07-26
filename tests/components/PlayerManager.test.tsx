@@ -7,8 +7,10 @@
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/preact";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { h } from "preact";
 import { PlayerManager } from "../../src/components/PlayerManager/PlayerManager";
 import { GameProvider } from "../../src/context/GameContext";
+import { ToastProvider } from "../../src/components/Toast";
 import type { Player } from "../../src/utils/types";
 
 // Mock session storage
@@ -26,9 +28,11 @@ Object.defineProperty(window, "sessionStorage", {
 // Helper function to render component with context
 const renderWithContext = (props: any) => {
   return render(
-    <GameProvider>
-      <PlayerManager {...props} />
-    </GameProvider>
+    h(ToastProvider, null,
+      h(GameProvider, null,
+        h(PlayerManager, props)
+      )
+    )
   );
 };
 
@@ -147,9 +151,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name cannot be empty")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name cannot be empty/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -163,9 +166,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name already exists")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name.*already exists/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -179,9 +181,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name already exists")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name.*already exists/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -196,9 +197,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name cannot exceed 50 characters")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name cannot exceed 50 characters/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -233,10 +233,10 @@ describe("PlayerManager Component", () => {
     it("should highlight active player", () => {
       renderWithContext({ players: samplePlayers, gameActive: true });
 
-      // Find the player row container (the one with bg-blue-50 class)
+      // Find the player row container that contains Bob and has the blue background
       const bobText = screen.getByText("Bob");
-      const playerRow = bobText.closest(".flex.items-center.justify-between");
-      expect(playerRow).toHaveClass("bg-blue-50");
+      const playerRow = bobText.closest("div[class*='bg-blue-50']");
+      expect(playerRow).toBeInTheDocument();
       expect(screen.getByText("Current Turn")).toBeInTheDocument();
     });
 
@@ -359,9 +359,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name already exists")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name.*already exists/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -378,9 +377,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText("Player name cannot be empty")
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/Player name cannot be empty/);
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
   });
@@ -479,8 +477,8 @@ describe("PlayerManager Component", () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        const errorElement = screen.getByRole("alert");
-        expect(errorElement).toBeInTheDocument();
+        const errorElements = screen.getAllByRole("alert");
+        expect(errorElements.length).toBeGreaterThan(0);
       });
     });
 
@@ -512,8 +510,10 @@ describe("PlayerManager Component", () => {
         "bg-white",
         "rounded-lg",
         "shadow-md",
-        "p-6",
-        "mb-6"
+        "p-3",
+        "sm:p-6",
+        "mb-4",
+        "sm:mb-6"
       );
     });
 
