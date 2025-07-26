@@ -176,7 +176,8 @@
   - Commit changes once all TS errors are dealt with and tests are passing
   - _Requirements: 9.1, 9.3_
 
-- [ ] 17. Add final polish and optimization
+- [-] 17. Add final polish and optimization
+
   - Optimize bundle size and implement code splitting
   - Add favicon and app metadata
   - Implement accessibility improvements (ARIA labels, keyboard navigation)

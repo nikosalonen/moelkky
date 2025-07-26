@@ -1,13 +1,57 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Preact + TS</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Viewport and Mobile Optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#3B82F6" />
+
+  <!-- SEO and Social Media -->
+  <title>Mölkky Score Counter - Track Your Game Scores</title>
+  <meta name="description"
+    content="A simple and intuitive score counter for Mölkky games. Track player scores, apply penalties, and view game history. Perfect for tournaments and casual play." />
+  <meta name="keywords" content="Mölkky, score counter, Finnish game, outdoor game, scoring app, game tracker" />
+  <meta name="author" content="Mölkky Score Counter" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourusername.github.io/moelkky/" />
+  <meta property="og:title" content="Mölkky Score Counter - Track Your Game Scores" />
+  <meta property="og:description"
+    content="A simple and intuitive score counter for Mölkky games. Track player scores, apply penalties, and view game history." />
+  <meta property="og:image" content="/og-image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://yourusername.github.io/moelkky/" />
+  <meta property="twitter:title" content="Mölkky Score Counter - Track Your Game Scores" />
+  <meta property="twitter:description"
+    content="A simple and intuitive score counter for Mölkky games. Track player scores, apply penalties, and view game history." />
+  <meta property="twitter:image" content="/og-image.png" />
+
+  <!-- Performance and Security -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <!-- Preload critical resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
