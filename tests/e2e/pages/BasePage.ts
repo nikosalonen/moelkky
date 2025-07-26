@@ -6,7 +6,7 @@ import { Page, Locator, expect } from "@playwright/test";
  * Base Page Object Model class providing common page interactions and utilities
  * All page objects should extend this class to inherit common functionality
  */
-export abstract class BasePage {
+export class BasePage {
   protected readonly page: Page;
   protected readonly baseURL: string;
 
