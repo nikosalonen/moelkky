@@ -1,0 +1,32 @@
+<testsuites id="" name="" tests="10" failures="0" skipped="0" errors="0" time="10.652467">
+<testsuite name="specs\smoke.spec.ts" timestamp="2025-07-26T11:48:24.277Z" hostname="chromium" tests="2" failures="0" skipped="0" time="2.121" errors="0">
+<testcase name="Smoke Tests › should load the application successfully" classname="specs\smoke.spec.ts" time="1.09">
+</testcase>
+<testcase name="Smoke Tests › should have no console errors on load" classname="specs\smoke.spec.ts" time="1.031">
+</testcase>
+</testsuite>
+<testsuite name="specs\smoke.spec.ts" timestamp="2025-07-26T11:48:24.277Z" hostname="firefox" tests="2" failures="0" skipped="0" time="7.713" errors="0">
+<testcase name="Smoke Tests › should load the application successfully" classname="specs\smoke.spec.ts" time="3.774">
+</testcase>
+<testcase name="Smoke Tests › should have no console errors on load" classname="specs\smoke.spec.ts" time="3.939">
+</testcase>
+</testsuite>
+<testsuite name="specs\smoke.spec.ts" timestamp="2025-07-26T11:48:24.277Z" hostname="webkit" tests="2" failures="0" skipped="0" time="3.814" errors="0">
+<testcase name="Smoke Tests › should load the application successfully" classname="specs\smoke.spec.ts" time="2.141">
+</testcase>
+<testcase name="Smoke Tests › should have no console errors on load" classname="specs\smoke.spec.ts" time="1.673">
+</testcase>
+</testsuite>
+<testsuite name="specs\smoke.spec.ts" timestamp="2025-07-26T11:48:24.277Z" hostname="Mobile Chrome" tests="2" failures="0" skipped="0" time="2.481" errors="0">
+<testcase name="Smoke Tests › should load the application successfully" classname="specs\smoke.spec.ts" time="1.318">
+</testcase>
+<testcase name="Smoke Tests › should have no console errors on load" classname="specs\smoke.spec.ts" time="1.163">
+</testcase>
+</testsuite>
+<testsuite name="specs\smoke.spec.ts" timestamp="2025-07-26T11:48:24.277Z" hostname="Mobile Safari" tests="2" failures="0" skipped="0" time="2.411" errors="0">
+<testcase name="Smoke Tests › should load the application successfully" classname="specs\smoke.spec.ts" time="1.38">
+</testcase>
+<testcase name="Smoke Tests › should have no console errors on load" classname="specs\smoke.spec.ts" time="1.031">
+</testcase>
+</testsuite>
+</testsuites>
