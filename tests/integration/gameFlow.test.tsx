@@ -531,14 +531,13 @@ describe("Game Flow Control System Integration", () => {
 
       // Alice should be reset to 25 points and turn should advance
       await waitFor(() => {
-        expect(
-          screen.getByText((content, element) => {
-            return Boolean(
-              element?.textContent?.includes("Bob") &&
-                element?.textContent?.includes("Turn")
-            );
-          })
-        ).toBeInTheDocument();
+        const bobTurnElements = screen.getAllByText((content, element) => {
+          return Boolean(
+            element?.textContent?.includes("Bob") &&
+              element?.textContent?.includes("Turn")
+          );
+        });
+        expect(bobTurnElements.length).toBeGreaterThan(0);
       });
 
       // Verify Alice's score was reset (this would be visible in the game board)

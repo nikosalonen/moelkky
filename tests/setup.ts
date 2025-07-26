@@ -1,7 +1,7 @@
 /** @format */
 
 import "@testing-library/jest-dom";
-import { vi, beforeEach, afterAll } from "vitest";
+import { vi, beforeEach, afterAll, expect } from "vitest";
 
 // Mock window.matchMedia for responsive design tests
 Object.defineProperty(window, "matchMedia", {
