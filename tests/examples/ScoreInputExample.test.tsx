@@ -248,7 +248,7 @@ describe("ScoreInput Component - New Interface", () => {
       expect(
         screen.getByRole("button", { name: "Cancel" })
       ).toBeInTheDocument();
-      expect(screen.getAllByText("Confirm Penalty")).toHaveLength(2); // heading and button
+      expect(screen.getAllByText("Confirm Penalty")).toHaveLength(1); // Only the heading
     });
 
     it("should call onPenalty when confirmed", () => {
@@ -264,7 +264,7 @@ describe("ScoreInput Component - New Interface", () => {
       fireEvent.click(screen.getByRole("button", { name: "Apply Penalty" }));
 
       // Confirm penalty
-      fireEvent.click(screen.getByRole("button", { name: "Confirm Penalty" }));
+      fireEvent.click(screen.getByRole("button", { name: "Apply" }));
 
       expect(mockOnPenalty).toHaveBeenCalledWith(
         "test-player",

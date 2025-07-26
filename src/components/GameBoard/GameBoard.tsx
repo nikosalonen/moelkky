@@ -66,7 +66,7 @@ export function GamePlayPanel({
 
   const getStatusClasses = (player: Player, index: number): string => {
     if (player.eliminated) return "bg-gray-200 text-gray-400 border-gray-300 opacity-60";
-    if (index === currentPlayerIndex) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (index === currentPlayerIndex) return "bg-blue-200 text-blue-900 border-blue-400 border-2 shadow-lg animate-pulse";
     if (player.score === 50) return "bg-green-100 text-green-800 border-green-200";
     return "bg-gray-50 text-gray-700 border-gray-200";
   };
@@ -135,6 +135,11 @@ export function GamePlayPanel({
                       {player.penalties > 0 && (
                         <span className="text-xs text-red-600">({player.penalties})</span>
                       )}
+                      {player.consecutiveMisses !== undefined && player.consecutiveMisses > 0 && (
+                        <span className="text-xs text-yellow-600 font-medium">
+                          Misses: {player.consecutiveMisses}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -145,7 +150,7 @@ export function GamePlayPanel({
                 {teams?.map((team, _teamIndex) => (
                   <div key={team.id} className="border rounded-lg p-2">
                     {/* Team Header */}
-                    <div className={`flex items-center justify-between mb-2 p-1 rounded ${team.isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>
+                    <div className={`flex items-center justify-between mb-2 p-1 rounded ${team.isActive ? 'bg-blue-200 text-blue-900 border-blue-400 border-2 shadow-lg animate-pulse' : 'bg-gray-50'}`}>
                       <span className="font-semibold text-sm text-gray-800">{team.name}</span>
                       <div className="flex items-center space-x-2">
                         <span className={`text-base font-bold ${getScoreColor(team.score)}`}>{team.score}</span>
@@ -168,19 +173,26 @@ export function GamePlayPanel({
                             key={player.id}
                             className={`flex items-center justify-between p-1 rounded text-xs ${
                               isCurrentPlayer 
-                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                ? 'bg-blue-200 text-blue-900 border-blue-400 border shadow-md animate-pulse' 
                                 : 'bg-gray-50'
                             }`}
                           >
                             <div className="flex items-center space-x-2">
                               <span className="font-medium">{player.name}</span>
                               {playerStatus && (
-                                <span className="px-1 py-0.5 rounded-full bg-blue-200 text-blue-800 text-xs">
+                                <span className="px-1 py-0.5 rounded-full bg-blue-300 text-blue-900 text-xs font-semibold">
                                   {playerStatus}
                                 </span>
                               )}
                             </div>
-                            <span className="text-gray-600">{player.score}</span>
+                            <div className="flex items-center space-x-1">
+                              <span className="text-gray-600">{player.score}</span>
+                              {player.consecutiveMisses !== undefined && player.consecutiveMisses > 0 && (
+                                <span className="text-yellow-600 text-xs font-medium">
+                                  ({player.consecutiveMisses})
+                                </span>
+                              )}
+                            </div>
                           </div>
                         );
                       })}

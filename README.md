@@ -143,6 +143,32 @@ Tests cover:
 - User interactions
 - Error handling
 
+#### E2E Testing
+
+The project also includes end-to-end tests using Playwright:
+
+```bash
+# Run e2e tests (recommended - automatically manages dev server)
+npm run test:e2e
+
+# Run e2e tests with headed browser
+npm run test:e2e:headed
+
+# Run e2e tests in debug mode
+npm run test:e2e:debug
+
+# Run e2e tests with UI
+npm run test:e2e:ui
+
+# Run e2e tests with built-in server (may hang)
+npm run test:e2e:with-server
+
+# View e2e test reports
+npm run test:e2e:report
+```
+
+**Note**: The default `test:e2e` command uses a custom script that automatically starts and stops the development server, preventing the hanging issue that can occur with the built-in webServer option.
+
 ## 🎨 Technology Stack
 
 - **Frontend Framework**: [Preact](https://preactjs.com/) - Fast 3kB alternative to React
@@ -151,6 +177,7 @@ Tests cover:
 - **Build Tool**: [Vite](https://vitejs.dev/) - Fast build tool and dev server
 - **Testing**: [Vitest](https://vitest.dev/) - Fast unit testing framework
 - **Testing Library**: [@testing-library/preact](https://testing-library.com/docs/preact-testing-library/intro/) - Testing utilities
+- **E2E Testing**: [Playwright](https://playwright.dev/) - End-to-end testing framework
 
 
 ## 🤝 Contributing

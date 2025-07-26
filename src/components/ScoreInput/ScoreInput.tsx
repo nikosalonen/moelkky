@@ -1,6 +1,6 @@
 /**
  * ScoreInput Component
- * Handles score entry for single pins, multiple pins, and penalties
+ * Handles score entry based on pin selection - automatically determines scoring type
  *
  * @format
  */
@@ -30,10 +30,6 @@ export function ScoreInput({
   const { dispatch } = useGameContext();
   const { addToast } = useToast();
   const [selectedPins, setSelectedPins] = useState<number[]>([]);
-  const [inputMethod, setInputMethod] = useState<"single" | "multiple">(
-    "single"
-  );
-  const [manualInput, setManualInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPenaltyConfirm, setShowPenaltyConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,55 +50,27 @@ export function ScoreInput({
     setTimeout(() => setError(null), 3000);
   };
 
-  // Handle manual input
-  const handleManualInputChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    setManualInput(target.value);
-    setError(null);
-    setSelectedPins([]);
-  };
-
-  // Handle manual input key press
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleScoreSubmit();
-    }
-  };
-
-  // Get current score based on input method
+  // Get current score based on pin selection
   const getCurrentScore = () => {
-    if (manualInput) {
-      return parseInt(manualInput, 10) || 0;
-    }
     if (selectedPins.length === 1) {
-      return selectedPins[0];
+      return selectedPins[0]; // Single pin: score = pin number
     } else if (selectedPins.length > 1) {
-      return selectedPins.length;
+      return selectedPins.length; // Multiple pins: score = number of pins
     }
-    return 0;
+    return 0; // No pins selected = miss
   };
 
-  // Calculate score and scoring type
+  // Calculate score and scoring type automatically
   const currentScore = getCurrentScore();
-  let scoringType: "single" | "multiple" = "single";
+  const scoringType: "single" | "multiple" = selectedPins.length === 1 ? "single" : "multiple";
 
-  if (manualInput) {
-    scoringType = inputMethod;
-  } else if (selectedPins.length === 1) {
-    scoringType = "single";
-  } else if (selectedPins.length > 1) {
-    scoringType = "multiple";
-  }
-
-  const isSubmitDisabled =
-    isSubmitting || (!manualInput && selectedPins.length === 0);
+  const isSubmitDisabled = isSubmitting || selectedPins.length === 0;
 
   // Handle pin selection
   const togglePin = (pin: number) => {
     setSelectedPins((prev) =>
       prev.includes(pin) ? prev.filter((p) => p !== pin) : [...prev, pin]
     );
-    setManualInput("");
   };
 
   // Handle score submission
@@ -129,7 +97,6 @@ export function ScoreInput({
           });
         }
         setSelectedPins([]);
-        setManualInput("");
         addToast({
           type: "info",
           title: "Missed Throw",
@@ -180,7 +147,6 @@ export function ScoreInput({
         });
       }
       setSelectedPins([]);
-      setManualInput("");
       addToast({
         type: "success",
         title: "Score Submitted",
@@ -259,7 +225,6 @@ export function ScoreInput({
   // Handle miss (zero-point throw)
   const handleMiss = async () => {
     setSelectedPins([]);
-    setManualInput("");
     if (isSubmitting) return;
     setIsSubmitting(true);
     setError(null);
@@ -315,6 +280,31 @@ export function ScoreInput({
           <p className="font-semibold text-lg">{currentPlayer.name}</p>
           <p>Current Score: {currentPlayer.score} / 50</p>
           <p>Points Needed: {Math.max(0, 50 - currentPlayer.score)}</p>
+          {currentPlayer.consecutiveMisses !== undefined && currentPlayer.consecutiveMisses > 0 && (
+            <div className="mt-2 p-2 bg-yellow-100 border border-yellow-300 rounded">
+              <p className="text-yellow-800 text-sm font-medium">
+                ⚠️ Consecutive Misses: {currentPlayer.consecutiveMisses}
+              </p>
+              {currentPlayer.consecutiveMisses >= 2 && (
+                <p className="text-yellow-700 text-xs mt-1">
+                  {currentPlayer.consecutiveMisses === 2 
+                    ? "One more miss will eliminate this player!"
+                    : "This player is eliminated after 3 consecutive misses."
+                  }
+                </p>
+              )}
+            </div>
+          )}
+          {currentPlayer.eliminated && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
+              <p className="text-red-800 text-sm font-medium">
+                ❌ Player Eliminated
+              </p>
+              <p className="text-red-700 text-xs mt-1">
+                This player has been eliminated due to 3 consecutive misses.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -329,80 +319,33 @@ export function ScoreInput({
         </div>
       )}
 
-      {/* Input Method Selection */}
-      <div className="mb-4">
-        <div className="flex space-x-2 mb-4">
-          <button
-            type="button"
-            onClick={() => {
-              setInputMethod("single");
-              setSelectedPins([]);
-              setManualInput("");
-              setError(null);
-            }}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              inputMethod === "single"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Single Pin (1-12)
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setInputMethod("multiple");
-              setSelectedPins([]);
-              setManualInput("");
-              setError(null);
-            }}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              inputMethod === "multiple"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Multiple Pins (2-12)
-          </button>
-        </div>
-      </div>
-
-      {/* Manual Input */}
-      <div className="mb-4">
-        <input
-          type="number"
-          placeholder={
-            inputMethod === "single"
-              ? "Enter score (1-12)"
-              : "Enter score (2-12)"
+      {/* Pin Selection Instructions */}
+      <div className="mb-4 text-center">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2">
+          Select Pins Knocked Down
+        </h4>
+        <p className="text-sm text-gray-600 mb-3">
+          {selectedPins.length === 0 
+            ? "Click on the pins that were knocked down"
+            : selectedPins.length === 1
+            ? `Single pin selected: ${selectedPins[0]} points`
+            : `${selectedPins.length} pins selected: ${selectedPins.length} points`
           }
-          value={manualInput}
-          onInput={handleManualInputChange}
-          onKeyDown={handleKeyDown}
-          min={inputMethod === "single" ? "1" : "2"}
-          max="12"
-          disabled={isSubmitting}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-        />
+        </p>
       </div>
 
       {/* Pin Selection Buttons */}
       <div className="mb-4 sm:mb-6">
-        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
-          Or Select Pins Knocked Down
-        </h4>
         <div className="grid grid-cols-6 gap-2 justify-center mb-2">
           {[...Array(12)].map((_, i) => {
             const pin = i + 1;
             const selected = selectedPins.includes(pin);
-            const isDisabled =
-              isSubmitting || (inputMethod === "multiple" && pin === 1);
             return (
               <button
                 key={pin}
                 type="button"
                 onClick={() => togglePin(pin)}
-                disabled={isDisabled}
+                disabled={isSubmitting}
                 className={`w-12 h-12 rounded-lg font-bold text-lg border-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation
                   ${selected ? "bg-blue-500 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"}
                   disabled:bg-gray-300 disabled:cursor-not-allowed`}
@@ -431,6 +374,14 @@ export function ScoreInput({
           Calculated Score:{" "}
           <span className="font-bold text-blue-700">{currentScore}</span>
         </span>
+        {selectedPins.length > 0 && (
+          <div className="text-sm text-gray-600 mt-1">
+            {scoringType === "single" 
+              ? `Single Pin: ${selectedPins[0]}`
+              : `Multiple Pins: ${selectedPins.length}`
+            }
+          </div>
+        )}
       </div>
 
       {/* Submit Button */}

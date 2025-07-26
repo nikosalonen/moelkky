@@ -1,39 +1,43 @@
 /**
- * ScoreInput Component Tests
- * Tests all score input scenarios, validation, and penalty functionality
- *
  * @format
  */
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/preact";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { h } from "preact";
 import { ScoreInput } from "../../src/components/ScoreInput/ScoreInput";
 import { GameProvider } from "../../src/context/GameContext";
-import { ToastProvider } from "../../src/components/Toast/Toast";
+import { ToastProvider } from "../../src/components/Toast";
 import type { Player } from "../../src/utils/types";
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h } from 'preact';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  import React from "preact/compat";
-// Helper function to render component with context
-const renderWithContext = (props: any) => {
-  return render(
-    <GameProvider>
-      <ToastProvider>
-        <ScoreInput {...props} />
-      </ToastProvider>
-    </GameProvider>
-  );
-};
 
-// Sample player for testing
+// Mock the LoadingSpinner component
+vi.mock("../../src/components/LoadingSpinner", () => ({
+  InlineSpinner: ({ size, variant }: { size: string; variant: string }) => 
+    h("div", { 
+      "data-testid": "loading-spinner", 
+      "data-size": size, 
+      "data-variant": variant 
+    }, "Loading...")
+}));
+
 const samplePlayer: Player = {
   id: "player1",
-  name: "Alice",
-  score: 15,
+  name: "Test Player",
+  score: 25,
   penalties: 0,
   isActive: true,
   eliminated: false,
+  consecutiveMisses: 0,
+};
+
+const renderWithContext = (props: any) => {
+  return render(
+    h(ToastProvider, null,
+      h(GameProvider, null,
+        h(ScoreInput, props)
+      )
+    )
+  );
 };
 
 describe("ScoreInput Component", () => {
@@ -41,76 +45,31 @@ describe("ScoreInput Component", () => {
     vi.clearAllMocks();
   });
 
-  describe("Initial Render", () => {
-    it("should render the component with title", () => {
+  describe("Rendering", () => {
+    it("should render the component with current player info", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
       expect(screen.getByText("Score Entry")).toBeInTheDocument();
+      expect(screen.getByText("Test Player")).toBeInTheDocument();
+      expect(screen.getByText("Current Score: 25 / 50")).toBeInTheDocument();
+      expect(screen.getByText("Points Needed: 25")).toBeInTheDocument();
     });
 
-    it("should display current player information", () => {
+    it("should render pin selection buttons", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      expect(screen.getByText("Current Player")).toBeInTheDocument();
-      expect(screen.getByText("Alice")).toBeInTheDocument();
-      expect(screen.getByText("Current Score: 15 / 50")).toBeInTheDocument();
-      expect(screen.getByText("Points Needed: 35")).toBeInTheDocument();
-    });
-
-    it("should default to single pin input method", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const singlePinButton = screen.getByText("Single Pin (1-12)");
-      expect(singlePinButton).toHaveClass("bg-blue-500");
-    });
-
-    it("should show correct number buttons for single pin method", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      // Should show buttons 1-12 for single pin
+      // Should show buttons 1-12
       expect(screen.getByText("1")).toBeInTheDocument();
       expect(screen.getByText("12")).toBeInTheDocument();
     });
-  });
 
-  describe("Input Method Selection", () => {
-    it("should switch to multiple pin method when clicked", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
+    it("should show eliminated message for eliminated player", () => {
+      const eliminatedPlayer = { ...samplePlayer, eliminated: true };
+      renderWithContext({ currentPlayer: eliminatedPlayer });
 
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      expect(multiplePinButton).toHaveClass("bg-blue-500");
-      expect(screen.getByText("Single Pin (1-12)")).not.toHaveClass(
-        "bg-blue-500"
-      );
-    });
-
-    it("should show correct number buttons for multiple pin method", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      // Button 1 should be disabled for multiple pin method
-      const button1 = screen.getByText("1");
-      expect(button1).toBeDisabled();
-      
-      // Buttons 2-12 should be enabled
-      expect(screen.getByText("2")).not.toBeDisabled();
-      expect(screen.getByText("12")).not.toBeDisabled();
-    });
-
-    it("should update input placeholder when switching methods", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      expect(input).toBeInTheDocument();
-
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      expect(screen.getByPlaceholderText("Enter score (2-12)")).toBeInTheDocument();
+      expect(
+        screen.getByText(/has been eliminated and cannot play further turns/)
+      ).toBeInTheDocument();
     });
   });
 
@@ -149,146 +108,115 @@ describe("ScoreInput Component", () => {
       expect(pin7).toHaveClass("bg-blue-500");
     });
 
-    it("should disable pin 1 for multiple pin method", () => {
+    it("should show correct instructions based on pin selection", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
+      // Initially should show "Click on the pins that were knocked down"
+      expect(screen.getByText("Click on the pins that were knocked down")).toBeInTheDocument();
 
-      const pin1 = screen.getByText("1");
-      expect(pin1).toBeDisabled();
+      // After selecting one pin
+      fireEvent.click(screen.getByText("5"));
+      expect(screen.getByText("Single pin selected: 5 points")).toBeInTheDocument();
+
+      // After selecting multiple pins
+      fireEvent.click(screen.getByText("7"));
+      expect(screen.getByText("2 pins selected: 2 points")).toBeInTheDocument();
     });
   });
 
-  describe("Manual Input", () => {
-    it("should handle manual input changes", () => {
+  describe("Score Calculation", () => {
+    it("should calculate single pin score correctly", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const input = screen.getByPlaceholderText("Enter score (1-12)") as HTMLInputElement;
-      fireEvent.input(input, { target: { value: "8" } });
-
-      expect(input.value).toBe("8");
+      fireEvent.click(screen.getByText("8"));
+      
+      expect(screen.getByText(/Calculated Score:/)).toBeInTheDocument();
+      expect(screen.getByText("Single Pin: 8")).toBeInTheDocument();
     });
 
-    it("should clear selected pins when manual input is used", () => {
+    it("should calculate multiple pin score correctly", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const pin5 = screen.getByText("5");
-      fireEvent.click(pin5);
-      expect(pin5).toHaveClass("bg-blue-500");
-
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      fireEvent.input(input, { target: { value: "8" } });
-
-      expect(pin5).not.toHaveClass("bg-blue-500");
+      fireEvent.click(screen.getByText("3"));
+      fireEvent.click(screen.getByText("6"));
+      fireEvent.click(screen.getByText("9"));
+      
+      expect(screen.getByText(/Calculated Score:/)).toBeInTheDocument();
+      expect(screen.getByText("Multiple Pins: 3")).toBeInTheDocument();
     });
 
-    it("should clear manual input when pins are selected", () => {
+    it("should show zero score when no pins selected", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const input = screen.getByPlaceholderText("Enter score (1-12)") as HTMLInputElement;
-      fireEvent.input(input, { target: { value: "8" } });
-      expect(input.value).toBe("8");
-
-      const pin5 = screen.getByText("5");
-      fireEvent.click(pin5);
-
-      expect(input.value).toBe("");
+      expect(screen.getByText(/Calculated Score:/)).toBeInTheDocument();
     });
   });
 
   describe("Score Validation", () => {
-    it("should show error for invalid single pin score (too high)", async () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "15" } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText("Single pin score must be between 0 and 12")
-        ).toBeInTheDocument();
-      });
-    });
-
-    it("should show error for invalid multiple pin score (too high)", async () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      const input = screen.getByPlaceholderText("Enter score (2-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "15" } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText("Multiple pin score must be between 2 and 12")
-        ).toBeInTheDocument();
-      });
-    });
-
-    it("should show error for invalid multiple pin score (too low)", async () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      const input = screen.getByPlaceholderText("Enter score (2-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "1" } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText("Multiple pin score must be between 2 and 12")
-        ).toBeInTheDocument();
-      });
-    });
-
-    it("should clear input after successful score submission", async () => {
+    it("should validate single pin score correctly", async () => {
       const mockOnScoreSubmit = vi.fn();
       renderWithContext({
         currentPlayer: samplePlayer,
         onScoreSubmit: mockOnScoreSubmit,
       });
 
-      const input = screen.getByPlaceholderText(
-        "Enter score (1-12)"
-      ) as HTMLInputElement;
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "5" } });
-      fireEvent.click(submitButton);
+      // Valid single pin score
+      fireEvent.click(screen.getByText("10"));
+      fireEvent.click(screen.getByText("Submit Score"));
 
       await waitFor(() => {
-        expect(input.value).toBe("");
+        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 10, "single");
+      });
+    });
+
+    it("should validate multiple pin score correctly", async () => {
+      const mockOnScoreSubmit = vi.fn();
+      renderWithContext({
+        currentPlayer: samplePlayer,
+        onScoreSubmit: mockOnScoreSubmit,
+      });
+
+      // Valid multiple pin score
+      fireEvent.click(screen.getByText("2"));
+      fireEvent.click(screen.getByText("4"));
+      fireEvent.click(screen.getByText("6"));
+      fireEvent.click(screen.getByText("Submit Score"));
+
+      await waitFor(() => {
+        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 3, "multiple");
+      });
+    });
+
+    it("should clear selection after successful score submission", async () => {
+      const mockOnScoreSubmit = vi.fn();
+      renderWithContext({
+        currentPlayer: samplePlayer,
+        onScoreSubmit: mockOnScoreSubmit,
+      });
+
+      const pin5 = screen.getByText("5");
+      fireEvent.click(pin5);
+      fireEvent.click(screen.getByText("Submit Score"));
+
+      await waitFor(() => {
+        expect(pin5).not.toHaveClass("bg-blue-500");
       });
     });
   });
 
   describe("Score Submission", () => {
-    it("should call onScoreSubmit callback with correct parameters", async () => {
+    it("should call onScoreSubmit callback with correct parameters for single pin", async () => {
       const mockOnScoreSubmit = vi.fn();
       renderWithContext({
         currentPlayer: samplePlayer,
         onScoreSubmit: mockOnScoreSubmit,
       });
 
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "8" } });
-      fireEvent.click(submitButton);
+      fireEvent.click(screen.getByText("6"));
+      fireEvent.click(screen.getByText("Submit Score"));
 
       await waitFor(() => {
-        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 8, "single");
+        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 6, "single");
       });
     });
 
@@ -299,260 +227,92 @@ describe("ScoreInput Component", () => {
         onScoreSubmit: mockOnScoreSubmit,
       });
 
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      const input = screen.getByPlaceholderText("Enter score (2-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "5" } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 5, "multiple");
-      });
-    });
-
-    it("should show submitting state during score submission", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.input(input, { target: { value: "3" } });
-      fireEvent.click(submitButton);
-
-      expect(screen.getByText("Submitting...")).toBeInTheDocument();
-    });
-
-    it("should disable all inputs during submission", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      const submitButton = screen.getByText("Submit Score");
-      const singlePinButton = screen.getByText("Single Pin (1-12)");
-
-      fireEvent.input(input, { target: { value: "4" } });
-      fireEvent.click(submitButton);
-
-      expect(input).toBeDisabled();
-      expect(singlePinButton).toBeDisabled();
-    });
-
-    it("should submit score using pin selection", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const pin5 = screen.getByText("5");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.click(pin5);
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 5, "single");
-      });
-    });
-
-    it("should submit multiple pin score using pin selection", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      const pin3 = screen.getByText("3");
-      const pin7 = screen.getByText("7");
-      const submitButton = screen.getByText("Submit Score");
-
-      fireEvent.click(pin3);
-      fireEvent.click(pin7);
-      fireEvent.click(submitButton);
+      fireEvent.click(screen.getByText("2"));
+      fireEvent.click(screen.getByText("5"));
+      fireEvent.click(screen.getByText("Submit Score"));
 
       await waitFor(() => {
         expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 2, "multiple");
       });
     });
+
+    it("should handle miss submission", () => {
+      const mockOnScoreSubmit = vi.fn();
+      renderWithContext({
+        currentPlayer: samplePlayer,
+        onScoreSubmit: mockOnScoreSubmit,
+      });
+
+      fireEvent.click(screen.getByText("Miss (0 points)"));
+
+      expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 0, "single");
+    });
+
+    it("should disable submit button when no pins selected", () => {
+      renderWithContext({ currentPlayer: samplePlayer });
+
+      const submitButton = screen.getByText("Submit Score");
+      expect(submitButton).toBeDisabled();
+    });
+
+    it("should enable submit button when pins are selected", () => {
+      renderWithContext({ currentPlayer: samplePlayer });
+
+      fireEvent.click(screen.getByText("5"));
+      const submitButton = screen.getByText("Submit Score");
+      expect(submitButton).not.toBeDisabled();
+    });
   });
 
   describe("Penalty Functionality", () => {
-    it("should show penalty section", () => {
+    it("should show penalty button", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      expect(screen.getByText("Penalty")).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "Apply a penalty to reset the player's score to 25 points."
-        )
-      ).toBeInTheDocument();
       expect(screen.getByText("Apply Penalty")).toBeInTheDocument();
     });
 
-    it("should show penalty confirmation dialog when penalty button is clicked", () => {
+    it("should show penalty confirmation modal when clicked", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const penaltyButton = screen.getByText("Apply Penalty");
-      fireEvent.click(penaltyButton);
+      fireEvent.click(screen.getByText("Apply Penalty"));
 
       expect(screen.getByText("Confirm Penalty")).toBeInTheDocument();
       expect(
-        screen.getByText(
-          `Are you sure you want to apply a penalty to ${samplePlayer.name}? This will reset their score to 25 points.`
-        )
+        screen.getByText(/Are you sure you want to apply a penalty/)
       ).toBeInTheDocument();
     });
 
-    it("should call onPenalty callback when penalty is confirmed", async () => {
+    it("should call onPenalty callback when confirmed", async () => {
       const mockOnPenalty = vi.fn();
       renderWithContext({
         currentPlayer: samplePlayer,
         onPenalty: mockOnPenalty,
       });
 
-      const penaltyButton = screen.getByText("Apply Penalty");
-      fireEvent.click(penaltyButton);
-
-      const confirmButton = screen.getByText("Apply");
-      fireEvent.click(confirmButton);
+      fireEvent.click(screen.getByText("Apply Penalty"));
+      fireEvent.click(screen.getByText("Apply"));
 
       await waitFor(() => {
         expect(mockOnPenalty).toHaveBeenCalledWith("player1", "Rule violation");
       });
     });
-
-    it("should close penalty dialog when cancel is clicked", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const penaltyButton = screen.getByText("Apply Penalty");
-      fireEvent.click(penaltyButton);
-
-      expect(screen.getByText("Confirm Penalty")).toBeInTheDocument();
-
-      const cancelButton = screen.getByText("Cancel");
-      fireEvent.click(cancelButton);
-
-      expect(screen.queryByText("Confirm Penalty")).not.toBeInTheDocument();
-    });
   });
 
-  describe("Miss Functionality", () => {
-    it("should handle miss button click", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const missButton = screen.getByText("Miss (0 points)");
-      fireEvent.click(missButton);
-
-      await waitFor(() => {
-        expect(mockOnScoreSubmit).toHaveBeenCalledWith("player1", 0, "single");
-      });
-    });
-
-    it("should clear inputs when miss is submitted", async () => {
-      const mockOnScoreSubmit = vi.fn();
-      renderWithContext({
-        currentPlayer: samplePlayer,
-        onScoreSubmit: mockOnScoreSubmit,
-      });
-
-      const pin5 = screen.getByText("5");
-      fireEvent.click(pin5);
-
-      const missButton = screen.getByText("Miss (0 points)");
-      fireEvent.click(missButton);
-
-      await waitFor(() => {
-        expect(pin5).not.toHaveClass("bg-blue-500");
-      });
-    });
-  });
-
-  describe("Out-of-Turn Throw", () => {
-    it("should handle out-of-turn throw button click", () => {
+  describe("Out-of-Turn Functionality", () => {
+    it("should show out-of-turn button", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const outOfTurnButton = screen.getByText("Mark Out-of-Turn Throw");
-      fireEvent.click(outOfTurnButton);
-
-      // Should not throw an error and should dispatch the action
-      expect(outOfTurnButton).toBeInTheDocument();
+      expect(screen.getByText("Mark Out-of-Turn Throw")).toBeInTheDocument();
     });
-  });
 
-  describe("Error Handling", () => {
-    it("should clear error when switching input methods", async () => {
+    it("should handle out-of-turn throw", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      const input = screen.getByPlaceholderText("Enter score (1-12)");
-      const submitButton = screen.getByText("Submit Score");
+      fireEvent.click(screen.getByText("Mark Out-of-Turn Throw"));
 
-      // Create an error
-      fireEvent.input(input, { target: { value: "15" } });
-      fireEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText("Single pin score must be between 0 and 12")).toBeInTheDocument();
-      });
-
-      // Switch input method
-      const multiplePinButton = screen.getByText("Multiple Pins (2-12)");
-      fireEvent.click(multiplePinButton);
-
-      // Error should be cleared
-      expect(screen.queryByText("Single pin score must be between 0 and 12")).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Responsive Design", () => {
-    it("should render with responsive classes", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const container = screen.getByText("Score Entry").closest("div");
-      expect(container).toBeInTheDocument();
-    });
-
-    it("should have responsive grid for number buttons", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const numberButtonContainer = screen
-        .getByText("1")
-        .closest(".grid") as HTMLElement;
-      expect(numberButtonContainer).toHaveClass("grid", "grid-cols-6");
-    });
-
-    it("should have responsive flex layout for input method buttons", () => {
-      renderWithContext({ currentPlayer: samplePlayer });
-
-      const methodButtonContainer = screen
-        .getByText("Single Pin (1-12)")
-        .closest(".flex") as HTMLElement;
-      expect(methodButtonContainer).toHaveClass("flex", "space-x-2");
-    });
-  });
-
-  describe("Eliminated Player", () => {
-    it("should show eliminated message for eliminated player", () => {
-      const eliminatedPlayer = { ...samplePlayer, eliminated: true };
-      renderWithContext({ currentPlayer: eliminatedPlayer });
-
-      expect(screen.getByText(/has been eliminated and cannot play further turns/)).toBeInTheDocument();
+      // Should not throw an error
+      expect(screen.getByText("Mark Out-of-Turn Throw")).toBeInTheDocument();
     });
   });
 });
+

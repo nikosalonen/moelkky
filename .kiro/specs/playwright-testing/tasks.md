@@ -16,20 +16,21 @@
   - Set up test directory structure for organized test management
   - _Requirements: 2.1, 2.2_
 
-- [ ] 3. Implement Page Object Model classes for game components
-- [ ] 3.1 Create GameSetupPage class for player and game management
+- [x] 3. Implement Page Object Model classes for game components
+
+- [x] 3.1 Create GameSetupPage class for player and game management
   - Implement methods for adding/removing players and selecting game modes
   - Add team management functionality for team mode games
   - Create validation methods for game start conditions
   - _Requirements: 2.1, 4.1_
 
-- [ ] 3.2 Create GamePlayPage class for scoring and game interactions
+- [x] 3.2 Create GamePlayPage class for scoring and game interactions
   - Implement score input and submission methods
   - Add penalty application functionality
   - Create methods for turn management and game state validation
   - _Requirements: 2.2, 2.3, 4.2, 4.3_
 
-- [ ] 3.3 Create GameResultsPage class for game completion handling
+- [x] 3.3 Create GameResultsPage class for game completion handling
   - Implement winner display validation methods
   - Add new game initiation functionality
   - Create game history access methods

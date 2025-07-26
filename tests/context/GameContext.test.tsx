@@ -457,3 +457,44 @@ describe('GameContext integration - penalties and eliminations', () => {
     // Current game should be null
     expect(newState.currentGame).toBeNull();
   });
+
+  it('should reset eliminated players when starting a new game', () => {
+    // Start with a finished game where a player was eliminated
+    const initialState = {
+      gameState: 'finished',
+      players: [
+        { id: '1', name: 'Alice', score: 0, penalties: 0, isActive: false, consecutiveMisses: 3, eliminated: true },
+        { id: '2', name: 'Bob', score: 50, penalties: 0, isActive: false, consecutiveMisses: 0, eliminated: false },
+      ],
+      teams: [],
+      currentPlayerIndex: 0,
+      currentTeamIndex: 0,
+      gameHistory: [],
+      currentGame: null,
+      gameMode: 'individual' as const,
+    };
+
+    // Start a new game
+    const action = { type: 'START_GAME' as const };
+    const newState = gameReducer(initialState, action);
+
+    // Players should be reset for new game
+    expect(newState.gameState).toBe('playing');
+    expect(newState.players).toHaveLength(2);
+    
+    // Alice should no longer be eliminated
+    expect(newState.players[0].name).toBe('Alice');
+    expect(newState.players[0].eliminated).toBe(false);
+    expect(newState.players[0].consecutiveMisses).toBe(0);
+    expect(newState.players[0].score).toBe(0);
+    expect(newState.players[0].penalties).toBe(0);
+    expect(newState.players[0].isActive).toBe(true); // First player should be active
+    
+    // Bob should also be reset
+    expect(newState.players[1].name).toBe('Bob');
+    expect(newState.players[1].eliminated).toBe(false);
+    expect(newState.players[1].consecutiveMisses).toBe(0);
+    expect(newState.players[1].score).toBe(0);
+    expect(newState.players[1].penalties).toBe(0);
+    expect(newState.players[1].isActive).toBe(false); // Second player should not be active
+  });

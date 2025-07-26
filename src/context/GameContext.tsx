@@ -135,6 +135,8 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
           isActive: index === 0,
           score: 0,
           penalties: 0,
+          consecutiveMisses: 0,
+          eliminated: false,
         }));
 
         const newGame = createGame(gamePlayersWithActiveFirst, "individual");

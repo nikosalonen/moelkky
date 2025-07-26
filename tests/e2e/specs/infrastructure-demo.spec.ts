@@ -107,8 +107,8 @@ test.describe("Infrastructure Demo", () => {
     // Measure action performance
     const { result, duration } = await helpers.performance.measureAction(
       async () => {
-        // Click the game history button that actually exists
-        await page.click('button:has-text("View Game History")');
+        // Click a button that actually exists - the Add Player button
+        await page.click('button:has-text("Add Player")');
         return "clicked";
       }
     );

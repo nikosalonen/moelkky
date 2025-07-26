@@ -291,6 +291,8 @@ export function resetPlayersForNewGame(players: Player[]): Player[] {
     score: 0,
     penalties: 0,
     isActive: false,
+    consecutiveMisses: 0,
+    eliminated: false,
   }));
 }
 
