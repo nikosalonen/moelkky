@@ -6,12 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prod": "cross-env NODE_ENV=production npm run build",
     "preview": "vite preview",
+    "preview:prod": "cross-env NODE_ENV=production vite preview --base=/moelkky/",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --run --coverage",
-    "test:coverage:watch": "vitest --coverage"
+    "test:coverage:watch": "vitest --coverage",
+    "deploy:local": "npm run build:prod && npm run preview:prod",
+    "verify:deployment": "node scripts/verify-deployment.js"
   },
   "dependencies": {
     "preact": "^10.26.9"
@@ -25,12 +29,14 @@
     "@types/node": "^24.1.0",
     "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.0.0",
     "eslint": "^9.32.0",
     "globals": "^16.3.0",
     "jiti": "^2.5.1",
     "jsdom": "^26.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
+    "terser": "^5.43.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^7.0.6",

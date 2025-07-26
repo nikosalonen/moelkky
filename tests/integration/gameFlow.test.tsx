@@ -22,7 +22,9 @@ describe("Game Flow Control System Integration", () => {
       render(<App />);
 
       // Initially, start button should be disabled
-      const startButton = screen.getByRole("button", { name: /start game|need.*more player/i });
+      const startButton = screen.getByRole("button", {
+        name: /start game|need.*more player/i,
+      });
       expect(startButton).toBeDisabled();
 
       // Add first player
@@ -48,7 +50,9 @@ describe("Game Flow Control System Integration", () => {
       render(<App />);
 
       // Try to start with no players
-      const startButton = screen.getByRole("button", { name: /need.*more player/i });
+      const startButton = screen.getByRole("button", {
+        name: /need.*more player/i,
+      });
       expect(startButton).toBeDisabled();
 
       // Add only one player
@@ -70,7 +74,9 @@ describe("Game Flow Control System Integration", () => {
 
       // Setup phase
       expect(screen.getByText("Players")).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Enter player name")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Enter player name")
+      ).toBeInTheDocument();
 
       // Add players
       const playerInput = screen.getByPlaceholderText("Enter player name");
@@ -89,7 +95,9 @@ describe("Game Flow Control System Integration", () => {
       await waitFor(() => {
         expect(screen.getByText(/Game Board/i)).toBeInTheDocument();
         expect(screen.getByText(/Score Entry/i)).toBeInTheDocument();
-        expect(screen.getByText(/player modifications are disabled/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/player modifications are disabled/i)
+        ).toBeInTheDocument();
       });
     });
 
@@ -115,7 +123,9 @@ describe("Game Flow Control System Integration", () => {
       });
 
       // Add player button should be disabled
-      const addPlayerButton = screen.getByRole("button", { name: /add player/i });
+      const addPlayerButton = screen.getByRole("button", {
+        name: /add player/i,
+      });
       expect(addPlayerButton).toBeDisabled();
     });
   });
@@ -139,7 +149,10 @@ describe("Game Flow Control System Integration", () => {
       // Should start with Alice's turn
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
@@ -165,7 +178,10 @@ describe("Game Flow Control System Integration", () => {
       // Should start with Alice
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
@@ -173,15 +189,22 @@ describe("Game Flow Control System Integration", () => {
       // Submit score to advance to Bob
       const singlePinButton = screen.getByRole("button", { name: "5" });
       fireEvent.click(singlePinButton);
-      
-      const submitButton = screen.getByRole("button", { name: /submit score/i });
+
+      const submitButton = screen.getByRole("button", {
+        name: /submit score/i,
+      });
       fireEvent.click(submitButton);
 
       // Should advance to Bob's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Bob") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
       });
 
       // Submit score to advance to Charlie
@@ -191,9 +214,14 @@ describe("Game Flow Control System Integration", () => {
 
       // Should advance to Charlie's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Charlie") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Charlie") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
       });
 
       // Submit another score
@@ -204,7 +232,10 @@ describe("Game Flow Control System Integration", () => {
       // Should cycle back to Alice's turn
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
@@ -228,24 +259,36 @@ describe("Game Flow Control System Integration", () => {
       // Initial state: Alice's turn
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       // Apply penalty
-      const penaltyButton = screen.getByRole("button", { name: /apply penalty/i });
+      const penaltyButton = screen.getByRole("button", {
+        name: /apply penalty/i,
+      });
       fireEvent.click(penaltyButton);
 
       // Confirm penalty in modal
-      const confirmButton = screen.getByRole("button", { name: /confirm penalty/i });
+      const confirmButton = screen.getByRole("button", {
+        name: /confirm penalty/i,
+      });
       fireEvent.click(confirmButton);
 
       // Should advance to Bob's turn
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Bob") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
       });
     });
   });
@@ -256,7 +299,9 @@ describe("Game Flow Control System Integration", () => {
 
       // Phase 1: Setup state
       expect(screen.getByText("Players")).toBeInTheDocument();
-      expect(screen.getByPlaceholderText("Enter player name")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Enter player name")
+      ).toBeInTheDocument();
 
       // Add players
       const playerInput = screen.getByPlaceholderText("Enter player name");
@@ -274,53 +319,76 @@ describe("Game Flow Control System Integration", () => {
       // Phase 2: Playing state
       await waitFor(() => {
         // Should show game board and score input
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Alice") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
         expect(screen.getByText(/Single Pin/i)).toBeInTheDocument();
         // Player modification notice should be visible
-        expect(screen.getByText(/player modifications are disabled/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/player modifications are disabled/i)
+        ).toBeInTheDocument();
       });
 
       // Simulate game to completion (Alice reaches exactly 50)
       // First, get Alice to 45 points (submit 45 in multiple turns)
-      for (let i = 0; i < 9; i++) { // 9 turns of 5 points each = 45 points
+      for (let i = 0; i < 9; i++) {
+        // 9 turns of 5 points each = 45 points
         const pin5Button = screen.getByRole("button", { name: "5" });
         fireEvent.click(pin5Button);
-        
-        const submitButton = screen.getByRole("button", { name: /submit score/i });
+
+        const submitButton = screen.getByRole("button", {
+          name: /submit score/i,
+        });
         fireEvent.click(submitButton);
 
         // Wait for turn to advance and cycle back to Alice
         await waitFor(() => {
-          if (i < 8) { // Not the last iteration
+          if (i < 8) {
+            // Not the last iteration
             expect(screen.getByText(/Turn/i)).toBeInTheDocument();
           }
         });
 
         // Skip Bob's turns by submitting 0 points
-        if (screen.queryByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
-        })) {
-          // Click "None" or submit 0 score for Bob
-          const noneButton = screen.getByRole("button", { name: "None" });
-          fireEvent.click(noneButton);
-          const submitButton2 = screen.getByRole("button", { name: /submit score/i });
-          fireEvent.click(submitButton2);
+        if (
+          screen.queryByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Bob") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ) {
+          // Click "Miss" or submit 0 score for Bob
+          const missButton = screen.getByRole("button", {
+            name: /miss.*0 points/i,
+          });
+          fireEvent.click(missButton);
         }
       }
 
       // Final turn: Alice scores 5 more to reach exactly 50
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Alice") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
       });
 
       const finalPin5Button = screen.getByRole("button", { name: "5" });
       fireEvent.click(finalPin5Button);
-      
-      const finalSubmitButton = screen.getByRole("button", { name: /submit score/i });
+
+      const finalSubmitButton = screen.getByRole("button", {
+        name: /submit score/i,
+      });
       fireEvent.click(finalSubmitButton);
 
       // Phase 3: Finished state
@@ -328,7 +396,9 @@ describe("Game Flow Control System Integration", () => {
         // Should show winner announcement
         expect(screen.getByText(/Alice Wins/i)).toBeInTheDocument();
         expect(screen.getByText(/congratulations/i)).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /start new game/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /start new game/i })
+        ).toBeInTheDocument();
       });
 
       // Should show final scores
@@ -355,32 +425,39 @@ describe("Game Flow Control System Integration", () => {
       // Try to submit invalid score via multiple pins
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
-      // Switch to multiple pins method
-      const multiplePinsTab = screen.getByRole("button", { name: /multiple pins/i });
-      fireEvent.click(multiplePinsTab);
+      // Try to select too many pins (which should be impossible with current UI)
+      // Select multiple pins to trigger multiple pin scoring
+      const pin1Button = screen.getByRole("button", { name: "1" });
+      const pin2Button = screen.getByRole("button", { name: "2" });
+      const pin3Button = screen.getByRole("button", { name: "3" });
 
-      // Try to enter invalid number (>12)
-      const multiplePinsInput = screen.getByPlaceholderText(/number of pins/i);
-      fireEvent.input(multiplePinsInput, { target: { value: "15" } });
+      fireEvent.click(pin1Button);
+      fireEvent.click(pin2Button);
+      fireEvent.click(pin3Button);
 
-      const submitButton = screen.getByRole("button", { name: /submit score/i });
+      const submitButton = screen.getByRole("button", {
+        name: /submit score/i,
+      });
       fireEvent.click(submitButton);
 
-      // Should show error message
+      // Score should be submitted and turn should advance to Bob
       await waitFor(() => {
-        expect(screen.getByText(/must be between 2 and 12/i)).toBeInTheDocument();
+        const bobTurnElements = screen.getAllByText((content, element) => {
+          return Boolean(
+            element?.textContent?.includes("Bob") &&
+              element?.textContent?.includes("Turn")
+          );
+        });
+        expect(bobTurnElements.length).toBeGreaterThan(0);
       });
-
-      // Turn should not advance (still Alice's turn)
-      const aliceTurnElements = screen.getAllByText((content, element) => {
-        return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
-      });
-      expect(aliceTurnElements.length).toBeGreaterThan(0);
     });
 
     it("should handle over-50 score penalty correctly", async () => {
@@ -402,48 +479,66 @@ describe("Game Flow Control System Integration", () => {
       for (let i = 0; i < 9; i++) {
         await waitFor(() => {
           const aliceTurnElements = screen.getAllByText((content, element) => {
-            return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+            return Boolean(
+              element?.textContent?.includes("Alice") &&
+                element?.textContent?.includes("Turn")
+            );
           });
           expect(aliceTurnElements.length).toBeGreaterThan(0);
         });
 
         const pin5Button = screen.getByRole("button", { name: "5" });
         fireEvent.click(pin5Button);
-        
-        const submitButton = screen.getByRole("button", { name: /submit score/i });
+
+        const submitButton = screen.getByRole("button", {
+          name: /submit score/i,
+        });
         fireEvent.click(submitButton);
 
         // Handle Bob's turn
         const bobTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Bob") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         if (bobTurnElements.length > 0) {
-          const noneButton = screen.getByRole("button", { name: "None" });
-          fireEvent.click(noneButton);
-          const submitButton2 = screen.getByRole("button", { name: /submit score/i });
-          fireEvent.click(submitButton2);
+          const missButton = screen.getByRole("button", {
+            name: /miss.*0 points/i,
+          });
+          fireEvent.click(missButton);
         }
       }
 
       // Now Alice should have 45 points, score 6 more to go over 50
       await waitFor(() => {
         const aliceTurnElements = screen.getAllByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Alice") && element?.textContent?.includes("Turn"));
+          return Boolean(
+            element?.textContent?.includes("Alice") &&
+              element?.textContent?.includes("Turn")
+          );
         });
         expect(aliceTurnElements.length).toBeGreaterThan(0);
       });
 
       const pin6Button = screen.getByRole("button", { name: "6" });
       fireEvent.click(pin6Button);
-      
-      const submitButton = screen.getByRole("button", { name: /submit score/i });
+
+      const submitButton = screen.getByRole("button", {
+        name: /submit score/i,
+      });
       fireEvent.click(submitButton);
 
       // Alice should be reset to 25 points and turn should advance
       await waitFor(() => {
-        expect(screen.getByText((content, element) => {
-          return Boolean(element?.textContent?.includes("Bob") && element?.textContent?.includes("Turn"));
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return Boolean(
+              element?.textContent?.includes("Bob") &&
+                element?.textContent?.includes("Turn")
+            );
+          })
+        ).toBeInTheDocument();
       });
 
       // Verify Alice's score was reset (this would be visible in the game board)

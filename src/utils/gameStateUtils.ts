@@ -4,7 +4,14 @@
  * @format
  */
 
-import type { Player, Game, GameState, PenaltyRecord, Team, GameMode } from "./types/index";
+import type {
+  Player,
+  Game,
+  GameState,
+  PenaltyRecord,
+  Team,
+  GameMode,
+} from "./types/index";
 
 /**
  * Creates a new player with default values
@@ -32,7 +39,7 @@ export function createTeam(name: string, players: Player[] = []): Team {
   return {
     id: teamId,
     name: name.trim(),
-    players: players.map(player => ({ ...player, teamId })),
+    players: players.map((player) => ({ ...player, teamId })),
     score: 0,
     penalties: 0,
     isActive: false,
@@ -46,11 +53,15 @@ export function createTeam(name: string, players: Player[] = []): Team {
  * @param teams - Optional array of teams for team-based games
  * @returns A new Game object
  */
-export function createGame(players: Player[], gameMode: GameMode = "individual", teams?: Team[]): Game {
+export function createGame(
+  players: Player[],
+  gameMode: GameMode = "individual",
+  teams?: Team[]
+): Game {
   return {
     id: generateId(),
     players: players.map((player) => ({ ...player, score: 0, penalties: 0 })),
-    teams: teams?.map(team => ({ ...team, score: 0, penalties: 0 })),
+    teams: teams?.map((team) => ({ ...team, score: 0, penalties: 0 })),
     winner: null,
     winningTeam: null,
     startTime: new Date(),
@@ -117,7 +128,11 @@ export function applyScore(player: Player, score: number): Player {
  * @param currentPlayerId - The ID of the player who scored (optional)
  * @returns Updated team with new score and consecutive misses tracking
  */
-export function applyTeamScore(team: Team, score: number, currentPlayerId?: string): Team {
+export function applyTeamScore(
+  team: Team,
+  score: number,
+  currentPlayerId?: string
+): Team {
   const newScore = team.score + score;
   let updatedTeam = { ...team };
 
@@ -125,7 +140,7 @@ export function applyTeamScore(team: Team, score: number, currentPlayerId?: stri
   if (score === 0) {
     const previousMisses = updatedTeam.consecutiveMisses || 0;
     updatedTeam.consecutiveMisses = previousMisses + 1;
-    
+
     // Check if team should be eliminated (3 consecutive misses)
     if (updatedTeam.consecutiveMisses >= 3) {
       updatedTeam.eliminated = true;
@@ -136,7 +151,7 @@ export function applyTeamScore(team: Team, score: number, currentPlayerId?: stri
   }
 
   // Update individual player scores within the team
-  const updatedPlayers = team.players.map(player => {
+  const updatedPlayers = team.players.map((player) => {
     if (currentPlayerId && player.id === currentPlayerId) {
       // Update the current player's score
       const playerNewScore = player.score + score;
@@ -275,7 +290,7 @@ export function resetPlayersForNewGame(players: Player[]): Player[] {
     ...player,
     score: 0,
     penalties: 0,
-    isActive: true,
+    isActive: false,
   }));
 }
 
@@ -344,7 +359,7 @@ export function findWinningTeam(teams: Team[]): Team | null {
  * @returns Array of all players from all teams
  */
 export function getAllPlayersFromTeams(teams: Team[]): Player[] {
-  return teams.flatMap(team => team.players);
+  return teams.flatMap((team) => team.players);
 }
 
 /**
@@ -353,8 +368,15 @@ export function getAllPlayersFromTeams(teams: Team[]): Player[] {
  * @param playerId - Player ID to find
  * @returns Team containing the player or null
  */
-export function getTeamByPlayerId(teams: Team[], playerId: string): Team | null {
-  return teams.find(team => team.players.some(player => player.id === playerId)) || null;
+export function getTeamByPlayerId(
+  teams: Team[],
+  playerId: string
+): Team | null {
+  return (
+    teams.find((team) =>
+      team.players.some((player) => player.id === playerId)
+    ) || null
+  );
 }
 
 /**
@@ -362,9 +384,15 @@ export function getTeamByPlayerId(teams: Team[], playerId: string): Team | null 
  * @param teams - Array of teams to validate
  * @returns Validation result
  */
-export function validateTeamSetup(teams: Team[]): { isValid: boolean; error?: string } {
+export function validateTeamSetup(teams: Team[]): {
+  isValid: boolean;
+  error?: string;
+} {
   if (teams.length < 2) {
-    return { isValid: false, error: "Need at least 2 teams to start a team game" };
+    return {
+      isValid: false,
+      error: "Need at least 2 teams to start a team game",
+    };
   }
 
   for (const team of teams) {
@@ -372,7 +400,10 @@ export function validateTeamSetup(teams: Team[]): { isValid: boolean; error?: st
       return { isValid: false, error: `Team "${team.name}" has no players` };
     }
     if (team.players.length > 4) {
-      return { isValid: false, error: `Team "${team.name}" has too many players (max 4)` };
+      return {
+        isValid: false,
+        error: `Team "${team.name}" has too many players (max 4)`,
+      };
     }
   }
 
@@ -405,7 +436,11 @@ export function isValidStateTransition(
  * @param winningTeam - The winning team (for team games)
  * @returns Completed game
  */
-export function completeGame(game: Game, winner: Player | null = null, winningTeam: Team | null = null): Game {
+export function completeGame(
+  game: Game,
+  winner: Player | null = null,
+  winningTeam: Team | null = null
+): Game {
   return {
     ...game,
     winner,
