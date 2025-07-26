@@ -1,12 +1,13 @@
 {
   "name": "Mölkky Score Counter",
   "short_name": "Mölkky",
-  "description": "Track scores for your Mölkky games",
+  "description": "Track scores and manage your Mölkky games with ease",
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#3B82F6",
@@ -19,5 +20,34 @@
     "games",
     "sports",
     "utilities"
+  ],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Start New Game",
+      "short_name": "New Game",
+      "description": "Start a new Mölkky game",
+      "url": "/?action=new-game",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View History",
+      "short_name": "History",
+      "description": "View game history",
+      "url": "/?action=history",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
   ]
 }

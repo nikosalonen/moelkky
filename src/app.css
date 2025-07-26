@@ -29,11 +29,223 @@
 /* Mobile optimizations */
 @media (max-width: 640px) {
   #app {
-    padding: 0.5rem;
+    padding: 0.25rem;
+    max-width: 100%;
   }
 
   .card {
-    padding: 1em;
+    padding: 0.75em;
+  }
+
+  /* Better touch targets for mobile */
+  button, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improved mobile spacing */
+  .mobile-spacing {
+    gap: 0.75rem;
+  }
+
+  /* Mobile-optimized text sizes */
+  .mobile-text-sm {
+    font-size: 0.875rem;
+  }
+
+  .mobile-text-base {
+    font-size: 1rem;
+  }
+
+  .mobile-text-lg {
+    font-size: 1.125rem;
+  }
+
+  /* Mobile grid layouts */
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mobile-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mobile-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Mobile-optimized containers */
+  .mobile-container {
+    padding: 0.5rem;
+    margin: 0;
+  }
+
+  /* Better mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Mobile-optimized buttons */
+  .mobile-btn {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  /* Mobile-optimized inputs */
+  .mobile-input {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    min-height: 48px;
+  }
+
+  /* Mobile-optimized cards */
+  .mobile-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Mobile-optimized modals */
+  .mobile-modal {
+    padding: 1rem;
+    margin: 0.5rem;
+    border-radius: 0.75rem;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized navigation */
+  .mobile-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.5rem;
+  }
+
+  /* Mobile-optimized score board */
+  .mobile-score-board {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized pin grid */
+  .mobile-pin-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  /* Mobile-optimized player list */
+  .mobile-player-list {
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized team management */
+  .mobile-team-management {
+    max-height: 35vh;
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized game history */
+  .mobile-game-history {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized toast notifications */
+  .mobile-toast {
+    position: fixed;
+    bottom: 1rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    z-index: 100;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  /* Mobile-optimized loading states */
+  .mobile-loading {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  /* Mobile-optimized error states */
+  .mobile-error {
+    padding: 1rem;
+    text-align: center;
+    border-radius: 0.5rem;
+  }
+
+  /* Mobile-optimized success states */
+  .mobile-success {
+    padding: 1rem;
+    text-align: center;
+    border-radius: 0.5rem;
+  }
+
+  /* Mobile-optimized empty states */
+  .mobile-empty {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+  }
+
+  /* Mobile-optimized animations */
+  .mobile-animate-in {
+    animation: mobileSlideIn 0.3s ease-out;
+  }
+
+  .mobile-animate-out {
+    animation: mobileSlideOut 0.3s ease-in;
+  }
+}
+
+/* Mobile-specific animations */
+@keyframes mobileSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  #app {
+    padding: 1rem;
+  }
+
+  .tablet-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tablet-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

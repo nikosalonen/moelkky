@@ -17,6 +17,7 @@ import { NoWinnerDisplay } from "./components/NoWinnerDisplay";
 import { lazy, Suspense } from "preact/compat";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ToastProvider, useToast } from "./components/Toast";
+import { MobileNav } from "./components/MobileNav";
 
 // Lazy load components that are not immediately needed
 const GameHistory = lazy(() =>
@@ -206,29 +207,29 @@ function GameApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 sm:p-4">
-      <div className="max-w-4xl mx-auto" role="main">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-1 sm:p-4">
+      <div className="max-w-4xl mx-auto mobile-container" role="main">
+        {/* Mobile-optimized Header */}
         <header
-          className="text-center mb-4 sm:mb-8 animate-fade-in"
+          className="text-center mb-3 sm:mb-8 animate-fade-in mobile-nav"
           role="banner"
         >
-          <h1 className="text-2xl sm:text-4xl font-bold gradient-text mb-2">
+          <h1 className="text-xl sm:text-4xl font-bold gradient-text mb-1 sm:mb-2 mobile-text-lg">
             Mölkky Score Counter
           </h1>
           <p
-            className="text-sm sm:text-base text-gray-600 px-2"
+            className="text-xs sm:text-base text-gray-600 px-1 sm:px-2 mobile-text-sm"
             role="doc-subtitle"
           >
             Track scores and manage your Mölkky games
           </p>
         </header>
 
-        {/* Game History Button */}
-        <div className="text-center mb-4 sm:mb-6">
+        {/* Mobile-optimized Game History Button */}
+        <div className="text-center mb-3 sm:mb-6">
           <button
             onClick={() => setIsHistoryVisible(true)}
-            className="px-4 sm:px-6 py-3 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="mobile-btn bg-blue-500 text-white hover:bg-blue-600 transition-colors font-medium text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             aria-label="View game history"
             type="button"
           >
@@ -408,6 +409,14 @@ function GameApp() {
             />
           </section>
         )}
+
+        {/* Mobile Navigation */}
+        <MobileNav
+          onViewHistory={() => setIsHistoryVisible(true)}
+          onEndGame={gameState === "playing" ? handleEndGame : undefined}
+          canEndGame={gameState === "playing"}
+          gameState={gameState}
+        />
       </div>
     </div>
   );

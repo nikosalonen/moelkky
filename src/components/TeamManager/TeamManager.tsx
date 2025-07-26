@@ -307,26 +307,26 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
   const canStartTeamGame = validateTeamSetup(teams).isValid;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mobile-card">
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 mobile-text-lg">
         Team Management
       </h2>
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-3 sm:mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded mobile-error">
+          <span className="mobile-text-sm">{error}</span>
         </div>
       )}
 
       {/* Add New Team */}
       {!gameActive && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-700 mb-3">Create New Team</h3>
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg mobile-card">
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 mobile-text-base">Create New Team</h3>
           
           {/* Team Name Input */}
-          <div className="mb-4">
-            <label htmlFor="newTeamName" className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-3 sm:mb-4">
+            <label htmlFor="newTeamName" className="block text-sm font-medium text-gray-700 mb-2 mobile-text-sm">
               Team Name
             </label>
             <input
@@ -336,28 +336,28 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
               onChange={(e) => setNewTeamName((e.target as HTMLInputElement).value)}
               onKeyPress={(e) => handleKeyPress(e, "add")}
               placeholder="Enter team name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="mobile-input w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={isSubmitting}
             />
           </div>
 
           {/* Player Selection */}
           {availablePlayers.length > 0 && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="mb-3 sm:mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2 mobile-text-sm">
                 Select Players ({selectedPlayers.length}/4)
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mobile-grid-2">
                 {availablePlayers.map((player) => (
-                  <label key={player.id} className="flex items-center space-x-2 cursor-pointer">
+                  <label key={player.id} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors">
                     <input
                       type="checkbox"
                       checked={selectedPlayers.includes(player.id)}
                       onChange={() => handlePlayerSelection(player.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
                       disabled={isSubmitting}
                     />
-                    <span className="text-sm text-gray-700">{player.name}</span>
+                    <span className="text-sm text-gray-700 mobile-text-sm">{player.name}</span>
                   </label>
                 ))}
               </div>
@@ -368,7 +368,7 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
           <button
             onClick={handleAddTeam}
             disabled={isSubmitting || !newTeamName.trim() || selectedPlayers.length === 0}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
+            className={`mobile-btn w-full rounded-md font-medium transition-colors ${
               isSubmitting || !newTeamName.trim() || selectedPlayers.length === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-600"
@@ -384,54 +384,54 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
       )}
 
       {/* Teams List */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-medium text-gray-700">
+      <div className="space-y-3 mobile-team-management">
+        <h3 className="text-base sm:text-lg font-medium text-gray-700 mobile-text-base">
           Teams ({teams.length})
         </h3>
         
         {teams.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">
+          <p className="text-gray-500 text-center py-4 text-xs sm:text-sm mobile-text-sm">
             No teams created yet. Create at least 2 teams to start a team game.
           </p>
         ) : (
           teams.map((team) => (
             <div
               key={team.id}
-              className="border border-gray-200 rounded-lg p-3 bg-white"
+              className="border border-gray-200 rounded-lg p-3 bg-white mobile-card"
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   {editingTeam === team.id ? (
                     <input
                       type="text"
                       value={editingName}
                       onChange={(e) => setEditingName((e.target as HTMLInputElement).value)}
                       onKeyPress={(e) => handleKeyPress(e, "edit")}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      className="mobile-input px-2 py-1 border border-gray-300 rounded text-sm"
                       autoFocus
                     />
                   ) : (
-                    <span className="font-medium text-gray-800">{team.name}</span>
+                    <span className="font-medium text-gray-800 mobile-text-base">{team.name}</span>
                   )}
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 mobile-text-sm">
                     {team.players.length} player{team.players.length !== 1 ? "s" : ""}
                   </span>
                 </div>
                 
                 {!gameActive && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     {editingTeam === team.id ? (
                       <>
                         <button
                           onClick={handleSaveEdit}
                           disabled={isSubmitting}
-                          className="text-green-600 hover:text-green-800 text-sm"
+                          className="mobile-btn text-green-600 hover:text-green-800 text-xs sm:text-sm px-2 py-1 rounded"
                         >
                           Save
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="text-gray-600 hover:text-gray-800 text-sm"
+                          className="mobile-btn text-gray-600 hover:text-gray-800 text-xs sm:text-sm px-2 py-1 rounded"
                         >
                           Cancel
                         </button>
@@ -440,13 +440,13 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
                       <>
                         <button
                           onClick={() => handleStartEdit(team)}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
+                          className="mobile-btn text-blue-600 hover:text-blue-800 text-xs sm:text-sm px-2 py-1 rounded"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => setShowDeleteConfirm(team.id)}
-                          className="text-red-600 hover:text-red-800 text-sm"
+                          className="mobile-btn text-red-600 hover:text-red-800 text-xs sm:text-sm px-2 py-1 rounded"
                         >
                           Remove
                         </button>
@@ -459,20 +459,20 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
               {/* Team Players */}
               <div className="mt-2">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Players:</span>
+                  <span className="text-sm font-medium text-gray-700 mobile-text-sm">Players:</span>
                   {!gameActive && team.players.length > 1 && (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2">
                       {reorderingTeam === team.id ? (
                         <>
                           <button
                             onClick={() => handleSaveReorder(team.id)}
-                            className="text-green-600 hover:text-green-800 text-xs"
+                            className="mobile-btn text-green-600 hover:text-green-800 text-xs px-2 py-1 rounded"
                           >
                             Save Order
                           </button>
                           <button
                             onClick={handleCancelReorder}
-                            className="text-gray-600 hover:text-gray-800 text-xs"
+                            className="mobile-btn text-gray-600 hover:text-gray-800 text-xs px-2 py-1 rounded"
                           >
                             Cancel
                           </button>
@@ -480,7 +480,7 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
                       ) : (
                         <button
                           onClick={() => handleStartReorder(team)}
-                          className="text-blue-600 hover:text-blue-800 text-xs"
+                          className="mobile-btn text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded"
                         >
                           Reorder
                         </button>
@@ -490,41 +490,43 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
                 </div>
                 
                 {reorderingTeam === team.id ? (
-                  // Reorderable player list
-                  <div className="space-y-1">
-                    <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700 mb-2">
-                      💡 Click the arrows to reorder players. The order determines throwing sequence.
+                  // Mobile-optimized reorderable player list
+                  <div className="space-y-2">
+                    <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700 mb-2 mobile-text-sm">
+                      💡 Tap the arrows to reorder players. The order determines throwing sequence.
                     </div>
                     {team.players.map((player, index) => (
                       <div
                         key={player.id}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded border hover:bg-gray-100 transition-colors"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded border hover:bg-gray-100 transition-colors mobile-card"
                       >
-                        <span className="text-sm text-gray-700 font-medium">
+                        <span className="text-sm text-gray-700 font-medium mobile-text-sm flex-1">
                           {index + 1}. {player.name}
                         </span>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleMovePlayerUp(team.id, index)}
                             disabled={index === 0}
-                            className={`p-1 rounded text-xs transition-colors ${
+                            className={`mobile-btn p-2 rounded-lg text-sm transition-colors ${
                               index === 0
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                                : "text-blue-600 hover:text-blue-800 hover:bg-blue-50 bg-white border border-blue-200"
                             }`}
                             title="Move up"
+                            aria-label={`Move ${player.name} up`}
                           >
                             ↑
                           </button>
                           <button
                             onClick={() => handleMovePlayerDown(team.id, index)}
                             disabled={index === team.players.length - 1}
-                            className={`p-1 rounded text-xs transition-colors ${
+                            className={`mobile-btn p-2 rounded-lg text-sm transition-colors ${
                               index === team.players.length - 1
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                                : "text-blue-600 hover:text-blue-800 hover:bg-blue-50 bg-white border border-blue-200"
                             }`}
                             title="Move down"
+                            aria-label={`Move ${player.name} down`}
                           >
                             ↓
                           </button>
@@ -533,35 +535,34 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
                     ))}
                   </div>
                 ) : (
-                  // Regular player list
-                  <div className="text-sm text-gray-600">
+                  // Mobile-optimized regular player list
+                  <div className="text-sm text-gray-600 mobile-text-sm">
                     {team.players.map((player, index) => (
-                      <span key={player.id}>
-                        {index + 1}. {player.name}
-                        {index < team.players.length - 1 ? ", " : ""}
-                      </span>
+                      <div key={player.id} className="py-1">
+                        <span className="font-medium">{index + 1}.</span> {player.name}
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Delete Confirmation */}
+              {/* Mobile-optimized Delete Confirmation */}
               {showDeleteConfirm === team.id && (
-                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
-                  <p className="text-sm text-red-700 mb-2">
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded mobile-card">
+                  <p className="text-xs sm:text-sm text-red-700 mb-2 mobile-text-sm">
                     Are you sure you want to remove this team?
                   </p>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleRemoveTeam(team.id)}
                       disabled={isSubmitting}
-                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                      className="mobile-btn px-3 py-1 bg-red-600 text-white text-xs sm:text-sm rounded hover:bg-red-700"
                     >
                       {isSubmitting ? <InlineSpinner size="sm" /> : "Yes, Remove"}
                     </button>
                     <button
                       onClick={() => setShowDeleteConfirm(null)}
-                      className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
+                      className="mobile-btn px-3 py-1 bg-gray-600 text-white text-xs sm:text-sm rounded hover:bg-gray-700"
                     >
                       Cancel
                     </button>
@@ -573,10 +574,10 @@ export function TeamManager({ teams, players, gameActive }: TeamManagerProps) {
         )}
       </div>
 
-      {/* Team Game Status */}
+      {/* Mobile-optimized Team Game Status */}
       {teams.length > 0 && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-          <p className="text-sm text-blue-700">
+        <div className="mt-3 sm:mt-4 p-3 bg-blue-50 border border-blue-200 rounded mobile-card">
+          <p className="text-xs sm:text-sm text-blue-700 mobile-text-sm">
             {canStartTeamGame
               ? "✅ Ready to start team game"
               : `❌ Need ${Math.max(0, 2 - teams.length)} more team${teams.length === 1 ? "" : "s"} to start`}

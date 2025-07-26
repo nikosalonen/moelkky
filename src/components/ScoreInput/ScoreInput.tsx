@@ -265,19 +265,19 @@ export function ScoreInput({
   };
 
   return (
-    <div>
-      {/* Title */}
-      <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+    <div className="mobile-container">
+      {/* Mobile-optimized Title */}
+      <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 text-center mobile-text-lg">
         Score Entry
       </h3>
 
-      {/* Current Player Info */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="text-lg font-medium text-gray-700 mb-2">
+      {/* Mobile-optimized Current Player Info */}
+      <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg mobile-card">
+        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 mobile-text-base">
           Current Player
         </h4>
-        <div className="text-gray-600">
-          <p className="font-semibold text-lg">{currentPlayer.name}</p>
+        <div className="text-gray-600 mobile-text-sm">
+          <p className="font-semibold text-base sm:text-lg">{currentPlayer.name}</p>
           <p>Current Score: {currentPlayer.score} / 50</p>
           <p>Points Needed: {Math.max(0, 50 - currentPlayer.score)}</p>
           {currentPlayer.consecutiveMisses !== undefined && currentPlayer.consecutiveMisses > 0 && (
@@ -319,14 +319,14 @@ export function ScoreInput({
         </div>
       )}
 
-      {/* Pin Selection Instructions */}
-      <div className="mb-4 text-center">
-        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2">
+      {/* Mobile-optimized Pin Selection Instructions */}
+      <div className="mb-3 sm:mb-4 text-center">
+        <h4 className="text-sm sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2 mobile-text-base">
           Select Pins Knocked Down
         </h4>
-        <p className="text-sm text-gray-600 mb-3">
+        <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 mobile-text-sm">
           {selectedPins.length === 0 
-            ? "Click on the pins that were knocked down"
+            ? "Tap the pins that were knocked down"
             : selectedPins.length === 1
             ? `Single pin selected: ${selectedPins[0]} points`
             : `${selectedPins.length} pins selected: ${selectedPins.length} points`
@@ -334,9 +334,9 @@ export function ScoreInput({
         </p>
       </div>
 
-      {/* Pin Selection Buttons */}
-      <div className="mb-4 sm:mb-6">
-        <div className="grid grid-cols-6 gap-2 justify-center mb-2">
+      {/* Mobile-optimized Pin Selection Buttons */}
+      <div className="mb-3 sm:mb-6">
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-1 sm:gap-2 justify-center mb-2 mobile-pin-grid">
           {[...Array(12)].map((_, i) => {
             const pin = i + 1;
             const selected = selectedPins.includes(pin);
@@ -346,7 +346,7 @@ export function ScoreInput({
                 type="button"
                 onClick={() => togglePin(pin)}
                 disabled={isSubmitting}
-                className={`w-12 h-12 rounded-lg font-bold text-lg border-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg font-bold text-base sm:text-lg border-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation mobile-btn
                   ${selected ? "bg-blue-500 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-300 hover:bg-blue-50"}
                   disabled:bg-gray-300 disabled:cursor-not-allowed`}
                 aria-pressed={selected}
@@ -361,21 +361,21 @@ export function ScoreInput({
             type="button"
             onClick={handleMiss}
             disabled={isSubmitting}
-            className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+            className="mobile-btn bg-gray-400 text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           >
             Miss (0 points)
           </button>
         </div>
       </div>
 
-      {/* Calculated Score Display */}
-      <div className="mb-4 sm:mb-6 text-center">
-        <span className="text-base sm:text-lg font-medium text-gray-700">
+      {/* Mobile-optimized Calculated Score Display */}
+      <div className="mb-3 sm:mb-6 text-center">
+        <span className="text-sm sm:text-lg font-medium text-gray-700 mobile-text-base">
           Calculated Score:{" "}
           <span className="font-bold text-blue-700">{currentScore}</span>
         </span>
         {selectedPins.length > 0 && (
-          <div className="text-sm text-gray-600 mt-1">
+          <div className="text-xs sm:text-sm text-gray-600 mt-1 mobile-text-sm">
             {scoringType === "single" 
               ? `Single Pin: ${selectedPins[0]}`
               : `Multiple Pins: ${selectedPins.length}`
@@ -384,14 +384,14 @@ export function ScoreInput({
         )}
       </div>
 
-      {/* Submit Button */}
-      <div className="mb-4 sm:mb-6 flex justify-center">
+      {/* Mobile-optimized Submit Button */}
+      <div className="mb-3 sm:mb-6 flex justify-center">
         <button
           type="button"
           aria-label="Submit score"
           onClick={handleScoreSubmit}
           disabled={isSubmitDisabled}
-          className="px-6 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
+          className="mobile-btn bg-green-500 text-white hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[120px] font-medium transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
         >
           {isSubmitting ? (
             <>
@@ -404,49 +404,49 @@ export function ScoreInput({
         </button>
       </div>
 
-      {/* Penalty Section */}
-      <div className="border-t border-gray-200 pt-4 sm:pt-6">
-        <h4 className="text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center">
+      {/* Mobile-optimized Penalty Section */}
+      <div className="border-t border-gray-200 pt-3 sm:pt-6">
+        <h4 className="text-sm sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3 text-center mobile-text-base">
           Penalty
         </h4>
-        <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 text-center">
+        <p className="text-xs text-gray-600 mb-3 sm:mb-4 text-center mobile-text-sm">
           Apply a penalty to reset the player's score to 25 points.
         </p>
         <div className="text-center">
           <button
             onClick={() => setShowPenaltyConfirm(true)}
             disabled={isSubmitting}
-            className="w-full sm:w-auto px-6 py-3 sm:py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+            className="mobile-btn w-full sm:w-auto bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           >
             Apply Penalty
           </button>
         </div>
       </div>
 
-      {/* Out-of-Turn Throw Button */}
-      <div className="mt-4 flex flex-col items-center">
+      {/* Mobile-optimized Out-of-Turn Throw Button */}
+      <div className="mt-3 sm:mt-4 flex flex-col items-center">
         <button
           type="button"
           aria-label="Mark out-of-turn throw"
           onClick={handleOutOfTurn}
-          className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
+          className="mobile-btn bg-yellow-500 text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed font-medium transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation"
           disabled={isSubmitting}
         >
           Mark Out-of-Turn Throw
         </button>
-        <span className="text-xs text-gray-500 mt-1">
+        <span className="text-xs text-gray-500 mt-1 mobile-text-sm">
           Use if this player threw out of turn
         </span>
       </div>
 
-      {/* Penalty Confirmation Modal */}
+      {/* Mobile-optimized Penalty Confirmation Modal */}
       {showPenaltyConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-sm mx-4 w-full">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 sm:mb-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg p-3 sm:p-6 max-w-sm mx-2 sm:mx-4 w-full mobile-modal">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 text-center mobile-text-lg">
               Confirm Penalty
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 text-center">
+            <p className="text-xs sm:text-base text-gray-600 mb-4 sm:mb-6 text-center mobile-text-sm">
               Are you sure you want to apply a penalty to{" "}
               <span className="font-medium">{currentPlayer.name}</span>? This
               will reset their score to 25 points.

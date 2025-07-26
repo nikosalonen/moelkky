@@ -81,22 +81,27 @@ export function GamePlayPanel({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-2 sm:p-4 mb-2 flex flex-col min-h-[40vh]">
-      {/* Current Turn & Score Input - Now at the top */}
-      <div className="mb-4">
-        <div className="mb-3 text-center">
+    <div className="bg-white rounded-lg shadow-md p-2 sm:p-4 mb-2 flex flex-col min-h-[40vh] mobile-card">
+      {/* Mobile-optimized Current Turn & Score Input */}
+      <div className="mb-3 sm:mb-4">
+        <div className="mb-2 sm:mb-3 text-center">
           {gameMode === "individual" ? (
-            <span className="text-lg font-semibold text-blue-700">
-              {currentPlayer.name}'s Turn (Score: {currentPlayer.score} / 50)
-            </span>
-          ) : (
-            <div className="text-lg">
+            <div className="mobile-text-base">
               <span className="font-semibold text-blue-700">
+                {currentPlayer.name}'s Turn
+              </span>
+              <div className="text-sm text-gray-600 mt-1">
+                Score: {currentPlayer.score} / 50
+              </div>
+            </div>
+          ) : (
+            <div className="mobile-text-base">
+              <div className="font-semibold text-blue-700">
                 {currentTeam?.name}'s Turn
-              </span>
-              <span className="ml-2 text-gray-600">
-                - {currentTeamPlayer?.name} (Score: {currentTeam?.score} / 50)
-              </span>
+              </div>
+              <div className="text-sm text-gray-600 mt-1">
+                {currentTeamPlayer?.name} (Score: {currentTeam?.score} / 50)
+              </div>
             </div>
           )}
         </div>
@@ -107,31 +112,31 @@ export function GamePlayPanel({
         />
       </div>
 
-      {/* End Game Button */}
+      {/* Mobile-optimized End Game Button */}
       {gameState === "playing" && onEndGame && (
-        <div className="text-center mb-4">
+        <div className="text-center mb-3 sm:mb-4">
           <button
             onClick={onEndGame}
-            className="px-4 sm:px-6 py-2 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="mobile-btn bg-red-500 text-white hover:bg-red-600 transition-colors font-medium text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             aria-label="End current game and return to start screen"
             type="button"
           >
             <span aria-hidden="true">🏁</span> End Game
           </button>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1 mobile-text-sm">
             Return to start screen and reset scores
           </p>
         </div>
       )}
 
-      {/* Score Board - Now at the bottom, collapsible */}
-      <div className="border-t border-gray-200 pt-3">
+      {/* Mobile-optimized Score Board */}
+      <div className="border-t border-gray-200 pt-2 sm:pt-3">
         <details className="group">
-          <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-between">
-            <span>📊 Score Board</span>
+          <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-between mobile-btn bg-gray-50 rounded-lg p-2">
+            <span className="mobile-text-sm">📊 Score Board</span>
             <span className="text-xs text-gray-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
-          <div className="mt-3 max-h-64 overflow-y-auto">
+          <div className="mt-2 sm:mt-3 mobile-score-board">
             {gameMode === "individual" ? (
               // Individual mode - show players
               <div className="space-y-1">

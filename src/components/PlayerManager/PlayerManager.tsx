@@ -200,8 +200,8 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
   };
 
   return (
-    <div class="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">Players</h2>
+    <div class="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6 mobile-card">
+      <h2 class="text-lg sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 text-center mobile-text-lg">Players</h2>
 
       {/* Error Display */}
       {error && (
@@ -214,9 +214,9 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
         </div>
       )}
 
-      {/* Add Player Section */}
+      {/* Mobile-optimized Add Player Section */}
       {!gameActive && (
-        <div class="mb-4 sm:mb-6">
+        <div class="mb-3 sm:mb-6">
           <div class="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
@@ -227,7 +227,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               }
               onKeyDown={(e) => handleKeyPress(e, "add")}
               placeholder="Enter player name"
-              class="flex-1 px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              class="mobile-input flex-1 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
               maxLength={50}
               disabled={gameActive}
             />
@@ -235,7 +235,7 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
               aria-label="Add player"
               onClick={handleAddPlayer}
               disabled={!newPlayerName.trim() || gameActive || isSubmitting}
-              class="px-4 py-3 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
+              class="mobile-btn bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[100px] font-medium transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>
@@ -250,10 +250,10 @@ export function PlayerManager({ players, gameActive }: PlayerManagerProps) {
         </div>
       )}
 
-      {/* Players List */}
-      <div class="space-y-2 sm:space-y-3">
+      {/* Mobile-optimized Players List */}
+      <div class="space-y-2 sm:space-y-3 mobile-player-list">
         {players.length === 0 ? (
-          <p class="text-gray-500 text-center py-4 text-sm sm:text-base">
+          <p class="text-gray-500 text-center py-4 text-xs sm:text-base mobile-text-sm">
             No players added yet. Add at least 2 players to start a game.
           </p>
         ) : (

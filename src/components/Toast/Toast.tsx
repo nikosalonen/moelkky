@@ -164,24 +164,24 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 
   return (
     <div
-      className={`${getToastStyles()} ${getTypeStyles()} border rounded-lg p-4 shadow-lg max-w-sm w-full mb-3`}
+      className={`${getToastStyles()} ${getTypeStyles()} border rounded-lg p-3 sm:p-4 shadow-lg max-w-sm w-full mb-3 mobile-card`}
       role="alert"
       aria-live="assertive"
     >
       <div className="flex items-start">
-        <div className="flex-shrink-0 mr-3 text-lg">
+        <div className="flex-shrink-0 mr-2 sm:mr-3 text-base sm:text-lg">
           {getIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-medium mb-1">{toast.title}</h4>
+          <h4 className="text-xs sm:text-sm font-medium mb-1 mobile-text-sm">{toast.title}</h4>
           {toast.message && (
-            <p className="text-sm opacity-90">{toast.message}</p>
+            <p className="text-xs sm:text-sm opacity-90 mobile-text-sm">{toast.message}</p>
           )}
         </div>
-        <div className="flex-shrink-0 ml-3">
+        <div className="flex-shrink-0 ml-2 sm:ml-3">
           <button
             onClick={handleRemove}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors mobile-btn"
             aria-label="Close notification"
           >
             ✕
@@ -201,13 +201,13 @@ function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm pointer-events-none">
+    <div className="fixed top-2 sm:top-4 right-2 sm:right-4 z-50 space-y-2 max-w-sm pointer-events-none mobile-toast">
       {/* Clear All Button */}
       {toasts.length > 1 && (
         <div className="pointer-events-auto">
           <button
             onClick={clearToasts}
-            className="bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity"
+            className="bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-75 hover:opacity-100 transition-opacity mobile-btn"
             title="Clear all notifications"
           >
             Clear All ({toasts.length})

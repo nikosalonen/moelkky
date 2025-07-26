@@ -52,43 +52,43 @@ export default defineConfig({
         // Use a consistent viewport for testing
         viewport: { width: 1280, height: 720 },
       },
-    }
+    },
 
-    // {
-    //   name: "firefox",
-    //   use: {
-    //     ...devices["Desktop Firefox"],
-    //     viewport: { width: 1280, height: 720 },
-    //   },
-    // },
+     {
+       name: "firefox",
+       use: {
+         ...devices["Desktop Firefox"],
+         viewport: { width: 1280, height: 720 },
+       },
+     },
 
-    // {
-    //   name: "webkit",
-    //   use: {
-    //     ...devices["Desktop Safari"],
-    //     viewport: { width: 1280, height: 720 },
-    //   },
-    // },
+     {
+       name: "webkit",
+       use: {
+         ...devices["Desktop Safari"],
+         viewport: { width: 1280, height: 720 },
+       },
+     },
 
-    // /* Test against mobile viewports. */
-    // {
-    //   name: "Mobile Chrome",
-    //   use: { ...devices["Pixel 5"] },
-    // },
-    // {
-    //   name: "Mobile Safari",
-    //   use: { ...devices["iPhone 12"] },
-    // },
+     /* Test against mobile viewports. */
+     {
+       name: "Mobile Chrome",
+       use: { ...devices["Pixel 5"] },
+     },
+     {
+       name: "Mobile Safari",
+       use: { ...devices["iPhone 12"] },
+     },
 
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+     /* Test against branded browsers. */
+     {
+       name: 'Microsoft Edge',
+       use: { ...devices['Desktop Edge'], channel: 'msedge' },
+     },
+     {
+       name: 'Google Chrome',
+       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+     },
   ],
 
   /* Run your local dev server before starting the tests */
