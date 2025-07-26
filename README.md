@@ -1,11 +1,6 @@
 # Mölkky Score Counter
 
-![VIBE CODE](https://img.shields.io/badge/VIBECODE-brightgreen)
-
-
-A modern, responsive web application for tracking scores and managing Mölkky games. Built with Preact, TypeScript, and Tailwind CSS.
-
-**This project was entirely vibecoded** - every line of code, feature, and design decision was created through AI-assisted development.
+A modern, mobile-first web application for tracking scores and managing Mölkky games. Built with Preact, TypeScript, and Tailwind CSS.
 
 ## 🎯 About Mölkky
 
@@ -16,12 +11,13 @@ Mölkky is a Finnish throwing game where players throw a wooden pin (the "mölkk
 - **Game Modes**: Support for both individual and team-based games
 - **Player Management**: Add, remove, and manage players for your game
 - **Team Management**: Create and manage teams with up to 4 players per team
-- **Team Player Ordering**: Reorder players within teams to set throwing sequence
+- **Team Player Reordering**: Mobile-friendly reordering of players within teams
 - **Score Tracking**: Record scores with automatic turn advancement
 - **Penalty System**: Apply penalties that reset player scores to 25
 - **Game History**: View and manage previous games
 - **End Game Functionality**: End current game and return to start screen at any time
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Mobile-First Design**: Optimized for mobile devices with touch-friendly interface
+- **PWA Support**: Install as a mobile app with offline capabilities
 - **Real-time Updates**: Live score updates and game state management
 - **Toast Notifications**: User-friendly feedback for all game actions
 - **Error Handling**: Robust error boundaries and validation
@@ -68,7 +64,7 @@ The built files will be in the `dist` directory.
 1. **Choose Game Mode**: Select between Individual or Team mode
 2. **Add Players**: Enter player names and click "Add Player" (minimum 2 players required)
 3. **Create Teams** (Team Mode): Create teams and assign players (2-4 players per team, minimum 2 teams)
-4. **Reorder Team Players** (Team Mode): Use the "Reorder" button to arrange players in throwing order
+4. **Reorder Team Players** (Team Mode): Use the "Reorder" button to arrange players in throwing order (mobile-optimized)
 5. **Start Game**: Click "Start Game" to begin
 6. **Track Scores**: Use the score input to record points for each player/team
 7. **Apply Penalties**: Use the penalty button if a player/team violates rules
@@ -105,16 +101,19 @@ This ensures each team gets one throw per round, and all players within each tea
 
 ```
 src/
-├── components/          # React components
+├── components/          # Preact components
 │   ├── ErrorBoundary/   # Error handling
 │   ├── GameBoard/       # Main game interface
 │   ├── GameHistory/     # Game history modal
+│   ├── GameModeSelector/ # Game mode selection
+│   ├── MobileNav/       # Mobile navigation
 │   ├── PlayerManager/   # Player management
 │   ├── ScoreInput/      # Score input component
+│   ├── TeamManager/     # Team management
 │   ├── Toast/           # Notification system
 │   └── WinnerDisplay/   # Winner announcement
-├── context/             # React context providers
-├── hooks/               # Custom React hooks
+├── context/             # Preact context providers
+├── hooks/               # Custom Preact hooks
 ├── utils/               # Utility functions
 │   ├── gameLogic/       # Game logic
 │   ├── storage/         # Data persistence
@@ -180,6 +179,7 @@ npm run test:e2e:report
 - **Testing**: [Vitest](https://vitest.dev/) - Fast unit testing framework
 - **Testing Library**: [@testing-library/preact](https://testing-library.com/docs/preact-testing-library/intro/) - Testing utilities
 - **E2E Testing**: [Playwright](https://playwright.dev/) - End-to-end testing framework
+- **PWA**: Progressive Web App with offline capabilities
 
 
 ## 🤝 Contributing
@@ -216,7 +216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions, please:
 
-1. Check the [Issues](https://github.com/yourusername/moelkky/issues) page
+1. Check the [Issues](https://github.com/nikosalonen/moelkky/issues) page
 2. Create a new issue with detailed information
 3. Include steps to reproduce the problem
 
