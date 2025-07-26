@@ -2,6 +2,7 @@
  * @format
  */
 
+import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/preact";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { h } from "preact";
