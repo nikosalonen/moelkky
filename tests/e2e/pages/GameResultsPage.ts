@@ -29,7 +29,7 @@ export class GameResultsPage extends BasePage {
 
   // Leaderboard Selectors
   private readonly leaderboardSection =
-    '.bg-gray-50:has-text("Final"), .bg-gray-50:has-text("Standings")';
+    'h3:has-text("Final Leaderboard"), .bg-gray-50:has-text("Final"), .bg-gray-50:has-text("Standings")';
   private readonly leaderboardTitle =
     'h3:has-text("Final Leaderboard"), h3:has-text("Final Standings")';
   private readonly playerRow = (playerName: string) =>
@@ -126,15 +126,14 @@ export class GameResultsPage extends BasePage {
   } | null> {
     try {
       await this.waitForElement(this.championStats);
-
       const statsText = await this.getElementText(this.championStats);
 
-      // Extract final score (should be 50)
-      const scoreMatch = statsText.match(/Final Score\s*(\d+)/);
+      // Extract final score (format: "50 Final Score 0 Penalties")
+      const scoreMatch = statsText.match(/(\d+)\s+Final\s+Score/);
       const finalScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 50;
 
-      // Extract penalties count
-      const penaltyMatch = statsText.match(/Penalties\s*(\d+)/);
+      // Extract penalties count (format: "50 Final Score 0 Penalties")
+      const penaltyMatch = statsText.match(/Final\s+Score\s+(\d+)\s+Penalties/);
       const penalties = penaltyMatch ? parseInt(penaltyMatch[1], 10) : 0;
 
       return { finalScore, penalties };

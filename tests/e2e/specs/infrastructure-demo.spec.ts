@@ -100,6 +100,10 @@ test.describe("Infrastructure Demo", () => {
   test("should demonstrate performance measurement", async ({ page }) => {
     const helpers = createGameHelpers(page);
 
+    // Navigate to app first
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
     // Measure page load performance
     const loadTime = await helpers.performance.measurePageLoad();
     expect(loadTime).toBeLessThan(10000); // Should load within 10 seconds
@@ -107,8 +111,12 @@ test.describe("Infrastructure Demo", () => {
     // Measure action performance
     const { result, duration } = await helpers.performance.measureAction(
       async () => {
-        // Click a button that actually exists - the Add Player button
-        await page.click('button:has-text("Add Player")');
+        // Fill in a player name first to enable the button
+        await page.fill('input[aria-label="Player name"]', 'Test Player');
+        // Wait for the Add Player button to be visible and enabled
+        await page.waitForSelector('button[aria-label="Add player"]:not([disabled])', { timeout: 5000 });
+        // Click the Add Player button using aria-label for robustness
+        await page.click('button[aria-label="Add player"]');
         return "clicked";
       }
     );

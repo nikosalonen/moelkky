@@ -316,13 +316,13 @@ export class GameTestHelpers {
     ): Promise<void> => {
       // Set game mode
       if (gameMode === "team") {
-        await this.page.click('[data-testid="team-mode-selector"]');
+        await this.page.click('button:has-text("Team")');
       }
 
       // Add players
       for (const player of players) {
-        await this.page.fill('[data-testid="player-name-input"]', player.name);
-        await this.page.click('[data-testid="add-player-button"]');
+        await this.page.fill('input[aria-label="Player name"]', player.name);
+        await this.page.click('button[aria-label="Add player"]');
         await this.page.waitForTimeout(100); // Small delay for UI update
       }
     },
@@ -331,7 +331,7 @@ export class GameTestHelpers {
      * Start game and verify it started
      */
     startGame: async (): Promise<void> => {
-      await this.page.click('[data-testid="start-game-button"]');
+              await this.page.click('button[aria-label*="Start game"]');
       await this.assertions.gameState("playing");
     },
 

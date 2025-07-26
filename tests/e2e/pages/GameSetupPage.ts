@@ -10,14 +10,14 @@ import { BasePage } from "./BasePage";
 export class GameSetupPage extends BasePage {
   // Game Mode Selectors
   private readonly gameModeSection = '.bg-white:has(h2:has-text("Game Mode"))';
-  private readonly individualModeButton = 'button:has-text("Individual")';
-  private readonly teamModeButton = 'button:has-text("Team")';
+  private readonly individualModeButton = 'button:has-text("Individual"):has-text("👤")';
+  private readonly teamModeButton = 'button:has-text("Team"):has-text("👥")';
 
   // Player Management Selectors
   private readonly playerSection = '.bg-white:has(h2:has-text("Players"))';
   private readonly playerNameInput =
     'input[aria-label="Player name"], input[placeholder*="player name" i]';
-  private readonly addPlayerButton = 'button:has-text("Add Player")';
+  private readonly addPlayerButton = 'button[aria-label="Add player"]';
   private readonly playerList = '.space-y-2:has(.flex:has-text("1."))';
   private readonly playerItem = (playerName: string) =>
     `.flex.flex-col.sm\\:flex-row.sm\\:items-center.justify-between:has-text("${playerName}")`;
@@ -41,13 +41,13 @@ export class GameSetupPage extends BasePage {
   private readonly teamList =
     '[data-testid="team-list"], .space-y-3:has(.border:has-text("Team"))';
   private readonly teamItem = (teamName: string) =>
-    `.border:has-text("${teamName}")`;
+    `.border.border-gray-200.rounded-lg.p-3.bg-white:has-text("${teamName}"):not([role="alert"])`;
   private readonly playerCheckbox = (playerName: string) =>
     `input[type="checkbox"] + span:has-text("${playerName}")`;
 
   // Start Game Selectors
   private readonly startGameButton =
-    'button[type="button"]:has-text("Start Game")';
+    'button[type="button"]:has-text("Start Game"), button[type="button"]:has-text("Start Team Game")';
 
   constructor(page: Page) {
     super(page);
@@ -70,10 +70,15 @@ export class GameSetupPage extends BasePage {
 
     const modeButton =
       mode === "individual" ? this.individualModeButton : this.teamModeButton;
+    
+    // Wait for button to be visible and clickable
+    await this.waitForElement(modeButton);
+    
+    // Click the button
     await this.clickElement(modeButton);
 
     // Wait for mode selection to be applied
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
 
     // Verify mode is selected by checking button state
     // Use first() to handle multiple matches
@@ -170,8 +175,8 @@ export class GameSetupPage extends BasePage {
       for (const element of playerElements) {
         const text = await element.textContent();
         if (text) {
-          // Extract player name (format: "1. PlayerName")
-          const match = text.match(/\d+\.\s*([^(]+)/);
+          // Extract player name (format: "1. PlayerName Edit Remove")
+          const match = text.match(/\d+\.\s*([^E]+)/);
           if (match) {
             players.push(match[1].trim());
           }
@@ -196,10 +201,9 @@ export class GameSetupPage extends BasePage {
 
     // Select players for the team
     for (const playerName of playerNames) {
-      const checkbox = this.page
-        .locator(this.playerCheckbox(playerName))
-        .locator("..")
-        .locator('input[type="checkbox"]');
+      // Find the checkbox by looking for the label that contains the player name
+      // Structure: <label><input type="checkbox"><span>Player Name</span></label>
+      const checkbox = this.page.locator(`label:has(span:has-text("${playerName}")) input[type="checkbox"]`);
       await checkbox.check();
     }
 
@@ -217,46 +221,47 @@ export class GameSetupPage extends BasePage {
     const teams: Array<{ name: string; players: string[] }> = [];
 
     try {
-      await this.waitForElement(this.teamList, { timeout: 2000 });
+      // Wait for team management section
+      await this.waitForElement('.bg-white:has-text("Team Management")', { timeout: 2000 });
 
-      const teamElements = await this.getAllElements(
-        ".border:has(.font-medium)"
-      );
-
+      // Look for team items with a more specific selector
+      // Each team should be in its own container with specific structure
+      const teamElements = await this.page.locator('.bg-white:has-text("Team Management") .border:has-text("players"):not([role="alert"])').all();
+      
+      // Filter out elements that are too large (contain too much text)
+      const filteredElements: any[] = [];
       for (const element of teamElements) {
         const text = await element.textContent();
-        if (text) {
-          // Extract team name and players
-          const lines = text
-            .split("\n")
-            .map((line) => line.trim())
-            .filter((line) => line);
-          const teamName = lines[0];
+        if (text && text.length < 200) { // Only elements with reasonable text length
+          filteredElements.push(element);
+        }
+      }
+      
+      for (const element of filteredElements) {
+        const text = await element.textContent();
+        if (!text) continue;
 
-          // Find players line (contains numbers and names)
-          const playersLine = lines.find(
-            (line) => line.includes("1.") || line.includes("Players:")
-          );
-          const players: string[] = [];
+        // Extract team name (format: "Team A2 players" - no space between A and 2)
+        const teamNameMatch = text.match(/(Team [AB])\d+\s*players/);
+        if (!teamNameMatch) continue;
 
-          if (playersLine) {
-            // Extract player names from format "1. Player1, 2. Player2"
-            const playerMatches = playersLine.match(/\d+\.\s*([^,\d]+)/g);
-            if (playerMatches) {
-              players.push(
-                ...playerMatches.map((match) =>
-                  match.replace(/\d+\.\s*/, "").trim()
-                )
-              );
-            }
-          }
+        const teamName = teamNameMatch[1];
 
+        // Extract player names (format: "1. Player 1, 2. Player 2")
+        // Look for the pattern "1. Player 1, 2. Player 2" specifically
+        const playerMatches = text.match(/\d+\.\s*Player\s+\d+/g);
+        const players = playerMatches 
+          ? playerMatches.map(match => match.replace(/\d+\.\s*/, '').trim())
+          : [];
+
+        // Only add if we haven't already added this team
+        const existingTeam = teams.find(t => t.name === teamName);
+        if (!existingTeam) {
           teams.push({ name: teamName, players });
         }
       }
     } catch (error) {
-      // Return empty array if no teams found
-      return [];
+      console.warn("Failed to get team list:", error);
     }
 
     return teams;
@@ -298,12 +303,24 @@ export class GameSetupPage extends BasePage {
    */
   async getCurrentGameMode(): Promise<"individual" | "team" | null> {
     try {
+      // Wait for game mode buttons to be present
+      await this.waitForElement(this.gameModeSection, { timeout: 2000 });
+      
       const individualButton = this.page.locator(this.individualModeButton);
       const teamButton = this.page.locator(this.teamModeButton);
+
+      // Check if buttons exist
+      const individualExists = await individualButton.count() > 0;
+      const teamExists = await teamButton.count() > 0;
+
+      if (!individualExists || !teamExists) {
+        return null;
+      }
 
       const individualSelected = await individualButton.getAttribute("class");
       const teamSelected = await teamButton.getAttribute("class");
 
+      // Check for the correct CSS classes based on the actual GameModeSelector component
       if (individualSelected?.includes("border-blue-500")) {
         return "individual";
       } else if (teamSelected?.includes("border-green-500")) {

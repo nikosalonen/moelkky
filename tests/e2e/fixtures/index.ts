@@ -373,7 +373,7 @@ export class GameSetupFixture {
     // Set game mode if not individual
     if (scenario.gameMode === "team") {
       // Implementation will depend on actual UI
-      await this.page.click('[data-testid="team-mode-button"]');
+              await this.page.click('button:has-text("Team")');
     }
 
     // Add players
@@ -393,8 +393,8 @@ export class GameSetupFixture {
    * Add a player to the game
    */
   async addPlayer(name: string): Promise<void> {
-    await this.page.fill('[data-testid="player-name-input"]', name);
-    await this.page.click('[data-testid="add-player-button"]');
+          await this.page.fill('input[aria-label="Player name"]', name);
+            await this.page.click('button[aria-label="Add player"]');
   }
 
   /**
@@ -416,7 +416,7 @@ export class GameSetupFixture {
    * Start the game
    */
   async startGame(): Promise<void> {
-    await this.page.click('[data-testid="start-game-button"]');
+            await this.page.click('button[aria-label*="Start game"]');
     await this.waitForGameState("playing");
   }
 

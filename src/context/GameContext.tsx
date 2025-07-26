@@ -345,6 +345,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       
       // Get current player ID for updating individual player score
       const currentPlayerId = team.players[team.currentPlayerIndex || 0]?.id;
+      console.log(`[SUBMIT_TEAM_SCORE] Current player ID: ${currentPlayerId}`);
       
       // Apply team score using the utility function (handles consecutive misses)
       updatedTeam = applyTeamScore(updatedTeam, score, currentPlayerId);
@@ -398,7 +399,7 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       let nextPlayerIndex = currentPlayerIndex;
       let updatedTeamsWithRotation = [...updatedTeams];
       
-      // Try to move to next team with the same player position
+      // Find the next non-eliminated team
       let foundNextTeam = false;
       for (let i = 1; i <= state.teams.length; i++) {
         const idx = (currentTeamIndex + i) % state.teams.length;
@@ -411,8 +412,9 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
         }
       }
       
-      // If no next team found, move to next player position in first non-eliminated team
+      // If we've gone through all teams, move to the next player position
       if (!foundNextTeam) {
+        // Find the first non-eliminated team
         for (let i = 0; i < state.teams.length; i++) {
           if (!updatedTeams[i].eliminated) {
             nextTeamIndex = i;
@@ -424,19 +426,11 @@ export function gameReducer(state: AppState, action: GameAction): AppState {
       }
       
       // Update all teams to the correct player position
-      updatedTeamsWithRotation = updatedTeamsWithRotation.map((team, index) => {
-        if (index === nextTeamIndex) {
-          return {
-            ...team,
-            currentPlayerIndex: nextPlayerIndex,
-          };
-        } else {
-          // Keep other teams at the same player position for consistency
-          return {
-            ...team,
-            currentPlayerIndex: currentPlayerIndex,
-          };
-        }
+      updatedTeamsWithRotation = updatedTeamsWithRotation.map((team) => {
+        return {
+          ...team,
+          currentPlayerIndex: nextPlayerIndex, // All teams should have the same player position
+        };
       });
       
       // If no non-eliminated teams, end game

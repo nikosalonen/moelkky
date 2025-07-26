@@ -117,7 +117,8 @@ test.describe("Page Object Model Tests", () => {
     await playPage.submitScore();
   });
 
-  test("Complete game flow should work", async ({ page }) => {
+  test("Complete game flow should work with elimination win", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout to 60 seconds for this test
     const setupPage = new GameSetupPage(page);
     const playPage = new GamePlayPage(page);
     const resultsPage = new GameResultsPage(page);
@@ -132,9 +133,52 @@ test.describe("Page Object Model Tests", () => {
     await playPage.waitForGamePlayReady();
 
     // Play until someone wins
-    // First player scores 50 to win (select pin 50, but since max is 12, we'll need multiple throws)
-    await playPage.selectPins([12]); // Max single pin score
-    await playPage.submitScore();
+    // Continue throwing until either:
+    // 1. Winner reaches 50 points, OR
+    // 2. Loser gets eliminated (3 consecutive misses)
+    let attempts = 0;
+    const maxAttempts = 30; // Prevent infinite loop
+
+    while (attempts < maxAttempts) {
+      const currentPlayer = await playPage.getCurrentPlayerName();
+      const currentScore = await playPage.getCurrentPlayerScore();
+      
+      console.log(`Attempt ${attempts + 1}: ${currentPlayer}'s turn, score: ${currentScore}`);
+      
+      if (currentPlayer === "Winner") {
+        await playPage.selectPins([10]); // Single pin 10 = 10 points
+        await playPage.submitScore();
+        
+        // Wait for score to be processed
+        await page.waitForTimeout(1000);
+        
+        // Check if Winner has reached 50 points
+        const newScore = await playPage.getCurrentPlayerScore();
+        console.log(`Winner's new score: ${newScore}`);
+        
+        if (newScore >= 50) {
+          console.log("Winner reached 50 points!");
+          break;
+        }
+      } else {
+        // Loser's turn - submit a miss (this could lead to elimination)
+        await playPage.submitMiss();
+        await page.waitForTimeout(1000);
+      }
+      
+      attempts++;
+      
+      // Check if game is finished (either by reaching 50 or elimination)
+      try {
+        const isFinished = await playPage.isGameFinished();
+        if (isFinished) {
+          console.log("Game finished!");
+          break;
+        }
+      } catch {
+        // Game not finished yet, continue
+      }
+    }
 
     // Wait for game to finish
     await playPage.assertGameFinished();
@@ -150,6 +194,148 @@ test.describe("Page Object Model Tests", () => {
 
     // Verify winner stats
     const stats = await resultsPage.getWinnerStats();
+    // Winner might not have exactly 50 points if opponent was eliminated
+    expect(stats?.finalScore).toBeGreaterThan(0);
+    expect(stats?.finalScore).toBeLessThanOrEqual(50);
+
+    // Verify leaderboard
+    const standings = await resultsPage.getFinalStandings();
+    expect(standings.length).toBeGreaterThan(0);
+    expect(standings[0].name).toBe("Winner");
+    expect(standings[0].position).toBe(1);
+  });
+
+  test("Complete game flow should work with 50-point win", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout to 60 seconds for this test
+    const setupPage = new GameSetupPage(page);
+    const playPage = new GamePlayPage(page);
+    const resultsPage = new GameResultsPage(page);
+
+    // Setup game
+    await setupPage.navigateToSetup();
+    await setupPage.selectGameMode("individual");
+    await setupPage.addPlayer("Winner");
+    await setupPage.addPlayer("Loser");
+    await setupPage.startGame();
+
+    await playPage.waitForGamePlayReady();
+
+    // Play until Winner reaches exactly 50 points
+    // Use a strategy that ensures Winner gets to 50 without elimination
+    let attempts = 0;
+    const maxAttempts = 50; // Prevent infinite loop
+
+    while (attempts < maxAttempts) {
+      const currentPlayer = await playPage.getCurrentPlayerName();
+      const currentScore = await playPage.getCurrentPlayerScore();
+      
+      console.log(`Attempt ${attempts + 1}: ${currentPlayer}'s turn, score: ${currentScore}`);
+      
+      if (currentPlayer === "Winner") {
+        // Calculate how many points Winner needs to reach exactly 50
+        const pointsNeeded = 50 - currentScore;
+        
+        if (pointsNeeded <= 0) {
+          console.log("Winner already has 50+ points!");
+          break;
+        }
+        
+        // Choose pins strategically to reach exactly 50
+        let pinsToSelect: number[];
+        if (pointsNeeded <= 12) {
+          // Single pin to reach exactly 50
+          pinsToSelect = [pointsNeeded];
+        } else {
+          // Use multiple pins to get closer to 50
+          pinsToSelect = [10]; // Single pin 10 = 10 points
+        }
+        
+        await playPage.selectPins(pinsToSelect);
+        await playPage.submitScore();
+        
+        // Wait for score to be processed
+        await page.waitForTimeout(1000);
+        
+        // Check if game finished before trying to get score
+        try {
+          const isFinished = await playPage.isGameFinished();
+          if (isFinished) {
+            console.log("Game finished during Winner's turn!");
+            break;
+          }
+        } catch {
+          // Game not finished yet, continue
+        }
+        
+        // Check if Winner has reached 50 points
+        try {
+          const newScore = await playPage.getCurrentPlayerScore();
+          console.log(`Winner's new score: ${newScore}`);
+          
+          if (newScore >= 50) {
+            console.log("Winner reached 50 points!");
+            break;
+          }
+        } catch (error) {
+          console.log("Could not get current score, game might have finished");
+          // Check if game is finished
+          try {
+            const isFinished = await playPage.isGameFinished();
+            if (isFinished) {
+              console.log("Game finished!");
+              break;
+            }
+          } catch {
+            // Continue with next attempt
+          }
+        }
+      } else {
+        // Loser's turn - score some points to avoid elimination
+        // This ensures the game doesn't end by elimination
+        await playPage.selectPins([5]); // Single pin 5 = 5 points
+        await playPage.submitScore();
+        await page.waitForTimeout(1000);
+        
+        // Check if game finished after Loser's turn
+        try {
+          const isFinished = await playPage.isGameFinished();
+          if (isFinished) {
+            console.log("Game finished during Loser's turn!");
+            break;
+          }
+        } catch {
+          // Game not finished yet, continue
+        }
+      }
+      
+      attempts++;
+      
+      // Check if game is finished
+      try {
+        const isFinished = await playPage.isGameFinished();
+        if (isFinished) {
+          console.log("Game finished!");
+          break;
+        }
+      } catch {
+        // Game not finished yet, continue
+      }
+    }
+
+    // Wait for game to finish
+    await playPage.assertGameFinished();
+
+    // Verify results page
+    await resultsPage.waitForResultsReady();
+
+    const hasWinner = await resultsPage.hasWinner();
+    expect(hasWinner).toBe(true);
+
+    const winner = await resultsPage.getWinnerName();
+    expect(winner).toBe("Winner");
+
+    // Verify winner stats - should have exactly 50 points
+    const stats = await resultsPage.getWinnerStats();
     expect(stats?.finalScore).toBe(50);
 
     // Verify leaderboard
@@ -157,6 +343,123 @@ test.describe("Page Object Model Tests", () => {
     expect(standings.length).toBeGreaterThan(0);
     expect(standings[0].name).toBe("Winner");
     expect(standings[0].position).toBe(1);
+  });
+
+  test("Game flow should work with multiple players (individual mode)", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout to 60 seconds for this test
+    const setupPage = new GameSetupPage(page);
+    const playPage = new GamePlayPage(page);
+    const resultsPage = new GameResultsPage(page);
+
+    // Setup game with 4 players
+    await setupPage.navigateToSetup();
+    await setupPage.selectGameMode("individual");
+    await setupPage.addPlayer("Player 1");
+    await setupPage.addPlayer("Player 2");
+    await setupPage.addPlayer("Player 3");
+    await setupPage.addPlayer("Player 4");
+    await setupPage.startGame();
+
+    await playPage.waitForGamePlayReady();
+
+    // Verify all players are in the game
+    const allScores = await playPage.getAllPlayerScores();
+    expect(allScores.length).toBe(4);
+    expect(allScores.map(p => p.name)).toEqual(["Player 1", "Player 2", "Player 3", "Player 4"]);
+
+    // Play a few rounds to test turn progression
+    for (let round = 0; round < 3; round++) {
+      for (let playerIndex = 0; playerIndex < 4; playerIndex++) {
+        const currentPlayer = await playPage.getCurrentPlayerName();
+        console.log(`Round ${round + 1}, Player: ${currentPlayer}`);
+        
+        // Each player scores some points
+        await playPage.selectPins([5]); // Single pin 5 = 5 points
+        await playPage.submitScore();
+        
+        // Wait for turn to advance
+        await page.waitForTimeout(1000);
+        
+        // Check if game finished (someone might have won)
+        try {
+          const isFinished = await playPage.isGameFinished();
+          if (isFinished) {
+            console.log("Game finished during multi-player test!");
+            break;
+          }
+        } catch {
+          // Game not finished yet, continue
+        }
+      }
+    }
+
+    // Verify the game progressed (at least one player should have scored)
+    const finalScores = await playPage.getAllPlayerScores();
+    const totalScore = finalScores.reduce((sum, player) => sum + player.score, 0);
+    expect(totalScore).toBeGreaterThan(0);
+  });
+
+  test("Game flow should work with multiple teams (team mode)", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout to 60 seconds for this test
+    const setupPage = new GameSetupPage(page);
+    const playPage = new GamePlayPage(page);
+    const resultsPage = new GameResultsPage(page);
+
+    // Setup game with 3 teams
+    await setupPage.navigateToSetup();
+    await setupPage.selectGameMode("team");
+    
+    // Add 6 players (2 per team)
+    await setupPage.addPlayer("Player A1");
+    await setupPage.addPlayer("Player A2");
+    await setupPage.addPlayer("Player B1");
+    await setupPage.addPlayer("Player B2");
+    await setupPage.addPlayer("Player C1");
+    await setupPage.addPlayer("Player C2");
+    
+    // Create 3 teams
+    await setupPage.createTeam("Team Alpha", ["Player A1", "Player A2"]);
+    await setupPage.createTeam("Team Beta", ["Player B1", "Player B2"]);
+    await setupPage.createTeam("Team Gamma", ["Player C1", "Player C2"]);
+    
+    await setupPage.startGame();
+
+    await playPage.waitForGamePlayReady();
+
+    // Verify all teams are in the game
+    const allScores = await playPage.getAllPlayerScores();
+    expect(allScores.length).toBe(6); // 6 players across 3 teams
+
+    // Play a few rounds to test team turn progression
+    for (let round = 0; round < 2; round++) {
+      for (let teamIndex = 0; teamIndex < 3; teamIndex++) {
+        const currentPlayer = await playPage.getCurrentPlayerName();
+        console.log(`Round ${round + 1}, Player: ${currentPlayer}`);
+        
+        // Each player scores some points
+        await playPage.selectPins([5]); // Single pin 5 = 5 points
+        await playPage.submitScore();
+        
+        // Wait for turn to advance
+        await page.waitForTimeout(1000);
+        
+        // Check if game finished (a team might have won)
+        try {
+          const isFinished = await playPage.isGameFinished();
+          if (isFinished) {
+            console.log("Game finished during multi-team test!");
+            break;
+          }
+        } catch {
+          // Game not finished yet, continue
+        }
+      }
+    }
+
+    // Verify the game progressed (at least one team should have scored)
+    const finalScores = await playPage.getAllPlayerScores();
+    const totalScore = finalScores.reduce((sum, player) => sum + player.score, 0);
+    expect(totalScore).toBeGreaterThan(0);
   });
 
   test("Page objects should handle errors gracefully", async ({ page }) => {
