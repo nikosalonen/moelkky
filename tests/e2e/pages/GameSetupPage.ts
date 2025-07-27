@@ -10,7 +10,8 @@ import { BasePage } from "./BasePage";
 export class GameSetupPage extends BasePage {
   // Game Mode Selectors
   private readonly gameModeSection = '.bg-white:has(h2:has-text("Game Mode"))';
-  private readonly individualModeButton = 'button:has-text("Individual"):has-text("👤")';
+  private readonly individualModeButton =
+    'button:has-text("Individual"):has-text("👤")';
   private readonly teamModeButton = 'button:has-text("Team"):has-text("👥")';
 
   // Player Management Selectors
@@ -70,10 +71,10 @@ export class GameSetupPage extends BasePage {
 
     const modeButton =
       mode === "individual" ? this.individualModeButton : this.teamModeButton;
-    
+
     // Wait for button to be visible and clickable
     await this.waitForElement(modeButton);
-    
+
     // Click the button
     await this.clickElement(modeButton);
 
@@ -203,7 +204,9 @@ export class GameSetupPage extends BasePage {
     for (const playerName of playerNames) {
       // Find the checkbox by looking for the label that contains the player name
       // Structure: <label><input type="checkbox"><span>Player Name</span></label>
-      const checkbox = this.page.locator(`label:has(span:has-text("${playerName}")) input[type="checkbox"]`);
+      const checkbox = this.page.locator(
+        `label:has(span:has-text("${playerName}")) input[type="checkbox"]`
+      );
       await checkbox.check();
     }
 
@@ -222,46 +225,89 @@ export class GameSetupPage extends BasePage {
 
     try {
       // Wait for team management section
-      await this.waitForElement('.bg-white:has-text("Team Management")', { timeout: 2000 });
+      await this.waitForElement('.bg-white:has-text("Team Management")', {
+        timeout: 2000,
+      });
 
-      // Look for team items with a more specific selector
-      // Each team should be in its own container with specific structure
-      const teamElements = await this.page.locator('.bg-white:has-text("Team Management") .border:has-text("players"):not([role="alert"])').all();
-      
-      // Filter out elements that are too large (contain too much text)
-      const filteredElements: any[] = [];
-      for (const element of teamElements) {
-        const text = await element.textContent();
-        if (text && text.length < 200) { // Only elements with reasonable text length
-          filteredElements.push(element);
-        }
+      // Look for team elements - they should be in containers with team names
+      const teamElements = await this.page
+        .locator(
+          'text=/Team [AB]/ >> xpath=ancestor::div[contains(@class, "border")]'
+        )
+        .all();
+
+      console.log(`Found ${teamElements.length} team elements`);
+
+      if (teamElements.length === 0) {
+        console.warn("No team elements found");
+        return teams;
       }
-      
-      for (const element of filteredElements) {
+
+      for (const element of teamElements) {
         const text = await element.textContent();
         if (!text) continue;
 
-        // Extract team name (format: "Team A2 players" - no space between A and 2)
-        const teamNameMatch = text.match(/(Team [AB])\d+\s*players/);
-        if (!teamNameMatch) continue;
+        console.log(`Team element text: "${text}"`);
 
-        const teamName = teamNameMatch[1];
+        // Try multiple patterns to extract team name
+        let teamName = "";
+        let teamNameMatch = text.match(/(Team [AB])\s+\d+\s*players?/);
+        if (teamNameMatch) {
+          teamName = teamNameMatch[1];
+        } else {
+          // Try alternative patterns
+          teamNameMatch = text.match(/(Team [AB])/);
+          if (teamNameMatch) {
+            teamName = teamNameMatch[1];
+          }
+        }
 
-        // Extract player names (format: "1. Player 1, 2. Player 2")
-        // Look for the pattern "1. Player 1, 2. Player 2" specifically
-        const playerMatches = text.match(/\d+\.\s*Player\s+\d+/g);
-        const players = playerMatches 
-          ? playerMatches.map(match => match.replace(/\d+\.\s*/, '').trim())
-          : [];
+        if (!teamName) {
+          console.warn(`Could not extract team name from: "${text}"`);
+          continue;
+        }
 
-        // Only add if we haven't already added this team
-        const existingTeam = teams.find(t => t.name === teamName);
-        if (!existingTeam) {
+        console.log(`Extracted team name: "${teamName}"`);
+
+        // Extract player names by finding individual player elements
+        const players: string[] = [];
+
+        try {
+          // Look for player elements within this team container
+          // Each player is in a div with class "py-1" containing "1. Player Name"
+          const playerElements = await element.locator(".py-1").all();
+
+          for (const playerElement of playerElements) {
+            const playerText = await playerElement.textContent();
+            if (playerText) {
+              // Extract player name from format "1. Player Name"
+              const match = playerText.match(/^\d+\.\s*(.+)$/);
+              if (match) {
+                const playerName = match[1].trim();
+                players.push(playerName);
+              }
+            }
+          }
+        } catch (error) {
+          console.warn(
+            `Failed to extract players for team ${teamName}:`,
+            error
+          );
+        }
+
+        console.log(`Extracted players: ${JSON.stringify(players)}`);
+
+        // Only add if we haven't already added this team and it has players
+        const existingTeam = teams.find((t) => t.name === teamName);
+        if (!existingTeam && players.length > 0) {
           teams.push({ name: teamName, players });
+          console.log(
+            `Added team: ${teamName} with players: ${JSON.stringify(players)}`
+          );
         }
       }
     } catch (error) {
-      console.warn("Failed to get team list:", error);
+      // Silently handle errors
     }
 
     return teams;
@@ -275,12 +321,12 @@ export class GameSetupPage extends BasePage {
       // Check if start game button exists and is enabled
       const button = this.page.locator(this.startGameButton);
       await button.waitFor({ timeout: 2000 });
-      
+
       // Check if button is enabled (not disabled)
-      const isDisabled = await button.getAttribute('disabled');
-      const hasDisabledClass = await button.getAttribute('class');
-      
-      return !isDisabled && !hasDisabledClass?.includes('disabled');
+      const isDisabled = await button.getAttribute("disabled");
+      const hasDisabledClass = await button.getAttribute("class");
+
+      return !isDisabled && !hasDisabledClass?.includes("disabled");
     } catch {
       return false;
     }
@@ -305,13 +351,13 @@ export class GameSetupPage extends BasePage {
     try {
       // Wait for game mode buttons to be present
       await this.waitForElement(this.gameModeSection, { timeout: 2000 });
-      
+
       const individualButton = this.page.locator(this.individualModeButton);
       const teamButton = this.page.locator(this.teamModeButton);
 
       // Check if buttons exist
-      const individualExists = await individualButton.count() > 0;
-      const teamExists = await teamButton.count() > 0;
+      const individualExists = (await individualButton.count()) > 0;
+      const teamExists = (await teamButton.count()) > 0;
 
       if (!individualExists || !teamExists) {
         return null;
@@ -457,18 +503,24 @@ export class GameSetupPage extends BasePage {
    * Start reordering players for a specific team
    */
   async startTeamReorder(teamName: string): Promise<void> {
-    const reorderButton = this.page.locator(`.border:has-text("${teamName}") button:has-text("Reorder")`);
+    const reorderButton = this.page.locator(
+      `.border:has-text("${teamName}") button:has-text("Reorder")`
+    );
     await reorderButton.click();
-    
+
     // Wait for reordering interface to appear
-    await this.page.waitForSelector('.bg-blue-50:has-text("Click the arrows to reorder players")');
+    await this.page.waitForSelector(
+      '.bg-blue-50:has-text("Tap the arrows to reorder players")'
+    );
   }
 
   /**
    * Move a player up in the team order
    */
   async movePlayerUp(playerName: string): Promise<void> {
-    const upButton = this.page.locator(`text=${playerName} >> xpath=..//button[text()="↑"]`);
+    const upButton = this.page.locator(
+      `text=${playerName} >> xpath=..//button[text()="↑"]`
+    );
     await upButton.click();
   }
 
@@ -476,7 +528,9 @@ export class GameSetupPage extends BasePage {
    * Move a player down in the team order
    */
   async movePlayerDown(playerName: string): Promise<void> {
-    const downButton = this.page.locator(`text=${playerName} >> xpath=..//button[text()="↓"]`);
+    const downButton = this.page.locator(
+      `text=${playerName} >> xpath=..//button[text()="↓"]`
+    );
     await downButton.click();
   }
 
@@ -485,7 +539,7 @@ export class GameSetupPage extends BasePage {
    */
   async saveTeamOrder(): Promise<void> {
     await this.page.click('button:has-text("Save Order")');
-    
+
     // Wait for reordering to complete
     await this.page.waitForSelector('button:has-text("Reorder")');
   }
@@ -495,7 +549,7 @@ export class GameSetupPage extends BasePage {
    */
   async cancelTeamReorder(): Promise<void> {
     await this.page.click('button:has-text("Cancel")');
-    
+
     // Wait for reordering to complete
     await this.page.waitForSelector('button:has-text("Reorder")');
   }
@@ -505,21 +559,32 @@ export class GameSetupPage extends BasePage {
    */
   async getTeamPlayerOrder(teamName: string): Promise<string[]> {
     const teamElement = this.page.locator(`.border:has-text("${teamName}")`);
-    const playerListText = await teamElement.locator('.text-sm.text-gray-600').textContent();
-    
-    if (!playerListText) return [];
-    
-    // Extract player names from format "1. Alice, 2. Bob, 3. Charlie"
-    const playerMatches = playerListText.match(/\d+\.\s*([^,]+)/g);
-    return playerMatches 
-      ? playerMatches.map(match => match.replace(/\d+\.\s*/, '').trim())
-      : [];
+    const playerElements = teamElement.locator(".text-sm.text-gray-600 .py-1");
+
+    const playerNames: string[] = [];
+    const count = await playerElements.count();
+
+    for (let i = 0; i < count; i++) {
+      const text = await playerElements.nth(i).textContent();
+      if (text) {
+        // Extract player name from format "1. Alice"
+        const match = text.match(/\d+\.\s*(.+)/);
+        if (match) {
+          playerNames.push(match[1].trim());
+        }
+      }
+    }
+
+    return playerNames;
   }
 
   /**
    * Assert that a team has the expected player order
    */
-  async assertTeamPlayerOrder(teamName: string, expectedOrder: string[]): Promise<void> {
+  async assertTeamPlayerOrder(
+    teamName: string,
+    expectedOrder: string[]
+  ): Promise<void> {
     const actualOrder = await this.getTeamPlayerOrder(teamName);
     expect(actualOrder).toEqual(expectedOrder);
   }
@@ -529,7 +594,9 @@ export class GameSetupPage extends BasePage {
    */
   async isReorderButtonVisible(teamName: string): Promise<boolean> {
     try {
-      const reorderButton = this.page.locator(`.border:has-text("${teamName}") button:has-text("Reorder")`);
+      const reorderButton = this.page.locator(
+        `.border:has-text("${teamName}") button:has-text("Reorder")`
+      );
       await reorderButton.waitFor({ timeout: 1000 });
       return true;
     } catch {
@@ -540,7 +607,10 @@ export class GameSetupPage extends BasePage {
   /**
    * Assert that reorder button is visible for a team
    */
-  async assertReorderButtonVisible(teamName: string, visible: boolean = true): Promise<void> {
+  async assertReorderButtonVisible(
+    teamName: string,
+    visible: boolean = true
+  ): Promise<void> {
     const isVisible = await this.isReorderButtonVisible(teamName);
     expect(isVisible).toBe(visible);
   }

@@ -10,9 +10,10 @@ import { BasePage } from "./BasePage";
 export class GamePlayPage extends BasePage {
   // Current Turn Display Selectors
   private readonly currentTurnDisplay =
-    '.text-lg:has-text("Turn"):not(:has-text("Current Turn"))';
-  private readonly currentPlayerName = '.text-blue-700:has-text("Turn")';
-  private readonly currentPlayerScore = '.text-blue-700:has-text("Score:")';
+    '.mobile-text-base:has-text("Turn"):not(:has-text("Current Turn"))';
+  private readonly currentPlayerName =
+    '.font-semibold.text-blue-700:has-text("Turn")';
+  private readonly currentPlayerScore = 'p:has-text("Current Score:")';
 
   // Score Input Selectors
   private readonly scoreInputSection =
@@ -82,8 +83,8 @@ export class GamePlayPage extends BasePage {
     await this.waitForElement(this.currentPlayerScore);
     const text = await this.getElementText(this.currentPlayerScore);
 
-    // Extract score from text like "Score: 25"
-    const match = text.match(/Score:\s*(\d+)/);
+    // Extract score from text like "Current Score: 25 / 50"
+    const match = text.match(/Current Score:\s*(\d+)\s*\/\s*50/);
     return match ? parseInt(match[1], 10) : 0;
   }
 
@@ -216,10 +217,12 @@ export class GamePlayPage extends BasePage {
 
     // Wait for score board to expand and content to be visible
     await this.page.waitForTimeout(500);
-    
+
     // Wait for the score board content to be visible
     try {
-      await this.page.locator(this.scoreBoardContent).waitFor({ state: "visible", timeout: 2000 });
+      await this.page
+        .locator(this.scoreBoardContent)
+        .waitFor({ state: "visible", timeout: 2000 });
     } catch (error) {
       console.warn("Score board content not visible, continuing anyway...");
     }
@@ -230,7 +233,9 @@ export class GamePlayPage extends BasePage {
    */
   async closeScoreBoard(): Promise<void> {
     // Click again to close if it's open
-    const isOpen = await this.page.locator(this.scoreBoardContent).getAttribute("open");
+    const isOpen = await this.page
+      .locator(this.scoreBoardContent)
+      .getAttribute("open");
     if (isOpen) {
       await this.clickElement(this.scoreBoardToggle);
       await this.page.waitForTimeout(300);
@@ -245,8 +250,10 @@ export class GamePlayPage extends BasePage {
 
     // Use a more specific selector that looks for the player name in the score board
     // and extracts the score from the same element
-    const playerElement = this.page.locator(`.flex:has-text("${playerName}"):has-text("/ 50")`).first();
-    
+    const playerElement = this.page
+      .locator(`.flex:has-text("${playerName}"):has-text("/ 50")`)
+      .first();
+
     try {
       await playerElement.waitFor({ state: "visible", timeout: 5000 });
       const text = await playerElement.textContent();
@@ -254,11 +261,16 @@ export class GamePlayPage extends BasePage {
 
       // Extract score from text like "Alice 25 / 50" or "AliceCurrent Turn 10 / 50"
       // Look for the pattern: playerName (possibly followed by "Current Turn") followed by a number, then "/ 50"
-      const playerScorePattern = new RegExp(`${playerName}(?:Current Turn)?\\s*(\\d+)\\s*\\/\\s*50`);
+      const playerScorePattern = new RegExp(
+        `${playerName}(?:Current Turn)?\\s*(\\d+)\\s*\\/\\s*50`
+      );
       const match = text.match(playerScorePattern);
       return match ? parseInt(match[1], 10) : 0;
     } catch (error) {
-      console.warn(`Could not find score for player ${playerName} on scoreboard:`, error);
+      console.warn(
+        `Could not find score for player ${playerName} on scoreboard:`,
+        error
+      );
       return 0; // Return 0 or throw an error if score is not found
     }
   }
@@ -286,38 +298,56 @@ export class GamePlayPage extends BasePage {
   async getAllPlayerScores(): Promise<
     Array<{ name: string; score: number; isActive: boolean }>
   > {
-    const scores: Array<{ name: string; score: number; isActive: boolean }> = [];
+    const scores: Array<{ name: string; score: number; isActive: boolean }> =
+      [];
 
     try {
       // Open score board and wait for it to be visible
       await this.openScoreBoard();
-      
+
       // Check if this is team mode by looking for team names in the page
-      const pageText = await this.page.textContent('body');
-      const isTeamMode = pageText?.includes('Team Alpha') || pageText?.includes('Team Beta') || pageText?.includes('Team Gamma') || false;
-      
+      const pageText = await this.page.textContent("body");
+      const isTeamMode =
+        pageText?.includes("Team Alpha") ||
+        pageText?.includes("Team Beta") ||
+        pageText?.includes("Team Gamma") ||
+        false;
+
       if (isTeamMode) {
         // For team mode, get scores directly from individual player elements
-        const expectedPlayers = ["Player A1", "Player A2", "Player B1", "Player B2", "Player C1", "Player C2"];
-        
+        const expectedPlayers = [
+          "Player A1",
+          "Player A2",
+          "Player B1",
+          "Player B2",
+          "Player C1",
+          "Player C2",
+        ];
+
         for (const playerName of expectedPlayers) {
           try {
             // Look for the player element in the score board
-            const playerElement = this.page.locator(`.flex:has-text("${playerName}")`).first();
+            const playerElement = this.page
+              .locator(`.flex:has-text("${playerName}")`)
+              .first();
             await playerElement.waitFor({ state: "visible", timeout: 2000 });
-            
+
             const playerText = await playerElement.textContent();
-            console.log(`Player element text for ${playerName}: "${playerText}"`);
-            
+            console.log(
+              `Player element text for ${playerName}: "${playerText}"`
+            );
+
             // Extract score from the player element
             const scoreMatch = playerText?.match(/(\d+)/);
             const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
-            
+
             // Check if this player is currently active
-            const isActive = await this.getCurrentPlayerName() === playerName;
-            
-            console.log(`Found team player: "${playerName}", score: ${score}, active: ${isActive}`);
-            
+            const isActive = (await this.getCurrentPlayerName()) === playerName;
+
+            console.log(
+              `Found team player: "${playerName}", score: ${score}, active: ${isActive}`
+            );
+
             scores.push({
               name: playerName,
               score,
@@ -335,21 +365,29 @@ export class GamePlayPage extends BasePage {
         }
       } else {
         // Individual mode - use existing logic
-        const scoreBoardText = await this.getElementText(this.scoreBoardContent);
+        const scoreBoardText = await this.getElementText(
+          this.scoreBoardContent
+        );
         console.log(`Score board text: "${scoreBoardText}"`);
-        
-        const playerMatches = scoreBoardText.match(/(Player \d+)(?:Current Turn)?\s*(\d+)\s*\/\s*50/g);
-        
+
+        const playerMatches = scoreBoardText.match(
+          /(Player \d+)(?:Current Turn)?\s*(\d+)\s*\/\s*50/g
+        );
+
         if (playerMatches) {
           for (const match of playerMatches) {
-            const playerMatch = match.match(/(Player \d+)(?:Current Turn)?\s*(\d+)\s*\/\s*50/);
+            const playerMatch = match.match(
+              /(Player \d+)(?:Current Turn)?\s*(\d+)\s*\/\s*50/
+            );
             if (playerMatch) {
               const playerName = playerMatch[1].trim();
               const score = parseInt(playerMatch[2], 10);
-              const isActive = match.includes('Current Turn');
-              
-              console.log(`Found individual player: "${playerName}", score: ${score}, active: ${isActive}`);
-              
+              const isActive = match.includes("Current Turn");
+
+              console.log(
+                `Found individual player: "${playerName}", score: ${score}, active: ${isActive}`
+              );
+
               scores.push({
                 name: playerName,
                 score,
@@ -379,7 +417,10 @@ export class GamePlayPage extends BasePage {
     } catch {
       // Also check for the winner display container
       try {
-        await this.waitForElement('.bg-white.rounded-lg.shadow-lg:has(h2:has-text("Wins!"))', { timeout: 500 });
+        await this.waitForElement(
+          '.bg-white.rounded-lg.shadow-lg:has(h2:has-text("Wins!"))',
+          { timeout: 500 }
+        );
         return true;
       } catch {
         return false;
@@ -481,7 +522,9 @@ export class GamePlayPage extends BasePage {
 
     return {
       scoreValid: actualScore === expectedPlayerScore,
-      turnValid: expectedNextPlayer ? actualNextPlayer === expectedNextPlayer : true,
+      turnValid: expectedNextPlayer
+        ? actualNextPlayer === expectedNextPlayer
+        : true,
       actualScore,
       actualNextPlayer,
     };
@@ -537,7 +580,9 @@ export class GamePlayPage extends BasePage {
   async getCurrentGameMode(): Promise<"individual" | "team" | null> {
     try {
       // Check for team-related elements to determine game mode
-      const teamElements = await this.getAllElements('.border:has-text("Team")');
+      const teamElements = await this.getAllElements(
+        '.border:has-text("Team")'
+      );
       if (teamElements.length > 0) {
         return "team";
       }
@@ -631,10 +676,16 @@ export class GamePlayPage extends BasePage {
    * End the current game and return to setup
    */
   async endGame(): Promise<void> {
-    await this.page.click('button:has-text("End Game")');
-    
+    // Click the End Game button (try both possible locations)
+    const endGameButton = this.page.locator(
+      'button:has-text("🏁 End Game"), button:has-text("End Game")'
+    );
+    await endGameButton.first().click();
+
     // Wait for the game to end and return to setup
-    await this.page.waitForSelector('button:has-text("Start Game"), button:has-text("Start Team Game")');
+    await this.page.waitForSelector(
+      'button:has-text("Start Game"), button:has-text("Start Team Game")'
+    );
   }
 
   /**
@@ -642,8 +693,11 @@ export class GamePlayPage extends BasePage {
    */
   async isEndGameButtonVisible(): Promise<boolean> {
     try {
-      const endGameButton = this.page.locator('button:has-text("End Game")');
-      await endGameButton.waitFor({ timeout: 1000 });
+      // Check both possible End Game button locations (GameBoard and MobileNav)
+      const endGameButton = this.page.locator(
+        'button:has-text("🏁 End Game"), button:has-text("End Game")'
+      );
+      await endGameButton.first().waitFor({ timeout: 1000 });
       return true;
     } catch {
       return false;
@@ -667,9 +721,9 @@ export class GamePlayPage extends BasePage {
       `.toast:has-text("${expectedText}")`,
       `[role="alert"]:has-text("${expectedText}")`,
       `.notification:has-text("${expectedText}")`,
-      `div:has-text("${expectedText}"):has-text("Game")`
+      `div:has-text("${expectedText}"):has-text("Game")`,
     ];
-    
+
     for (const selector of selectors) {
       try {
         await this.page.waitForSelector(selector, { timeout: 2000 });
@@ -678,9 +732,11 @@ export class GamePlayPage extends BasePage {
         continue;
       }
     }
-    
+
     // If none of the specific selectors work, just wait for any text containing the expected text
-    await this.page.waitForSelector(`*:has-text("${expectedText}")`, { timeout: 5000 });
+    await this.page.waitForSelector(`*:has-text("${expectedText}")`, {
+      timeout: 5000,
+    });
   }
 
   /**
@@ -702,9 +758,9 @@ export class GamePlayPage extends BasePage {
       '.modal:has-text("Game History")',
       '[role="dialog"]:has-text("Game History")',
       '.fixed:has-text("Game History")',
-      'div:has-text("Game History"):has-text("Previous")'
+      'div:has-text("Game History"):has-text("Previous")',
     ];
-    
+
     for (const selector of selectors) {
       try {
         await this.page.waitForSelector(selector, { timeout: 2000 });
@@ -713,17 +769,23 @@ export class GamePlayPage extends BasePage {
         continue;
       }
     }
-    
+
     // If none work, just wait for any element with "Game History"
-    await this.page.waitForSelector('*:has-text("Game History")', { timeout: 5000 });
+    await this.page.waitForSelector('*:has-text("Game History")', {
+      timeout: 5000,
+    });
   }
 
   /**
    * Close game history modal
    */
   async closeGameHistory(): Promise<void> {
-    await this.page.click('.modal button:has-text("Close"), .modal button:has-text("×")');
-    await this.page.waitForSelector('.modal:has-text("Game History")', { state: 'hidden' });
+    await this.page.click(
+      '.modal button:has-text("Close"), .modal button:has-text("×")'
+    );
+    await this.page.waitForSelector('.modal:has-text("Game History")', {
+      state: "hidden",
+    });
   }
 
   /**
@@ -735,9 +797,9 @@ export class GamePlayPage extends BasePage {
         '.modal:has-text("Game History")',
         '[role="dialog"]:has-text("Game History")',
         '.fixed:has-text("Game History")',
-        'div:has-text("Game History"):has-text("Previous")'
+        'div:has-text("Game History"):has-text("Previous")',
       ];
-      
+
       for (const selector of selectors) {
         try {
           const modal = this.page.locator(selector);

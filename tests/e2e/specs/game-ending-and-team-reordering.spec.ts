@@ -204,7 +204,7 @@ test.describe("Game Ending and Team Player Reordering", () => {
       await setupPage.startTeamReorder("Team Alpha");
 
       // Verify reordering interface is visible
-      await expect(page.locator('.bg-blue-50:has-text("Click the arrows to reorder players")')).toBeVisible();
+      await expect(page.locator('.bg-blue-50:has-text("Tap the arrows to reorder players")')).toBeVisible();
 
       // Move Bob up (should become first)
       await setupPage.movePlayerUp("Bob");
@@ -343,27 +343,27 @@ test.describe("Game Ending and Team Player Reordering", () => {
 
       // Verify the throwing order follows the reordered sequence
       // First round: Team Alpha Player 1 (Bob), Team Beta Player 1 (Charlie)
-      await expect(page.locator('.text-lg:has-text("Team Alpha\'s Turn")')).toBeVisible();
-      await expect(page.locator('.text-lg:has-text("- Bob")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Team Alpha\'s Turn")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Bob")')).toBeVisible();
 
       // Submit score for Bob
       await playPage.submitPinScore([12]);
 
       // Should now be Team Beta's turn
-      await expect(page.locator('.text-lg:has-text("Team Beta\'s Turn")')).toBeVisible();
-      await expect(page.locator('.text-lg:has-text("- Charlie")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Team Beta\'s Turn")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Charlie")')).toBeVisible();
 
       // Submit score for Charlie
       await playPage.submitPinScore([8]);
 
       // Should now be Team Alpha's turn with Alice (second player)
-      await expect(page.locator('.text-lg:has-text("Team Alpha\'s Turn")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Team Alpha\'s Turn")')).toBeVisible();
       
       // The player name might be displayed differently, so check for Alice in the turn display
       // Try multiple possible formats
       const aliceSelectors = [
-        '.text-lg:has-text("Alice")',
-        '.text-lg:has-text("- Alice")',
+        '.mobile-text-base:has-text("Alice")',
+        '.mobile-text-base:has-text("- Alice")',
         '*:has-text("Alice"):has-text("Turn")',
         '.text-blue-700:has-text("Alice")'
       ];
@@ -381,7 +381,7 @@ test.describe("Game Ending and Team Player Reordering", () => {
       
       // If we can't find Alice specifically, just verify it's Team Alpha's turn
       if (!foundAlice) {
-        await expect(page.locator('.text-lg:has-text("Team Alpha\'s Turn")')).toBeVisible();
+        await expect(page.locator('.mobile-text-base:has-text("Team Alpha\'s Turn")')).toBeVisible();
       }
     });
   });
@@ -432,7 +432,7 @@ test.describe("Game Ending and Team Player Reordering", () => {
       await playPage.waitForGamePlayReady();
 
       // Verify the reordered sequence is maintained
-      await expect(page.locator('.text-lg:has-text("- Charlie")')).toBeVisible();
+      await expect(page.locator('.mobile-text-base:has-text("Charlie")')).toBeVisible();
     });
 
     test("should handle multiple reorder operations", async ({ page }) => {

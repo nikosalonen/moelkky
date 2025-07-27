@@ -335,14 +335,14 @@ describe("ScoreInput Component - New Interface", () => {
       renderScoreInput();
 
       const pinGrid = screen.getByText("1").closest(".grid");
-      expect(pinGrid).toHaveClass("grid-cols-6");
+      expect(pinGrid).toHaveClass("grid-cols-4", "sm:grid-cols-6");
     });
 
     it("should have touch-friendly button sizes", () => {
       renderScoreInput();
 
       const pin1 = screen.getByRole("button", { name: "1" });
-      expect(pin1).toHaveClass("w-12", "h-12", "touch-manipulation");
+      expect(pin1).toHaveClass("w-10", "h-10", "sm:w-12", "sm:h-12", "touch-manipulation");
     });
   });
 });

@@ -112,8 +112,8 @@ describe("ScoreInput Component", () => {
     it("should show correct instructions based on pin selection", () => {
       renderWithContext({ currentPlayer: samplePlayer });
 
-      // Initially should show "Click on the pins that were knocked down"
-      expect(screen.getByText("Click on the pins that were knocked down")).toBeInTheDocument();
+      // Initially should show "Tap the pins that were knocked down"
+      expect(screen.getByText("Tap the pins that were knocked down")).toBeInTheDocument();
 
       // After selecting one pin
       fireEvent.click(screen.getByText("5"));
